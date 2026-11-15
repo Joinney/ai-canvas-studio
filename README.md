@@ -2,7 +2,7 @@
 > **Quy Trình Tạo Video & Lookbook AI Thương Mại Điện Tử Chuyên Nghiệp (Google Flow, Imagen 3 & Veo 2)**
 
 <p align="center">
-  <img src="./assets/ai-canvas-studio-preview.jpg" alt="AI Canvas Studio - Canvas Video AI Preview" width="100%" />
+  <img src="./assets/ai-canvas-studio-dashboard.jpg" alt="AI Canvas Studio - Dashboard Preview" width="100%" />
 </p>
 
 <p align="center">
@@ -20,6 +20,14 @@
 **AI Canvas Studio (Canvas Video AI)** là nền tảng canvas đồ họa trực quan kết hợp tự động hóa đa nhánh để sản xuất ảnh Lookbook thời trang 2K và video thương mại điện tử chuyên nghiệp (phục vụ TikTok Shop, Shopee, Lazada, Reels). 
 
 Hệ thống tích hợp trực tiếp với **Google Flow (Imagen 3 & Veo 2)** thông qua **Chrome Extension Bridge v4.2.1**, cho phép đồng bộ hóa dữ liệu hai chiều, tự động nạp ảnh tham chiếu, dán câu lệnh prompt chuẩn mực và trích xuất kết quả về bàn vẽ theo thời gian thực mà không làm nghẽn luồng làm việc.
+
+---
+
+## 🖥️ Sơ Đồ Node Workflow Trực Quan (Interactive Canvas Editor)
+
+<p align="center">
+  <img src="./assets/ai-canvas-studio-preview.jpg" alt="AI Canvas Studio - Workflow Node Canvas" width="100%" />
+</p>
 
 ---
 
@@ -42,6 +50,7 @@ Hệ thống tích hợp trực tiếp với **Google Flow (Imagen 3 & Veo 2)** 
 ```text
 ai-canvas-studio/
 ├── assets/                       # Ảnh banner, tài liệu minh họa (README)
+│   ├── ai-canvas-studio-dashboard.jpg
 │   └── ai-canvas-studio-preview.jpg
 ├── client/                       # Giao diện Web Canvas (Vite + React 18 + TailwindCSS)
 │   ├── src/
