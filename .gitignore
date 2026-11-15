@@ -1,0 +1,29 @@
+# Dependencies
+node_modules/
+client/node_modules/
+server/node_modules/
+
+# Production build
+dist/
+client/dist/
+
+# Environment variables
+.env
+.env.local
+server/.env
+
+# Temporary / Scratch files
+sync-projects.js
+sync-all-projects.mjs
+make-sync.js
+(await
+
+# Logs
+*.log
+npm-debug.log*
+
+# Editor / OS
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
