@@ -1701,9 +1701,28 @@ const MIDDLE_AGED_FASHION_TVC_RAW_CANVAS_JSON = {
   version: 2,
   nodes: [
     {
+      id: 'node-1789366823140-0',
+      kind: 'image',
+      title: 'Input Image (Model Portrait)',
+      x: 220,
+      y: 237.609375,
+      width: 244,
+      height: 158,
+      meta: {
+        dimensions: '941 x 1672',
+        content: 'Model portrait input (upload any person)',
+        imageTone: 'soft',
+        settings: {
+          modelId: 'cmroohfag2msfrykqadspaznz'
+        },
+        mediaUrl: 'https://cdn.quantv.com/canvas/featured/1789435139237_6rz774zu6wl.png',
+        objectFit: 'contain'
+      }
+    },
+    {
       id: 'node-1789366823140-1',
       kind: 'image',
-      title: 'Input Image (Model 3-Angle Sheet 16:9)',
+      title: 'Image Node (Model 3-Angle Sheet 16:9)',
       x: 626,
       y: 237.609375,
       width: 244,
@@ -1720,7 +1739,7 @@ const MIDDLE_AGED_FASHION_TVC_RAW_CANVAS_JSON = {
           }
         },
         prompt:
-          '35mm film photography effect, soft natural studio lighting, high contrast, rich saturation, ultra-detailed realistic human face with fine pores and natural skin texture, 40-year-old East Asian woman with gentle round face and soft curly hair wearing loungewear on a pure white background. Split into left 1/3 close-up portrait and right 2/3 full-body 3-angle sheet (front, side, back views).',
+          'Maintain the exact facial features, hairstyle, body proportions, and outfit of the person in @Image 1. Create a realistic character turnaround sheet on a pure white background, shot on 35mm film, soft natural studio lighting, ultra-detailed, natural skin texture with visible pores, photorealistic, no cartoon or 3D render style. The layout is split into two main sections separated by a thin vertical line:\n\nLeft section (1/3 of the frame): A large, sharp upper-body close-up portrait of the subject facing forward.\n\nRight section (2/3 of the frame): At the top center is the header text "Hình ảnh minh họa". Below the header are three full-body standing poses from head to toe arranged horizontally: front view labeled "Mặt trước", side profile view labeled "Mặt bên", and back view labeled "Mặt sau".',
         promptHidden: false,
         generationStatus: 'completed',
         mediaUrl: 'https://cdn.quantv.com/canvas/featured/1789435139237_6rz774zu6wl.png',
@@ -1850,6 +1869,7 @@ const MIDDLE_AGED_FASHION_TVC_RAW_CANVAS_JSON = {
     }
   ],
   edges: [
+    { id: 'edge-1789366823140-0-1', from: 'node-1789366823140-0', to: 'node-1789366823140-1' },
     { id: 'edge-1789377906942-11', from: 'node-1789367713665-3', to: 'node-1789377906942-10' },
     { id: 'edge-1789378799606-20', from: 'node-1789366823140-1', to: 'node-1789378799606-19' },
     { id: 'edge-1789378801962-21', from: 'node-1789377906942-10', to: 'node-1789378799606-19' },

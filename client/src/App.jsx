@@ -85,6 +85,9 @@ export default function App() {
           if (projId === MAHJONG_SILHOUETTE_VFX_PROJECT.id && !found.nodes?.some((n) => n.id === 'node-1792750922750-0')) {
             return cloneProjectSafe(MAHJONG_SILHOUETTE_VFX_PROJECT);
           }
+          if (projId === MIDDLE_AGED_FASHION_TVC_PROJECT.id && !found.nodes?.some((n) => n.id === 'node-1789366823140-0')) {
+            return cloneProjectSafe(MIDDLE_AGED_FASHION_TVC_PROJECT);
+          }
           return found;
         }
       }
@@ -149,7 +152,8 @@ export default function App() {
               }
             } catch (e) {}
           }
-          if (!map.has(MIDDLE_AGED_FASHION_TVC_PROJECT.id)) {
+          const existingMature = map.get(MIDDLE_AGED_FASHION_TVC_PROJECT.id);
+          if (!existingMature || !existingMature.nodes?.some((n) => n.id === 'node-1789366823140-0')) {
             map.set(MIDDLE_AGED_FASHION_TVC_PROJECT.id, cloneProjectSafe(MIDDLE_AGED_FASHION_TVC_PROJECT));
           }
           const merged = Array.from(map.values());
@@ -450,8 +454,14 @@ export default function App() {
           }).catch(() => {});
         }
 
-        if (!map.has(MIDDLE_AGED_FASHION_TVC_PROJECT.id)) {
+        const existingMatureBackend = map.get(MIDDLE_AGED_FASHION_TVC_PROJECT.id);
+        if (!existingMatureBackend || !existingMatureBackend.nodes?.some((n) => n.id === 'node-1789366823140-0')) {
           map.set(MIDDLE_AGED_FASHION_TVC_PROJECT.id, cloneProjectSafe(MIDDLE_AGED_FASHION_TVC_PROJECT));
+          setCurrentProject((prev) =>
+            prev?.id === MIDDLE_AGED_FASHION_TVC_PROJECT.id && !prev.nodes?.some((n) => n.id === 'node-1789366823140-0')
+              ? cloneProjectSafe(MIDDLE_AGED_FASHION_TVC_PROJECT)
+              : prev
+          );
           fetch('http://localhost:5001/api/ai/projects', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
