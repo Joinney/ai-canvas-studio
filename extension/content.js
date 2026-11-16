@@ -1626,14 +1626,14 @@ function captureNewMediaOutput(
   });
 }
 
-let isFlowTaskRunning = false;
+window.__AI_CANVAS_FLOW_TASK_RUNNING__ = window.__AI_CANVAS_FLOW_TASK_RUNNING__ || false;
 
 window.__AI_CANVAS_RUN_FLOW_TASK__ = async function (payload = {}) {
-  if (isFlowTaskRunning) {
+  if (window.__AI_CANVAS_FLOW_TASK_RUNNING__) {
     console.warn('⚠️ [FlowContent] Đã có tác vụ đang chạy, bỏ qua lệnh chạy trùng lặp!');
     return { ok: false, error: 'Đang có tác vụ khác đang chạy trên tab này.' };
   }
-  isFlowTaskRunning = true;
+  window.__AI_CANVAS_FLOW_TASK_RUNNING__ = true;
 
   try {
     const { mode = 'IMAGE', images = [], prompt = '' } = payload;
@@ -1686,7 +1686,7 @@ window.__AI_CANVAS_RUN_FLOW_TASK__ = async function (payload = {}) {
       base64: output.base64Data
     };
   } finally {
-    isFlowTaskRunning = false;
+    window.__AI_CANVAS_FLOW_TASK_RUNNING__ = false;
   }
 };
 
