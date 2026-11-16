@@ -816,3 +816,107 @@ export const MIRROR_SELFIE_PROJECT = convertDaAiCanvasToProject(MIRROR_SELFIE_RA
   previewVideo: 'https://cdn.quantv.com/canvas/cmqhyosec000dw8lh6053yvwu/gen_1782898035452_z3rfro88n7m.mp4',
   previewImage: 'https://cdn.quantv.com/canvas/cmq9bkm10017bikykdxe89ywm/gen_1782894391693_yz7oiy8lbzf.png'
 });
+
+// Dự án 3: Quảng cáo Mỹ Phẩm Xịt Khoáng Rau Má 12s (Beauty Mist Commercial)
+export const BEAUTY_MIST_RAW_CANVAS_JSON = {
+  __canvas: 'da-ai-canvas',
+  version: 2,
+  nodes: [
+    {
+      id: 'node-1783071172789',
+      kind: 'image',
+      title: 'Image Node (Product Poster 9:16)',
+      x: -43.37,
+      y: -1016.68,
+      width: 139,
+      height: 262,
+      meta: {
+        dimensions: '941 x 1672',
+        content: 'Double-click canvas to add a new node',
+        imageTone: 'soft',
+        settings: {
+          modelId: 'cmroohfag2msfrykqadspaznz',
+          params: { ratio: '9:16', resolution: '1K' }
+        },
+        prompt:
+          'Vertical e-commerce beauty promotional poster in a forest natural water scene with a clear shallow stream, mossy driftwood, and blurred green foliage background under soft translucent natural light; two white-and-green gradient Centella hydrating mist bottles are placed in the center as the focal point, covered in sparkling water droplets, printed with Feibo Beauty logo, Centella Asiatica graphics, "4x Soothing", and "9D Hyaluronic Acid" text; fresh healing green tone overall, HD realistic product still-life photography, shallow depth of field.',
+        mediaUrl: 'https://cdn.quantv.com/canvas/cmr3dblp4009k4mekj63tv8h1/gen_1783071423252_kwz5uqugix8.png',
+        objectFit: 'contain'
+      }
+    },
+    {
+      id: 'node-1783083275633',
+      kind: 'image',
+      title: 'Image Node (Dormitory Skincare Model 16:9)',
+      x: 128.91,
+      y: -1261.27,
+      width: 244,
+      height: 157,
+      meta: {
+        dimensions: '2048 x 1152',
+        content: 'Double-click canvas to add a new node',
+        imageTone: 'soft',
+        settings: {
+          modelId: 'cmroohfag2msfrykqadspaznz',
+          params: { ratio: '16:9', resolution: '2K' }
+        },
+        prompt:
+          'Pure-looking female college student wearing cute cartoon pajamas and an adorable headband, sitting in a university dormitory during a relaxing post-wash skincare moment, clean natural bare skin, neat daily items on the desk, roommate beds neatly arranged in the background with no clutter, warm and tidy atmosphere.',
+        mediaUrl: 'https://cdn.quantv.com/canvas/cmr3dblp4009k4mekj63tv8h1/gen_1783163386676_krvasu7ffxk.png',
+        objectFit: 'contain'
+      }
+    },
+    {
+      id: 'node-1783085862187',
+      kind: 'video',
+      title: 'Video Node (Beauty Mist Ad 12s 9:16)',
+      x: 758.44,
+      y: -1286.73,
+      width: 142,
+      height: 262,
+      meta: {
+        dimensions: '496 x 864',
+        content: 'Double-click canvas to add a new node',
+        imageTone: 'soft',
+        settings: {
+          modelId: 'cmqw6sb6a09dax5s3y8s6vxgo',
+          params: { ratio: '9:16', duration: '12', resolution: '480p' }
+        },
+        prompt:
+          '@Image 1 is the product. @Image 2 is the model. Setting is a university dormitory during a relaxing post-wash skincare moment, clean natural bare skin, neat daily items on the desk, tidy roommate beds in the background with bright clean lighting. Voiceover is a gentle female college student voice matching @Image 2, no background music, ambient natural room sound effects only.\n0-2.5s: Holding the product in one hand while naturally pointing at it with the other. Voiceover: "I found a super effective hydrating mist."\n2.5-6.5s: @Image 2 model gently closes her eyes with a relaxed smile, holding the hydrating mist bottle and spraying fine mist across her face, leaving her skin glowing and hydrated. Voiceover: "It is this Feibo Beauty mist — my skin feels instantly quenched right after spraying."\n6.5-10s: Close-up of @Image 2 model\'s misted skin, gently gliding her fingers over her face to help absorption. Voiceover: "It is packed with Centella Asiatica extract to soothe the skin and calm post-sun discomfort."\n10-12s: Model brings the product close to the camera so the bottle label is crystal clear. Voiceover: "Truly a summer must-have!"',
+        mediaUrl: 'https://cdn.quantv.com/canvas/cmr3dblp4009k4mekj63tv8h1/gen_1783164832889_vpcsowohx7.mp4',
+        objectFit: 'contain'
+      }
+    }
+  ],
+  edges: [
+    { id: 'edge-1783083287058', from: 'node-1783071172789', to: 'node-1783083275633' },
+    { id: 'edge-1783085870603', from: 'node-1783071172789', to: 'node-1783085862187' },
+    { id: 'edge-1783085881530', from: 'node-1783083275633', to: 'node-1783085862187' }
+  ],
+  stickers: [
+    {
+      id: 'sticker-beauty-mist-guide',
+      x: 40,
+      y: -40,
+      width: 360,
+      height: 130,
+      targetType: 'free',
+      title: 'Note • Quy trình Quảng Cáo Xịt Khoáng 12s',
+      html: '<p><b>Beauty Mist Workflow:</b> Ảnh sản phẩm xịt khoáng (9:16) + Ảnh người mẫu nữ sinh KTX (16:9) → Render Video quảng cáo 12s tự nhiên với 2 ảnh tham chiếu.</p>',
+      style: { theme: 'yellow', opacity: 0.98, radius: 16 }
+    }
+  ]
+};
+
+export const BEAUTY_MIST_PROJECT = convertDaAiCanvasToProject(BEAUTY_MIST_RAW_CANVAS_JSON, {
+  id: 'proj-beauty-mist-skincare-ad',
+  category: 'video',
+  name: 'Beauty Mist Commercial — 12s Skincare Dormitory Ad (9:16)',
+  description:
+    'Dự án quảng cáo mỹ phẩm xịt khoáng rau má 12s: Ảnh sản phẩm xịt khoáng 9:16 + Ảnh người mẫu nữ sinh KTX 16:9 → Render Video quảng cáo 12s (9:16) có lời thoại tự nhiên.',
+  badge: 'Dự Án Thực Tế (Beauty Ad)',
+  techTag: 'DA-V2',
+  previewVideo: 'https://cdn.quantv.com/canvas/cmr3dblp4009k4mekj63tv8h1/gen_1783164832889_vpcsowohx7.mp4',
+  previewImage: 'https://cdn.quantv.com/canvas/cmr3dblp4009k4mekj63tv8h1/gen_1783071423252_kwz5uqugix8.png'
+});

@@ -1257,7 +1257,7 @@ async function waitForAttachmentsReady(expectedCount, maxWaitMs = 25000) {
 // Chế độ IMAGE: Nạp tối đa 2 ảnh (Ảnh 1 là Mẫu, Ảnh 2 là Trang phục)
 // Chế độ VIDEO: Nạp đúng 1 ảnh duy nhất (Ảnh người mẫu đã thử đồ từ Cột 2)
 async function uploadInputImages(images = [], mode = 'IMAGE') {
-  const maxCount = mode === 'VIDEO' ? 1 : 2;
+  const maxCount = 2;
   const safeList = (images || []).filter(Boolean).slice(0, maxCount);
   if (safeList.length === 0) return [];
 

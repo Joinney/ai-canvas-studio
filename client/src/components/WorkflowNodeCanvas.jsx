@@ -225,7 +225,8 @@ export default function WorkflowNodeCanvas({ project, onSaveProject }) {
     if (!onSaveProject) return;
     if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
     saveTimerRef.current = setTimeout(() => {
-      onSaveProject({ ...project, nodes, edges, stickers, updatedAt: new Date().toISOString() });
+      if (!project?.id) return;
+      onSaveProject({ id: project.id, nodes, edges, stickers, updatedAt: new Date().toISOString() });
     }, 600);
     return () => clearTimeout(saveTimerRef.current);
   }, [nodes, edges, stickers]);

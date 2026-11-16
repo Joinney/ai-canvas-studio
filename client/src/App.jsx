@@ -19,7 +19,16 @@ import LayerPanel from './components/LayerPanel';
 import LayerProperties from './components/LayerProperties';
 import HomeDashboard, { PRESET_TEMPLATES } from './components/HomeDashboard';
 import WorkflowNodeCanvas from './components/WorkflowNodeCanvas';
-import { WINTER_FUR_PROJECT, MIRROR_SELFIE_PROJECT } from './utils/daCanvasConverter';
+import { WINTER_FUR_PROJECT, MIRROR_SELFIE_PROJECT, BEAUTY_MIST_PROJECT } from './utils/daCanvasConverter';
+
+const cloneProjectSafe = (proj) => {
+  if (!proj) return proj;
+  try {
+    return JSON.parse(JSON.stringify(proj));
+  } catch (e) {
+    return { ...proj };
+  }
+};
 import { useCanvasStore } from './store/useCanvasStore';
 import { getAIConfig, saveAIConfig } from './services/api';
 import {
@@ -90,23 +99,34 @@ export default function App() {
       if (raw) {
         const parsed = JSON.parse(raw);
         if (Array.isArray(parsed)) {
-          const map = new Map(parsed.map((p) => [p.id, p]));
+          const map = new Map(parsed.map((p) => [p.id, cloneProjectSafe(p)]));
           if (!map.has(MIRROR_SELFIE_PROJECT.id)) {
-            map.set(MIRROR_SELFIE_PROJECT.id, MIRROR_SELFIE_PROJECT);
+            map.set(MIRROR_SELFIE_PROJECT.id, cloneProjectSafe(MIRROR_SELFIE_PROJECT));
           }
           if (!map.has(WINTER_FUR_PROJECT.id)) {
-            map.set(WINTER_FUR_PROJECT.id, WINTER_FUR_PROJECT);
+            map.set(WINTER_FUR_PROJECT.id, cloneProjectSafe(WINTER_FUR_PROJECT));
+          }
+          if (!map.has(BEAUTY_MIST_PROJECT.id)) {
+            map.set(BEAUTY_MIST_PROJECT.id, cloneProjectSafe(BEAUTY_MIST_PROJECT));
           }
           const merged = Array.from(map.values());
           localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
           return merged;
         }
       }
-      const initial = [MIRROR_SELFIE_PROJECT, WINTER_FUR_PROJECT];
+      const initial = [
+        cloneProjectSafe(MIRROR_SELFIE_PROJECT),
+        cloneProjectSafe(BEAUTY_MIST_PROJECT),
+        cloneProjectSafe(WINTER_FUR_PROJECT)
+      ];
       localStorage.setItem(STORAGE_KEY, JSON.stringify(initial));
       return initial;
     } catch (e) {
-      return [MIRROR_SELFIE_PROJECT, WINTER_FUR_PROJECT];
+      return [
+        cloneProjectSafe(MIRROR_SELFIE_PROJECT),
+        cloneProjectSafe(BEAUTY_MIST_PROJECT),
+        cloneProjectSafe(WINTER_FUR_PROJECT)
+      ];
     }
   });
 
@@ -147,10 +167,10 @@ export default function App() {
     }
   };
 
-  // Điều hướng phân trang giữa Trang chủ và Trang dự án:
+  // Điều hướng phân trang giữa Trang chủ và Trang dự án (luôn clone tách biệt dữ liệu từng dự án):
   const navigateToProject = (proj) => {
     if (!proj) return;
-    setCurrentProject(proj);
+    setCurrentProject(cloneProjectSafe(proj));
     if (proj.id && window.location.hash !== `#/project/${proj.id}`) {
       window.location.hash = `#/project/${proj.id}`;
     }
@@ -166,17 +186,19 @@ export default function App() {
   };
 
   const handleSaveCurrentProject = (updatedProj, shouldUpdateCurrentState = true) => {
+    if (!updatedProj?.id) return;
+    const safeUpdated = cloneProjectSafe(updatedProj);
     if (shouldUpdateCurrentState) {
-      setCurrentProject(updatedProj);
-      if (updatedProj?.id && window.location.hash !== `#/project/${updatedProj.id}`) {
-        window.location.hash = `#/project/${updatedProj.id}`;
+      setCurrentProject((prev) => (prev && prev.id === safeUpdated.id ? { ...prev, ...safeUpdated } : safeUpdated));
+      if (safeUpdated?.id && window.location.hash !== `#/project/${safeUpdated.id}`) {
+        window.location.hash = `#/project/${safeUpdated.id}`;
       }
     }
     setUserProjects((prev) => {
-      const exists = prev.some((p) => p.id === updatedProj.id);
+      const exists = prev.some((p) => p.id === safeUpdated.id);
       const next = exists
-        ? prev.map((p) => (p.id === updatedProj.id ? updatedProj : p))
-        : [updatedProj, ...prev];
+        ? prev.map((p) => (p.id === safeUpdated.id ? { ...p, ...safeUpdated } : p))
+        : [safeUpdated, ...prev];
       try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
       } catch (e) {}
@@ -187,7 +209,7 @@ export default function App() {
     fetch('http://localhost:5001/api/ai/projects', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(updatedProj)
+      body: JSON.stringify(safeUpdated)
     }).catch(() => {});
   };
 
