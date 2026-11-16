@@ -2141,6 +2141,21 @@ function captureNewMediaOutput(
 
         // Kiểm tra nếu Muse AI đã trả lời xong nhưng CHỈ TRẢ VỀ CHỮ (từ chối tạo hoặc hỏi lại, không có ảnh/video)
         if (isMuse && userPromptRect && !isMuseBusy) {
+          const hasPendingLoadingMedia = allNodes.some((el) => {
+            if (el.getAttribute?.('data-ai-canvas-pre-existing') === 'true') return false;
+            const s = el.currentSrc || el.src || el.querySelector?.('source')?.src;
+            if (!s || existingSet.has(s)) return false;
+            if (isAttachmentOrChipElement(el, promptEl)) return false;
+            const er = el.getBoundingClientRect();
+            return er.top >= userPromptRect.bottom - 12 && el.tagName === 'IMG' && (!el.complete || el.naturalWidth === 0);
+          });
+
+          if (hasPendingLoadingMedia) {
+            textOnlySince = null;
+            updateBridgeBadgeText(`⏳ Đang tải ảnh kết quả từ Muse AI... (${Math.round(elapsed / 1000)}s)`, '#3b82f6');
+            return;
+          }
+
           const assistantText = getAssistantTextBelowPrompt(userPromptRect, promptEl);
           if (assistantText.length > 12) {
             const isExplicitRefusal =
@@ -2157,9 +2172,12 @@ function captureNewMediaOutput(
               return;
             }
 
-            if (elapsed > 6000) {
+            const isSuccessAnnouncement =
+              /image'?s done|video'?s done|\bdone\b|here is|xong rồi|đã tạo xong|created|finished/i.test(assistantText);
+
+            if (!isSuccessAnnouncement && elapsed > 6000) {
               if (!textOnlySince) textOnlySince = now;
-              if (now - textOnlySince >= 2500) {
+              if (now - textOnlySince >= 12000) {
                 const snippet = assistantText.slice(0, 150);
                 cleanup();
                 const errMsg = `Muse AI chỉ trả về chữ, không xuất ${mode === 'VIDEO' ? 'Video' : 'Ảnh'}: "${snippet}"`;
@@ -2167,6 +2185,8 @@ function captureNewMediaOutput(
                 reject(new Error(errMsg));
                 return;
               }
+            } else {
+              textOnlySince = null;
             }
           } else {
             textOnlySince = null;
