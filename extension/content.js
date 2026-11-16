@@ -1707,6 +1707,17 @@ function captureNewMediaOutput(
           }
         }
 
+        // Nếu tab đang chạy ngầm (document.hidden) và đã qua 8s (lặp lại mỗi 8s):
+        // Nháy sang tab Muse AI ~350ms TRƯỚC khi kiểm tra nút Stop & ảnh mới để Chrome đánh thức React/DOM rồi trả ngay về trang Tool!
+        if (document.hidden && elapsed > 8000 && now - lastWakeupPulseAt >= 8000) {
+          lastWakeupPulseAt = now;
+          updateBridgeBadgeText(
+            `⚡ Đánh thức tab ${isMuse ? 'Muse AI' : 'Flow'} để lấy kết quả rồi tự quay về trang Tool...`,
+            '#3b82f6'
+          );
+          await pulseTabWakeup();
+        }
+
         // 2. Kiểm tra nút Dừng (Stop / ■) trong thanh nhập Prompt (hoặc thanh tiến trình trên Google Flow)
         const promptEl = findFlowPromptElement();
         const prBusy = promptEl ? promptEl.getBoundingClientRect() : null;
@@ -1914,17 +1925,6 @@ function captureNewMediaOutput(
           `🔍 Đang chờ ${isMuse ? 'Muse AI' : 'Google Flow'} xuất ${mode === 'VIDEO' ? 'Video' : 'Ảnh'}... (${Math.round(elapsed / 1000)}s)`,
           '#f59e0b'
         );
-
-        // Nếu tab đang chạy ngầm (document.hidden) mà sau 10s chưa thấy kết quả trả về:
-        // Tự động nháy sang tab Muse AI ~350ms để đánh thức trình duyệt render ảnh/video rồi trả ngay về trang Tool!
-        if (document.hidden && elapsed > 10000 && now - lastWakeupPulseAt >= 10000) {
-          lastWakeupPulseAt = now;
-          updateBridgeBadgeText(
-            `⚡ Đánh thức tab ${isMuse ? 'Muse AI' : 'Flow'} để lấy kết quả rồi tự quay về trang Tool...`,
-            '#3b82f6'
-          );
-          await pulseTabWakeup();
-        }
       } catch (err) {
         console.warn(`⚠️ [FlowContent v5.1] Lỗi khi quét Media mới:`, err);
       } finally {
