@@ -1641,6 +1641,19 @@ function captureNewMediaOutput(
     let isChecking = false;
     let hasAutoConfirmedMuse = false;
     let lastModalDismissAt = 0;
+    let lastWakeupPulseAt = 0;
+
+    const pulseTabWakeup = async () => {
+      try {
+        await new Promise((resolve) => {
+          const t = setTimeout(resolve, 1200);
+          chrome.runtime.sendMessage({ type: 'PULSE_TAB_WAKEUP' }, () => {
+            clearTimeout(t);
+            resolve();
+          });
+        });
+      } catch (e) {}
+    };
 
     const checkMedia = async () => {
       if (isResolved || isChecking) return;
@@ -1901,6 +1914,17 @@ function captureNewMediaOutput(
           `🔍 Đang chờ ${isMuse ? 'Muse AI' : 'Google Flow'} xuất ${mode === 'VIDEO' ? 'Video' : 'Ảnh'}... (${Math.round(elapsed / 1000)}s)`,
           '#f59e0b'
         );
+
+        // Nếu tab đang chạy ngầm (document.hidden) mà sau 10s chưa thấy kết quả trả về:
+        // Tự động nháy sang tab Muse AI ~350ms để đánh thức trình duyệt render ảnh/video rồi trả ngay về trang Tool!
+        if (document.hidden && elapsed > 10000 && now - lastWakeupPulseAt >= 10000) {
+          lastWakeupPulseAt = now;
+          updateBridgeBadgeText(
+            `⚡ Đánh thức tab ${isMuse ? 'Muse AI' : 'Flow'} để lấy kết quả rồi tự quay về trang Tool...`,
+            '#3b82f6'
+          );
+          await pulseTabWakeup();
+        }
       } catch (err) {
         console.warn(`⚠️ [FlowContent v5.1] Lỗi khi quét Media mới:`, err);
       } finally {
@@ -1952,8 +1976,19 @@ window.__AI_CANVAS_RUN_FLOW_TASK__ = async function (payload = {}) {
 
     // Đợi 1 giây để giao diện Muse AI ổn định trước khi nhận lượt mới
     if (isMuse) {
+      if (document.hidden) {
+        try {
+          await new Promise((resolve) => {
+            const t = setTimeout(resolve, 1000);
+            chrome.runtime.sendMessage({ type: 'PULSE_TAB_WAKEUP' }, () => {
+              clearTimeout(t);
+              resolve();
+            });
+          });
+        } catch (e) {}
+      }
       dismissAnyOpenModal();
-      await new Promise((r) => setTimeout(r, 1000));
+      await new Promise((r) => setTimeout(r, 800));
     }
 
     if (typeof window.__AI_CANVAS_CANCEL_CURRENT_TASK__ === 'function') {

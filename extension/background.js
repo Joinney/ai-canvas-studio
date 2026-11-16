@@ -429,6 +429,20 @@ async function withTemporaryTabFocus(tabId, fn) {
 
 // Lắng nghe yêu cầu từ Web Canvas (canvas-bridge.js) và từ content.js
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  // Đánh thức nhanh tab Muse AI (~350ms) khi chạy ngầm bị Chrome đóng băng, rồi tự động trả về tab Tool
+  if (message.type === 'PULSE_TAB_WAKEUP') {
+    const tabId = sender.tab?.id;
+    if (!tabId) {
+      sendResponse({ ok: false });
+      return false;
+    }
+    withTemporaryTabFocus(tabId, async () => {
+      await new Promise((r) => setTimeout(r, 250));
+      sendResponse({ ok: true });
+    });
+    return true;
+  }
+
   // Click chuột vào ô Prompt và gõ chữ cấp độ phần cứng (CDP Input.insertText)
   if (message.type === 'NATIVE_INSERT_PROMPT') {
     const tabId = sender.tab?.id;
