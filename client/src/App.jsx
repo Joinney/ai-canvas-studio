@@ -23,7 +23,8 @@ import {
   WINTER_FUR_PROJECT,
   MIRROR_SELFIE_PROJECT,
   BEAUTY_MIST_PROJECT,
-  AUTUMN_OUTFIT_PROJECT
+  AUTUMN_OUTFIT_PROJECT,
+  BLUSH_LIVESTREAM_PROJECT
 } from './utils/daCanvasConverter';
 
 const cloneProjectSafe = (proj) => {
@@ -117,6 +118,9 @@ export default function App() {
           if (!map.has(AUTUMN_OUTFIT_PROJECT.id)) {
             map.set(AUTUMN_OUTFIT_PROJECT.id, cloneProjectSafe(AUTUMN_OUTFIT_PROJECT));
           }
+          if (!map.has(BLUSH_LIVESTREAM_PROJECT.id)) {
+            map.set(BLUSH_LIVESTREAM_PROJECT.id, cloneProjectSafe(BLUSH_LIVESTREAM_PROJECT));
+          }
           const merged = Array.from(map.values());
           localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
           return merged;
@@ -126,6 +130,7 @@ export default function App() {
         cloneProjectSafe(MIRROR_SELFIE_PROJECT),
         cloneProjectSafe(BEAUTY_MIST_PROJECT),
         cloneProjectSafe(AUTUMN_OUTFIT_PROJECT),
+        cloneProjectSafe(BLUSH_LIVESTREAM_PROJECT),
         cloneProjectSafe(WINTER_FUR_PROJECT)
       ];
       localStorage.setItem(STORAGE_KEY, JSON.stringify(initial));
@@ -135,6 +140,7 @@ export default function App() {
         cloneProjectSafe(MIRROR_SELFIE_PROJECT),
         cloneProjectSafe(BEAUTY_MIST_PROJECT),
         cloneProjectSafe(AUTUMN_OUTFIT_PROJECT),
+        cloneProjectSafe(BLUSH_LIVESTREAM_PROJECT),
         cloneProjectSafe(WINTER_FUR_PROJECT)
       ];
     }
@@ -371,6 +377,15 @@ export default function App() {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(AUTUMN_OUTFIT_PROJECT)
+          }).catch(() => {});
+        }
+
+        if (!map.has(BLUSH_LIVESTREAM_PROJECT.id)) {
+          map.set(BLUSH_LIVESTREAM_PROJECT.id, cloneProjectSafe(BLUSH_LIVESTREAM_PROJECT));
+          fetch('http://localhost:5001/api/ai/projects', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(BLUSH_LIVESTREAM_PROJECT)
           }).catch(() => {});
         }
 

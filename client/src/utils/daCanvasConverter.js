@@ -1157,3 +1157,156 @@ export const AUTUMN_OUTFIT_PROJECT = convertDaAiCanvasToProject(AUTUMN_OUTFIT_RA
   previewVideo: 'https://cdn.quantv.com/canvas/featured/1794641508155_yjjqyr432gi.mp4',
   previewImage: 'https://cdn.quantv.com/canvas/featured/1794641508070_a9wh2hae83h.png'
 });
+
+const BLUSH_LIVESTREAM_RAW_CANVAS_JSON = {
+  __canvas: 'da-ai-canvas',
+  version: 2,
+  nodes: [
+    {
+      id: 'node-1782989788158-0',
+      kind: 'image',
+      title: 'Image Node (Blush & Brush Product)',
+      x: 357.14106719539683,
+      y: -910.2293297388183,
+      width: 139,
+      height: 262,
+      meta: {
+        dimensions: '941 x 1672',
+        content: 'Product input image',
+        imageTone: 'soft',
+        mediaUrl: 'https://cdn.quantv.com/canvas/cmq9ci6ye019likyknr7ga025/gen_1782887932322_idq73t9b7s.png',
+        objectFit: 'contain',
+        settings: {
+          modelId: 'cmroohfag2msfrykqadspaznz',
+          params: {
+            ratio: '9:16',
+            resolution: '1K'
+          }
+        },
+        prompt:
+          'Keep the position of the brush and blush in the image unchanged, and present the blush and brush in a refined, detailed Instagram aesthetic style.'
+      }
+    },
+    {
+      id: 'node-1782989788158-1',
+      kind: 'image',
+      title: 'Image Node (Model Holding Blush & Brush)',
+      x: 852.4715427050282,
+      y: -1209.412691755571,
+      width: 139,
+      height: 262,
+      meta: {
+        dimensions: '1152 x 2048',
+        content: 'Generated model showcase',
+        imageTone: 'soft',
+        settings: {
+          modelId: 'cmroohfag2msfrykqadspaznz',
+          params: {
+            ratio: '9:16',
+            resolution: '2K'
+          }
+        },
+        prompt:
+          'Continue the visual style of @Image 1. The subject is a young blonde woman looking down slightly with a confident smile, holding the makeup brush from @Image 1 in her right hand and presenting the blush compact from @Image 1 in her left hand. Her makeup is refined and polished, highlighting the cheek blush in the exact shade of @Image 1, with a harmonious composition and clear depth of field.',
+        mediaUrl: 'https://cdn.quantv.com/canvas/cmq9ci6ye019likyknr7ga025/gen_1782889759531_m6p4uyt4hy.png',
+        objectFit: 'contain'
+      }
+    },
+    {
+      id: 'node-1782989788158-2',
+      kind: 'image',
+      title: 'Image Node (Palm Swatch Texture)',
+      x: 876.666628258012,
+      y: -243.12972429877016,
+      width: 139,
+      height: 262,
+      meta: {
+        dimensions: '941 x 1672',
+        content: 'Palm swatch close-up',
+        imageTone: 'soft',
+        settings: {
+          modelId: 'cmroohfag2msfrykqadspaznz',
+          params: {
+            ratio: '9:16',
+            resolution: '1K'
+          }
+        },
+        prompt:
+          'A hand holding the blush from @Image 1 with a swatch test on the base of the palm, showcasing the dewy, translucent cream texture of @Image 1 and its lightweight, seamless, soft-glow finish on the skin.',
+        mediaUrl: 'https://cdn.quantv.com/canvas/cmq9ci6ye019likyknr7ga025/gen_1782891876448_02ribcrzji4e.png',
+        objectFit: 'contain'
+      }
+    },
+    {
+      id: 'node-1782989788158-3',
+      kind: 'image',
+      title: 'Image Node (Close-up Natural Blush)',
+      x: 856.0311659654786,
+      y: -574.6431627659592,
+      width: 139,
+      height: 262,
+      meta: {
+        dimensions: '941 x 1671',
+        content: 'Close-up natural makeup',
+        imageTone: 'soft',
+        settings: {
+          modelId: 'cmroohfag2msfrykqadspaznz',
+          params: {
+            ratio: '9:16',
+            resolution: '1K'
+          }
+        },
+        prompt:
+          'Extreme close-up natural skin portrait featuring a clean, soft clean-girl minimal makeup look. A sheer, translucent layer of the blush from @Image 1 is blended seamlessly across the mid-face into the skin, creating a soft, natural flush radiating from within. Lips are a fresh dewy rosy pink, natural skin texture is preserved with fine detail, and a few wispy strands of hair lightly frame the cheek for a gentle, effortless no-makeup makeup vibe.',
+        mediaUrl: 'https://cdn.quantv.com/canvas/cmq9ci6ye019likyknr7ga025/gen_1782892661893_hv8hwbt2xf.png',
+        objectFit: 'contain'
+      }
+    },
+    {
+      id: 'node-1782989820308',
+      kind: 'video',
+      title: 'Video Node (Blush Livestream Ad 13s)',
+      x: 1214.7713032324789,
+      y: -919.9453505895442,
+      width: 184,
+      height: 262,
+      meta: {
+        dimensions: '834 x 1112',
+        content: 'Livestream product video',
+        imageTone: 'soft',
+        settings: {
+          modelId: 'cmqw6sb6a09dax5s3y8s6vxgo',
+          params: {
+            ratio: '3:4',
+            duration: '13',
+            resolution: '720p'
+          }
+        },
+        prompt:
+          '4K professional beauty livestream style, 25fps seamless multi-shot continuity; the host @Image 2 moves smoothly and naturally without awkwardness. Soft studio lighting, clean minimalist background with zero clutter, keeping visual focus on the makeup and product. Authentic live-commerce beauty demo atmosphere, highly persuasive and realistic. Product 1:1 faithful to @Image 1 blush fine powder texture and premium finish. Strictly no subtitles, no text overlays, and no watermarks. @Image 1 is the product, @Image 2 is the model.\n\n0.0-2.4s Blush Product Showcase:\nVisual: Medium close-up, the young female host sits at a clean white minimalist vanity facing the camera, speaking naturally with accurate lip-sync (direct on-camera sync sound, not off-screen voiceover or narration). She holds up the blush compact toward the camera while lightly sweeping the makeup brush across the surface to reveal its delicate pudding-cream texture, gentle natural hand motion, softly blurred background, subtle handheld livestream camera movement.\nSpoken Vietnamese Dialogue: "Chị em nào vẫn chưa tìm được phấn má hồng ưng ý thì nhất định phải thử ngay em má hồng siêu xinh này nhé!"\nVoice Style: Sweet, energetic young female Vietnamese voice, natural conversational pacing, clear articulation like a real beauty influencer sharing on livestream.\n\n2.4-7.4s Model Face Close-up:\nVisual: Close-up of the host @Image 2 gently sweeping the blush brush back and forth over the apples of her cheeks, tilting her head with a confident smile to show the brightening, natural flush effect.\nSpoken Vietnamese Dialogue: "Khi tán lên da, màu lên ửng hồng tự nhiên như da thiếu nữ, căng bóng trong trẻo mà không hề bị lố, tiệp vào da cực kỳ đẹp luôn."\n\n7.4-12.0s Multi-use Eye & Cheek Close-up:\nVisual: Medium close-up, the host @Image 2 uses the makeup brush from @Image 1 to lightly sweep the soft pink blush across her eyelids, blending out softly to reduce puffiness and demonstrate versatile cheek-and-eye application.\nSpoken Vietnamese Dialogue: "Thậm chí dùng luôn cho cả phần mắt cũng cực kỳ đỉnh, trang điểm một lần mà tổng thể gương mặt hài hòa, có hồn và cuốn hút vô cùng."\n\nAudio & Mixing: All spoken lines are direct on-camera sync sound in Vietnamese matching lip movements. Soft gentle background music ducked to -18dB with subtle realistic ASMR brush sounds and zero noise interfering with speech. Strictly no subtitles, no watermarks.',
+        mediaUrl: 'https://cdn.quantv.com/canvas/cmr3dblp4009k4mekj63tv8h1/gen_1783002067695_lcpouv2v6no.mp4',
+        objectFit: 'contain'
+      }
+    }
+  ],
+  edges: [
+    { id: 'edge-1782989788158-0', from: 'node-1782989788158-0', to: 'node-1782989788158-1' },
+    { id: 'edge-1782989788158-1', from: 'node-1782989788158-0', to: 'node-1782989788158-2' },
+    { id: 'edge-1782989788158-2', from: 'node-1782989788158-0', to: 'node-1782989788158-3' },
+    { id: 'edge-1782989823644', from: 'node-1782989788158-0', to: 'node-1782989820308' },
+    { id: 'edge-1782989831052', from: 'node-1782989788158-3', to: 'node-1782989820308' }
+  ],
+  stickers: []
+};
+
+export const BLUSH_LIVESTREAM_PROJECT = convertDaAiCanvasToProject(BLUSH_LIVESTREAM_RAW_CANVAS_JSON, {
+  id: 'proj-blush-brush-livestream',
+  category: 'video',
+  name: 'Blush & Brush Beauty Livestream — 13s Ad (3:4)',
+  description:
+    'Dự án quảng cáo mỹ phẩm má hồng & cọ trang điểm: 1 Ảnh sản phẩm gốc → 3 biến thể (Mẫu cầm sản phẩm, Swatch trên tay, Cận mặt) → Video Livestream nói tiếng Việt 13s (3:4).',
+  badge: 'Dự Án Thực Tế (Beauty)',
+  techTag: 'DA-V2',
+  previewVideo: 'https://cdn.quantv.com/canvas/cmr3dblp4009k4mekj63tv8h1/gen_1783002067695_lcpouv2v6no.mp4',
+  previewImage: 'https://cdn.quantv.com/canvas/cmq9ci6ye019likyknr7ga025/gen_1782892661893_hv8hwbt2xf.png'
+});
