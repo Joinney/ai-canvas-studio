@@ -19,5 +19,7 @@ router.get('/projects', c.getProjects);
 router.post('/projects', c.saveProject);
 router.delete('/projects/:id', c.deleteProject);
 router.post('/url-to-base64', c.urlToBase64);
+router.post('/export-output', c.exportNodeOutput);
+router.post('/open-output-folder', c.openOutputFolder);
 
 module.exports = router;

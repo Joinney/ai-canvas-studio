@@ -614,6 +614,7 @@ export default function WorkflowNodeCanvas({ project, onSaveProject }) {
     try {
       const outputUrl = await runNodeWithSmartFallback(node, inputMediaList, new Set());
       updateNodeData(nodeId, { resultUrl: outputUrl, status: 'done', error: null });
+      autoExportNodeResultToDisk(node, outputUrl, 0);
       setStatusBanner(`✅ Hoàn tất Node "${node.data.title}" từ ảnh đầu vào mới!`);
       setTimeout(() => setStatusBanner(''), 3500);
       return outputUrl;
@@ -623,6 +624,29 @@ export default function WorkflowNodeCanvas({ project, onSaveProject }) {
       throw err;
     }
   };
+
+  const autoExportNodeResultToDisk = useCallback(
+    async (node, outUrl, stepIndex = 0) => {
+      if (!outUrl || !node) return;
+      try {
+        const { data } = await api.post('/export-output', {
+          projectTitle: project?.title || project?.name || 'Untitled Project',
+          projectId: project?.id || '',
+          nodeTitle: node?.data?.title || node?.id,
+          nodeId: node?.id,
+          nodeType: node?.type,
+          stepIndex,
+          mediaData: outUrl
+        });
+        if (data?.success && data?.filePath) {
+          pushWorkflowLog(`💾 Đã tự động xuất file: ${data.filePath}`, 'success', 'Export');
+        }
+      } catch (err) {
+        pushWorkflowLog(`⚠️ Không thể tự động lưu file ra thư mục output: ${err.message}`, 'warn', 'Export');
+      }
+    },
+    [project?.id, project?.title, project?.name, pushWorkflowLog]
+  );
 
   const handleRunFullWorkflow = async () => {
     isCancelledRef.current = false;
@@ -768,6 +792,7 @@ export default function WorkflowNodeCanvas({ project, onSaveProject }) {
           runtimeOutputs[node.id] = outUrl;
           if (outUrl) usedOutputsSet.add(outUrl);
           updateNodeData(node.id, { resultUrl: outUrl, status: 'done', error: null });
+          autoExportNodeResultToDisk(node, outUrl, stepIndex);
           executedSet.add(node.id);
           stepIndex++;
 
@@ -1632,6 +1657,18 @@ export default function WorkflowNodeCanvas({ project, onSaveProject }) {
             <div className="flex items-center justify-between px-3 py-2 bg-slate-800/90 border-b border-white/10 text-xs font-bold">
               <span>📋 Nhật ký chạy Workflow &amp; Muse AI</span>
               <div className="flex items-center gap-1.5">
+                <button
+                  onClick={() =>
+                    api.post('/open-output-folder', {
+                      projectTitle: project?.title || project?.name || 'Untitled Project',
+                      projectId: project?.id || ''
+                    }).catch(() => {})
+                  }
+                  className="px-2 py-0.5 rounded-md bg-amber-500/20 hover:bg-amber-500/35 text-amber-300 text-[11px] font-semibold transition cursor-pointer"
+                  title="Mở thư mục Output chứa ảnh/video đã tự động xuất"
+                >
+                  📂 Output
+                </button>
                 <button
                   onClick={() =>
                     window.postMessage(
