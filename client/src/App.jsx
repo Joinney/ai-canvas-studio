@@ -25,7 +25,8 @@ import {
   BEAUTY_MIST_PROJECT,
   AUTUMN_OUTFIT_PROJECT,
   BLUSH_LIVESTREAM_PROJECT,
-  ECOM_TRYON_OUTFIT_PROJECT
+  ECOM_TRYON_OUTFIT_PROJECT,
+  MAHJONG_SILHOUETTE_VFX_PROJECT
 } from './utils/daCanvasConverter';
 
 const cloneProjectSafe = (proj) => {
@@ -125,6 +126,9 @@ export default function App() {
           if (!map.has(ECOM_TRYON_OUTFIT_PROJECT.id)) {
             map.set(ECOM_TRYON_OUTFIT_PROJECT.id, cloneProjectSafe(ECOM_TRYON_OUTFIT_PROJECT));
           }
+          if (!map.has(MAHJONG_SILHOUETTE_VFX_PROJECT.id)) {
+            map.set(MAHJONG_SILHOUETTE_VFX_PROJECT.id, cloneProjectSafe(MAHJONG_SILHOUETTE_VFX_PROJECT));
+          }
           const merged = Array.from(map.values());
           localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
           return merged;
@@ -136,6 +140,7 @@ export default function App() {
         cloneProjectSafe(AUTUMN_OUTFIT_PROJECT),
         cloneProjectSafe(BLUSH_LIVESTREAM_PROJECT),
         cloneProjectSafe(ECOM_TRYON_OUTFIT_PROJECT),
+        cloneProjectSafe(MAHJONG_SILHOUETTE_VFX_PROJECT),
         cloneProjectSafe(WINTER_FUR_PROJECT)
       ];
       localStorage.setItem(STORAGE_KEY, JSON.stringify(initial));
@@ -147,6 +152,7 @@ export default function App() {
         cloneProjectSafe(AUTUMN_OUTFIT_PROJECT),
         cloneProjectSafe(BLUSH_LIVESTREAM_PROJECT),
         cloneProjectSafe(ECOM_TRYON_OUTFIT_PROJECT),
+        cloneProjectSafe(MAHJONG_SILHOUETTE_VFX_PROJECT),
         cloneProjectSafe(WINTER_FUR_PROJECT)
       ];
     }
@@ -401,6 +407,15 @@ export default function App() {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(ECOM_TRYON_OUTFIT_PROJECT)
+          }).catch(() => {});
+        }
+
+        if (!map.has(MAHJONG_SILHOUETTE_VFX_PROJECT.id)) {
+          map.set(MAHJONG_SILHOUETTE_VFX_PROJECT.id, cloneProjectSafe(MAHJONG_SILHOUETTE_VFX_PROJECT));
+          fetch('http://localhost:5001/api/ai/projects', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(MAHJONG_SILHOUETTE_VFX_PROJECT)
           }).catch(() => {});
         }
 

@@ -1525,3 +1525,152 @@ export const ECOM_TRYON_OUTFIT_PROJECT = convertDaAiCanvasToProject(ECOM_TRYON_O
   previewVideo: 'https://cdn.quantv.com/canvas/cmq6fnyyb00jdi5mx1up2qyl5/gen_1782126850491_l3et0oc7w1.mp4',
   previewImage: 'https://cdn.quantv.com/canvas/cmq6fnyyb00jdi5mx1up2qyl5/gen_1782126559737_p0o74f7qxjl.png'
 });
+
+const MAHJONG_SILHOUETTE_VFX_RAW_CANVAS_JSON = {
+  __canvas: 'da-ai-canvas',
+  version: 2,
+  nodes: [
+    {
+      id: 'node-1792750922750-1',
+      kind: 'video',
+      title: 'Input Video (Original Mahjong Clip 16:9)',
+      x: 411.7973475429176,
+      y: 116,
+      width: 244,
+      height: 167,
+      meta: {
+        mediaUrl: 'https://cdn.quantv.com/canvas/featured/1792750983192_1e74fi5kgs6.mp4',
+        objectFit: 'contain',
+        imageTone: 'soft',
+        originalMediaUrl: 'https://cdn.quantv.com/canvas/featured/1792750983192_1e74fi5kgs6.mp4',
+        mediaStatus: 'ready',
+        mediaProgress: 100,
+        mediaStage: 'completed',
+        settings: {
+          modelId: 'cmsedhd3x00004m5iy8zk5vit'
+        },
+        dimensions: '1280 x 720'
+      }
+    },
+    {
+      id: 'node-1792750922750-3',
+      kind: 'video',
+      title: 'Video Node (Glowing White Silhouette VFX 12s)',
+      x: 1102.5811674072193,
+      y: 247.07604641691887,
+      width: 244,
+      height: 167,
+      meta: {
+        dimensions: '854 x 480',
+        content: 'Stylized white silhouette VFX',
+        imageTone: 'soft',
+        settings: {
+          modelId: 'cmt6sesgp42l0u3d02qsbdist',
+          params: {
+            ratio: '16:9',
+            duration: '12',
+            resolution: '480p',
+            prompt_extend: '1',
+            audio: '1'
+          }
+        },
+        prompt:
+          'Replace the center-position model in @Video 1 with a bright white glowing silhouette stylized effect: crisp 3D contours and volumetric form with all surface textures and original facial features removed, while keeping all other people and the scene unchanged.',
+        promptHidden: false,
+        generationStatus: 'completed',
+        mediaStatus: 'ready',
+        mediaProgress: 100,
+        objectFit: 'contain',
+        mediaUrl: 'https://cdn.quantv.com/canvas/featured/1792750983192_o0moxi2xryk.mp4',
+        originalMediaUrl: 'https://cdn.quantv.com/canvas/featured/1792750983192_o0moxi2xryk.mp4',
+        mediaStage: 'completed'
+      }
+    },
+    {
+      id: 'node-1792750922750-4',
+      kind: 'image',
+      title: 'Image Node (Replacement Model 16:9)',
+      x: 1085.8230234185098,
+      y: 607.803959959133,
+      width: 244,
+      height: 156,
+      meta: {
+        mediaUrl: 'https://cdn.quantv.com/canvas/featured/1792750983193_gv7hat8lhsv.png',
+        objectFit: 'contain',
+        imageTone: 'soft',
+        dimensions: '1672 x 940',
+        settings: {
+          modelId: 'cmroohfag2msfrykqadspaznz',
+          params: {
+            ratio: '16:9',
+            resolution: '1K'
+          }
+        }
+      }
+    },
+    {
+      id: 'node-1792750922750-5',
+      kind: 'video',
+      title: 'Video Node (Model Replacement Final 12s)',
+      x: 1740.67360931125,
+      y: 399.792597381439,
+      width: 244,
+      height: 167,
+      meta: {
+        dimensions: '854 x 480',
+        content: 'Final character replacement video',
+        imageTone: 'soft',
+        settings: {
+          modelId: 'cmt6sesgp42l0u3d02qsbdist',
+          params: {
+            ratio: '16:9',
+            duration: '12',
+            resolution: '480p',
+            prompt_extend: '1',
+            audio: '1'
+          }
+        },
+        prompt:
+          'Replace the center-position model in @Video 1 with the model from @Image 1, ensuring the body proportions and appearance of the model in @Image 1 remain consistent throughout.',
+        promptHidden: false,
+        generationStatus: 'completed',
+        mediaStatus: 'ready',
+        mediaProgress: 100,
+        objectFit: 'contain',
+        mediaUrl: 'https://cdn.quantv.com/canvas/featured/1792750983193_lu769j9eu5e.mp4',
+        originalMediaUrl: 'https://cdn.quantv.com/canvas/featured/1792750983193_lu769j9eu5e.mp4',
+        mediaStage: 'completed'
+      }
+    }
+  ],
+  edges: [
+    { id: 'edge-1792750922750-6', from: 'node-1792750922750-1', to: 'node-1792750922750-3' },
+    { id: 'edge-1792750922750-8', from: 'node-1792750922750-3', to: 'node-1792750922750-5' },
+    { id: 'edge-1792750922750-9', from: 'node-1792750922750-4', to: 'node-1792750922750-5' }
+  ],
+  stickers: [
+    {
+      id: 'node-1792750922750-2',
+      x: 365,
+      y: 416.45138644517374,
+      width: 377,
+      height: 190,
+      targetType: 'free',
+      title: 'Style Reference Note (Glowing Silhouette)',
+      html: '<p><b>Core Style Breakdown (MECE)</b></p><p><b>[Subject Layer]</b> Foreground character rendered as a bright white glowing silhouette, preserving crisp 3D contours and volumetric structure while removing surface textures.</p>',
+      style: { theme: 'yellow', opacity: 0.98, radius: 16 }
+    }
+  ]
+};
+
+export const MAHJONG_SILHOUETTE_VFX_PROJECT = convertDaAiCanvasToProject(MAHJONG_SILHOUETTE_VFX_RAW_CANVAS_JSON, {
+  id: 'proj-mahjong-silhouette-vfx',
+  category: 'video',
+  name: 'Mahjong Silhouette VFX & Model Swap — 12s (16:9)',
+  description:
+    'Template kỹ xảo Video 16:9: Video gốc → Biến đổi nhân vật trung tâm thành Silhouette phát sáng trắng 3D (12s) → Thay thế bằng người mẫu mới từ Ảnh tham chiếu.',
+  badge: 'Dự Án Thực Tế (VFX 16:9)',
+  techTag: 'DA-V2',
+  previewVideo: 'https://cdn.quantv.com/canvas/featured/1792750983193_lu769j9eu5e.mp4',
+  previewImage: 'https://cdn.quantv.com/canvas/featured/1792750983193_gv7hat8lhsv.png'
+});
