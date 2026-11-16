@@ -80,11 +80,21 @@ export default function App() {
       const parsed = raw ? JSON.parse(raw) : [];
       if (Array.isArray(parsed)) {
         const found = parsed.find((p) => p.id === projId);
-        if (found) return found;
+        if (found) {
+          if (projId === MAHJONG_SILHOUETTE_VFX_PROJECT.id && !found.nodes?.some((n) => n.id === 'node-1792750922750-0')) {
+            return cloneProjectSafe(MAHJONG_SILHOUETTE_VFX_PROJECT);
+          }
+          return found;
+        }
       }
     } catch (e) {}
     if (projId === MIRROR_SELFIE_PROJECT.id) return MIRROR_SELFIE_PROJECT;
     if (projId === WINTER_FUR_PROJECT.id) return WINTER_FUR_PROJECT;
+    if (projId === BEAUTY_MIST_PROJECT.id) return BEAUTY_MIST_PROJECT;
+    if (projId === AUTUMN_OUTFIT_PROJECT.id) return AUTUMN_OUTFIT_PROJECT;
+    if (projId === BLUSH_LIVESTREAM_PROJECT.id) return BLUSH_LIVESTREAM_PROJECT;
+    if (projId === ECOM_TRYON_OUTFIT_PROJECT.id) return ECOM_TRYON_OUTFIT_PROJECT;
+    if (projId === MAHJONG_SILHOUETTE_VFX_PROJECT.id) return cloneProjectSafe(MAHJONG_SILHOUETTE_VFX_PROJECT);
     return null;
   });
   const [isDarkMode, setIsDarkMode] = useState(false);
@@ -127,7 +137,7 @@ export default function App() {
             map.set(ECOM_TRYON_OUTFIT_PROJECT.id, cloneProjectSafe(ECOM_TRYON_OUTFIT_PROJECT));
           }
           const existingMahjong = map.get(MAHJONG_SILHOUETTE_VFX_PROJECT.id);
-          if (!existingMahjong || !existingMahjong.workflowNodes?.some((n) => n.id === 'node-1792750922750-0')) {
+          if (!existingMahjong || !existingMahjong.nodes?.some((n) => n.id === 'node-1792750922750-0')) {
             map.set(MAHJONG_SILHOUETTE_VFX_PROJECT.id, cloneProjectSafe(MAHJONG_SILHOUETTE_VFX_PROJECT));
             try {
               const savedStateKey = `ai_canvas_workflow_state_${MAHJONG_SILHOUETTE_VFX_PROJECT.id}`;
@@ -419,8 +429,13 @@ export default function App() {
         }
 
         const existingMahjongBackend = map.get(MAHJONG_SILHOUETTE_VFX_PROJECT.id);
-        if (!existingMahjongBackend || !existingMahjongBackend.workflowNodes?.some((n) => n.id === 'node-1792750922750-0')) {
+        if (!existingMahjongBackend || !existingMahjongBackend.nodes?.some((n) => n.id === 'node-1792750922750-0')) {
           map.set(MAHJONG_SILHOUETTE_VFX_PROJECT.id, cloneProjectSafe(MAHJONG_SILHOUETTE_VFX_PROJECT));
+          setCurrentProject((prev) =>
+            prev?.id === MAHJONG_SILHOUETTE_VFX_PROJECT.id && !prev.nodes?.some((n) => n.id === 'node-1792750922750-0')
+              ? cloneProjectSafe(MAHJONG_SILHOUETTE_VFX_PROJECT)
+              : prev
+          );
           fetch('http://localhost:5001/api/ai/projects', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
