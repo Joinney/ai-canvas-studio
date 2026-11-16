@@ -227,26 +227,22 @@ export function sanitizePromptForGoogleFlow(rawPrompt = '', mode = 'IMAGE', imag
   }
 
   if (mode === 'VIDEO') {
+    let basePrompt = '';
     // 1. Dự án Mẫu 1: Winter Velvet Fur Coat (Sofa 90 độ Top-Down)
     if (text.includes('Winter Velvet') || text.includes('冬日绒华') || text.includes('真皮沙发') || text.includes('顶俯拍')) {
-      return '90-degree top-down overhead static camera shot of a fashion model wearing the luxury winter fur coat, lying gracefully on a vintage caramel leather sofa over a fluffy cream wool rug, warm afternoon sunlight chiaroscuro lighting, rhythmic pose transitions showcasing the fur texture, Old Money vintage color grading, 9:16 vertical fashion video';
+      basePrompt = '90-degree top-down overhead static camera shot of a fashion model wearing the luxury winter fur coat, lying gracefully on a vintage caramel leather sofa over a fluffy cream wool rug, warm afternoon sunlight chiaroscuro lighting, rhythmic pose transitions showcasing the fur texture, Old Money vintage color grading, 9:16 vertical fashion video';
+    } else if (text.includes('35mm') || text.includes('胶片实拍') || text.includes('性感轻熟风') || text.includes('电影级真实光影')) {
+      // 2. Dự án Mẫu 2: Nhánh 35mm Retro Film Selfie (Node 7 trong JSON Dự Án 2)
+      basePrompt = 'Authentic 35mm film camera shot, soft natural daylight from left window, high contrast, translucent skin texture with fine film grain, cinematic lighting and hair rim light. Total duration 7 seconds, smooth 9:16 vertical video: The female model from @Image 1 keeps her exact identity and outfit throughout. 0-2s: The girl wearing @Image 1 lifts phone to camera angle taking a mirror selfie, turning slightly to mirror and lightly brushing hair, tapping foot; 2-7s: Subtly adjusts pose, necklace, and skirt hem, mirror reflects the full outfit in bright clean daylight, smooth natural motion, distortion-free face, seamless one-take continuous shot, chic mature aesthetic.';
+    } else if (text.includes('韩系') || text.includes('对镜自拍') || text.includes('街头休闲风') || text.includes('整理肩带')) {
+      // 3. Dự án Mẫu 2: Nhánh Korean Street Casual Selfie (Node 3 trong JSON Dự Án 2)
+      basePrompt = 'Total duration 7 seconds, smooth 9:16 vertical video: The female model from the reference image (@Image 1) keeps her exact identity, facial features, and full outfit completely unchanged throughout the video. 0-2s: Holding her phone up to camera angle taking a mirror selfie, turning slightly to the mirror and lightly brushing her hair with a relaxed Korean street casual aesthetic. 2-7s: Turns subtly towards the mirror, micro-adjusting her stance and shoulder straps, gently touching her dress hem. The mirror clearly reflects her full-body outfit in bright natural daylight, minimalist clean background, seamless fluid movement, face distortion-free, continuous one-take shot with authentic street film texture.';
+    } else {
+      const cleanVid = text.replace(/<br\s*\/?>/gi, ' ').replace(/[\r\n]+/g, ' ').replace(/\s{2,}/g, ' ').trim();
+      basePrompt = cleanVid;
     }
 
-    // 2. Dự án Mẫu 2: Nhánh 35mm Retro Film Selfie (Node 7 trong JSON Dự Án 2)
-    if (text.includes('35mm') || text.includes('胶片实拍') || text.includes('性感轻熟风') || text.includes('电影级真实光影')) {
-      return 'Authentic 35mm film camera shot, soft natural daylight from left window, high contrast, translucent skin texture with fine film grain, cinematic lighting and hair rim light. Total duration 7 seconds, smooth 9:16 vertical video: The female model from @Image 1 keeps her exact identity and outfit throughout. 0-2s: The girl wearing @Image 1 lifts phone to camera angle taking a mirror selfie, turning slightly to mirror and lightly brushing hair, tapping foot; 2-7s: Subtly adjusts pose, necklace, and skirt hem, mirror reflects the full outfit in bright clean daylight, smooth natural motion, distortion-free face, seamless one-take continuous shot, chic mature aesthetic.';
-    }
-
-    // 3. Dự án Mẫu 2: Nhánh Korean Street Casual Selfie (Node 3 trong JSON Dự Án 2)
-    if (text.includes('韩系') || text.includes('对镜自拍') || text.includes('街头休闲风') || text.includes('整理肩带')) {
-      return 'Total duration 7 seconds, smooth 9:16 vertical video: The female model from the reference image (@Image 1) keeps her exact identity, facial features, and full outfit completely unchanged throughout the video. 0-2s: Holding her phone up to camera angle taking a mirror selfie, turning slightly to the mirror and lightly brushing her hair with a relaxed Korean street casual aesthetic. 2-7s: Turns subtly towards the mirror, micro-adjusting her stance and shoulder straps, gently touching her dress hem. The mirror clearly reflects her full-body outfit in bright natural daylight, minimalist clean background, seamless fluid movement, face distortion-free, continuous one-take shot with authentic street film texture.';
-    }
-
-    const cleanVid = text.replace(/<br\s*\/?>/gi, ' ').replace(/[\r\n]+/g, ' ').replace(/\s{2,}/g, ' ').trim();
-    if (!/^(create|generate|make|smooth|9:16|authentic|total)\b/i.test(cleanVid)) {
-      return `Create a 9:16 vertical video from reference image: ${cleanVid}`;
-    }
-    return cleanVid;
+    return `Generate and render this 9:16 vertical video now. Direct execution required, execute media generation tool immediately: ${basePrompt}`;
   }
 
   // Chế độ IMAGE: Ghép Mẫu (@Image 1) + Trang phục (@Image 2)
@@ -259,7 +255,7 @@ export function sanitizePromptForGoogleFlow(rawPrompt = '', mode = 'IMAGE', imag
       // TRƯỜNG HỢP 1: Dự Án 2 (Thử đồ Giữ Nguyên Dáng Đối Gương & Bối Cảnh - KHÔNG BAO GIỜ TẠO 3 GÓC ĐỘ)
       // Khi prompt yêu cầu: "@图片1 模特，穿上@图片2 全套服装，@图片1 环境及姿势保持不变"
       if (keepPoseAndEnv || !isThreeAngle) {
-        return 'Photorealistic virtual fashion try-on: The female model from the first reference image (@Image 1) wears the complete outfit and clothing shown in the second reference image (@Image 2). CRITICAL INSTRUCTION: Keep the exact same female model, her face, her body posture, her mirror selfie pose holding phone in hand, and the room environment setting from the first reference image (@Image 1) completely unchanged! Only replace the clothes on her body with the exact garment, colors, and fabric texture from @Image 2. Ultra-realistic, 8k resolution, authentic fabric drape, seamless integration.';
+        return 'Generate and create this virtual fashion try-on image now. Direct execution required: The female model from the first reference image (@Image 1) wears the complete outfit and clothing shown in the second reference image (@Image 2). CRITICAL INSTRUCTION: Keep the exact same female model, her face, her body posture, her mirror selfie pose holding phone in hand, and the room environment setting from the first reference image (@Image 1) completely unchanged! Only replace the clothes on her body with the exact garment, colors, and fabric texture from @Image 2. Ultra-realistic, 8k resolution, authentic fabric drape, seamless integration.';
       }
 
       // TRƯỜNG HỢP 2: Dự Án 1 (Winter Fur — Tạo Mẫu 3 góc độ / Character Sheet)
@@ -280,7 +276,7 @@ export function sanitizePromptForGoogleFlow(rawPrompt = '', mode = 'IMAGE', imag
       }
 
       const extraText = details.length > 0 ? ' ' + details.join(' ') : '';
-      return `Create a high-resolution photorealistic fashion lookbook (3-angle character sheet: front, side, back view): The female model from the first reference image (Image 1) is the main subject. Dress her in the exact clothing, garment design, fabric texture, and cut shown in the second reference image (Image 2).${extraText} Studio fashion lighting, 8k resolution, ultra-detailed photography.`;
+      return `Generate and create this fashion lookbook image now. Direct execution required: Create a high-resolution photorealistic fashion lookbook (3-angle character sheet: front, side, back view): The female model from the first reference image (Image 1) is the main subject. Dress her in the exact clothing, garment design, fabric texture, and cut shown in the second reference image (Image 2).${extraText} Studio fashion lighting, 8k resolution, ultra-detailed photography.`;
     }
 
     const cleaned = text
@@ -292,10 +288,7 @@ export function sanitizePromptForGoogleFlow(rawPrompt = '', mode = 'IMAGE', imag
       .replace(/\s{2,}/g, ' ')
       .trim();
 
-    if (!/^(create|generate|make|photorealistic)\b/i.test(cleaned)) {
-      return `Create a high-resolution fashion image using the attached reference images: ${cleaned}`;
-    }
-    return cleaned;
+    return `Generate and create this high-resolution fashion image now. Direct execution required using attached reference images: ${cleaned}`;
   }
 
   return text;
