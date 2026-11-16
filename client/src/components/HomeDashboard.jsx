@@ -27,6 +27,8 @@ import {
   CheckCircle2,
   ExternalLink,
   ChevronRight,
+  ChevronLeft,
+  PanelLeft,
   Film,
   Zap
 } from 'lucide-react';
@@ -58,6 +60,7 @@ export default function HomeDashboard({
   const [newProjectMode, setNewProjectMode] = useState('workflow');
   const [searchQuery, setSearchQuery] = useState('');
   const [clockStr, setClockStr] = useState('');
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [hoveredCardId, setHoveredCardId] = useState(null);
   const [unmutedCardId, setUnmutedCardId] = useState(null);
   const [currentModule, setCurrentModule] = useState('dashboard'); // 'dashboard' | 'imageCreation' | 'apps' | 'canvas' | 'workflow' | 'my'
@@ -145,30 +148,48 @@ export default function HomeDashboard({
 
   return (
     <div className="flex h-screen w-screen overflow-hidden text-slate-800 dark:text-slate-100 select-none">
-      {/* ================= 1. SIDEBAR TRÁI (QUANTV AI LAYOUT + LIQUID GLASS) ================= */}
-      <aside className="w-64 shrink-0 h-full p-4 flex flex-col justify-between border-r border-white/20 dark:border-white/5 backdrop-blur-2xl z-30 overflow-y-auto">
-        <div className="flex flex-col gap-5">
-          {/* Logo & Tên ứng dụng */}
-          <div className="flex items-center gap-3 px-2 py-1">
-            <div
-              className="box w-11 h-11 flex items-center justify-center shrink-0 cursor-pointer shadow-lg shadow-sky-500/20"
-              style={{ '--r': '16px' }}
-              onClick={() => {
-                setCurrentModule('dashboard');
-                setCategoryFilter('all');
-              }}
-            >
-              <div className="circle-overlay" />
-              <div className="w-7 h-7 rounded-xl bg-gradient-to-br from-cyan-400 via-sky-500 to-indigo-600 flex items-center justify-center shadow-inner">
-                <Sparkles className="w-4 h-4 text-white" />
+      {/* ================= 1. SIDEBAR TRÁI (QUANTV AI LAYOUT + LIQUID GLASS, TỰ ĐỘNG ẨN) ================= */}
+      <aside
+        className={`shrink-0 h-full flex flex-col justify-between border-white/20 dark:border-white/5 backdrop-blur-2xl z-30 transition-all duration-300 ease-out ${
+          isSidebarOpen
+            ? 'w-64 p-4 border-r overflow-y-auto opacity-100'
+            : 'w-0 p-0 border-r-0 overflow-hidden opacity-0 pointer-events-none'
+        }`}
+      >
+        <div className="flex flex-col gap-5 min-w-[224px]">
+          {/* Logo & Tên ứng dụng + Nút đẩy ẩn sang trái */}
+          <div className="flex items-center justify-between gap-2 px-1 py-1">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <div
+                className="box w-11 h-11 flex items-center justify-center shrink-0 cursor-pointer shadow-lg shadow-sky-500/20"
+                style={{ '--r': '16px' }}
+                onClick={() => {
+                  setCurrentModule('dashboard');
+                  setCategoryFilter('all');
+                }}
+              >
+                <div className="circle-overlay" />
+                <div className="w-7 h-7 rounded-xl bg-gradient-to-br from-cyan-400 via-sky-500 to-indigo-600 flex items-center justify-center shadow-inner">
+                  <Sparkles className="w-4 h-4 text-white" />
+                </div>
+              </div>
+              <div className="flex flex-col min-w-0">
+                <span className="font-black text-sm tracking-tight leading-tight truncate">AI CANVAS STUDIO</span>
+                <span className="text-[10px] font-extrabold uppercase tracking-widest text-sky-600 dark:text-sky-400 truncate">
+                  AI Studio • Lab
+                </span>
               </div>
             </div>
-            <div className="flex flex-col">
-              <span className="font-black text-sm tracking-tight leading-tight">AI CANVAS STUDIO</span>
-              <span className="text-[10px] font-extrabold uppercase tracking-widest text-sky-600 dark:text-sky-400">
-                AI Studio • Creative Lab
-              </span>
-            </div>
+            <button
+              type="button"
+              onClick={() => setIsSidebarOpen(false)}
+              className="box box-hover w-7 h-7 flex items-center justify-center shrink-0 cursor-pointer"
+              style={{ '--r': '50%' }}
+              title="Thu gọn Sidebar sang trái"
+            >
+              <div className="circle-overlay" />
+              <ChevronLeft className="w-4 h-4 text-slate-600 dark:text-slate-300" />
+            </button>
           </div>
 
           {/* Nút Tạo Mới Nổi Bật */}
@@ -381,18 +402,34 @@ export default function HomeDashboard({
       {/* ================= 2. PHẦN NỘI DUNG CHÍNH (MAIN DASHBOARD VIEW) ================= */}
       <main className="flex-1 h-full overflow-y-auto flex flex-col relative">
         {/* Top Header Bar Cố Định Trong View */}
-        <header className="sticky top-0 z-20 px-8 py-3.5 backdrop-blur-xl border-b border-white/20 dark:border-white/5 flex items-center justify-between gap-6">
-          {/* Thanh tìm kiếm trung tâm */}
-          <div className="box flex-1 max-w-lg px-3.5 py-2 flex items-center gap-2.5" style={{ '--r': '999px' }}>
-            <div className="circle-overlay" />
-            <Search className="w-4 h-4 text-slate-400" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search apps, workflows, templates (Tìm kiếm ứng dụng, quy trình tạo ảnh, video)..."
-              className="w-full bg-transparent text-xs font-semibold focus:outline-none"
-            />
+        <header className="sticky top-0 z-20 px-4 py-3.5 backdrop-blur-xl border-b border-white/20 dark:border-white/5 flex items-center justify-between gap-4">
+          {/* Nút Ẩn/Hiện Sidebar đẩy sát bên trái + Thanh tìm kiếm */}
+          <div className="flex items-center gap-3 flex-1 min-w-0">
+            <button
+              type="button"
+              onClick={() => setIsSidebarOpen((v) => !v)}
+              className={`box box-hover px-3 py-2 flex items-center gap-1.5 text-xs font-extrabold shrink-0 cursor-pointer ${
+                isSidebarOpen ? 'active-pill' : ''
+              }`}
+              style={{ '--r': '999px', width: 'auto' }}
+              title={isSidebarOpen ? 'Ẩn Sidebar sang trái' : 'Mở Sidebar'}
+            >
+              <div className="circle-overlay" />
+              <PanelLeft className="w-4 h-4 text-sky-600" />
+              <span className="hidden sm:inline">{isSidebarOpen ? 'Ẩn Menu' : 'Menu'}</span>
+            </button>
+
+            <div className="box flex-1 max-w-lg px-3.5 py-2 flex items-center gap-2.5" style={{ '--r': '999px' }}>
+              <div className="circle-overlay" />
+              <Search className="w-4 h-4 text-slate-400" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search apps, workflows, templates (Tìm kiếm ứng dụng, quy trình tạo ảnh, video)..."
+                className="w-full bg-transparent text-xs font-semibold focus:outline-none"
+              />
+            </div>
           </div>
 
           {/* Cụm công cụ bên phải */}
