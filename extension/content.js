@@ -1404,8 +1404,12 @@ function findLastUserPromptRect(sentPromptText, promptEl) {
   const candidates = Array.from(document.querySelectorAll('div, p, span')).filter((el) => {
     if (promptEl && (el === promptEl || promptEl.contains(el) || el.contains(promptEl))) return false;
     if (el.closest?.('#ai-canvas-flow-badge, header, nav, aside')) return false;
+    // Tuyệt đối không chọn thẻ cha bao trùm cả ảnh/video hoặc thẻ cha ngoài cùng
+    if (el.querySelector?.('img, video')) return false;
     const txt = (el.textContent || '').trim();
     if (!txt.includes(snippet) || txt.length > 4000) return false;
+    const hasChildWithSnippet = Array.from(el.children || []).some((ch) => (ch.textContent || '').includes(snippet));
+    if (hasChildWithSnippet) return false;
     const r = el.getBoundingClientRect();
     if (r.width < 80 || r.height < 20 || r.left < 60 || r.left > window.innerWidth * 0.76) return false;
     return true;
@@ -1415,8 +1419,7 @@ function findLastUserPromptRect(sentPromptText, promptEl) {
   candidates.sort((a, b) => {
     const ra = a.getBoundingClientRect();
     const rb = b.getBoundingClientRect();
-    if (Math.abs(rb.bottom - ra.bottom) > 20) return rb.bottom - ra.bottom;
-    return ra.width * ra.height - rb.width * rb.height;
+    return rb.bottom - ra.bottom;
   });
   return candidates[0].getBoundingClientRect();
 }
