@@ -30,7 +30,8 @@
       type !== 'QUEUE_FLOW_JOB' &&
       type !== 'GET_POOL_STATUS' &&
       type !== 'PING_FLOW_TAB' &&
-      type !== 'RESET_FLOW_WORKERS'
+      type !== 'RESET_FLOW_WORKERS' &&
+      type !== 'FOCUS_FLOW_TAB'
     ) {
       return;
     }
@@ -94,6 +95,24 @@
 
   window.__AI_CANVAS_BRIDGE_HANDLER__ = handleBridgeMessage;
   window.addEventListener('message', handleBridgeMessage);
+
+  if (isContextValid() && !window.__AI_CANVAS_LOG_RELAY_BOUND__) {
+    window.__AI_CANVAS_LOG_RELAY_BOUND__ = true;
+    try {
+      chrome.runtime.onMessage.addListener((msg) => {
+        if (msg && msg.type === 'BRIDGE_LOG_BROADCAST' && msg.log) {
+          window.postMessage(
+            {
+              source: 'AI_CANVAS_EXTENSION',
+              type: 'BRIDGE_LOG_EVENT',
+              log: msg.log
+            },
+            '*'
+          );
+        }
+      });
+    } catch (e) {}
+  }
 
   window.dispatchEvent(new CustomEvent('AI_CANVAS_EXTENSION_READY'));
   window.postMessage({ source: 'AI_CANVAS_EXTENSION', type: 'BRIDGE_READY', version: '5.3.0' }, '*');

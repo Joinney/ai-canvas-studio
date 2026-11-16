@@ -13,16 +13,127 @@ var DEFAULT_SELECTORS = {
   resultMedia: 'video, img'
 };
 
+window.__AI_CANVAS_BRIDGE_LOGS__ = window.__AI_CANVAS_BRIDGE_LOGS__ || [];
+window.__AI_CANVAS_LOG_LAST_KEY__ = window.__AI_CANVAS_LOG_LAST_KEY__ || '';
+window.__AI_CANVAS_LOG_OPEN__ = window.__AI_CANVAS_LOG_OPEN__ || false;
+
+function renderBridgeLogPanel() {
+  const panel = document.getElementById('ai-canvas-flow-log-panel');
+  const list = document.getElementById('ai-canvas-flow-log-list');
+  const countEl = document.getElementById('ai-canvas-flow-log-count');
+  const logs = window.__AI_CANVAS_BRIDGE_LOGS__ || [];
+  if (countEl) {
+    countEl.textContent = String(logs.length);
+  }
+  if (!panel || !list) return;
+  panel.style.display = window.__AI_CANVAS_LOG_OPEN__ ? 'flex' : 'none';
+  if (!window.__AI_CANVAS_LOG_OPEN__) return;
+
+  list.innerHTML = logs.length === 0
+    ? '<div style="opacity:0.6;padding:12px;text-align:center;">Chưa có nhật ký hoạt động.</div>'
+    : logs
+        .slice()
+        .reverse()
+        .map((item) => {
+          const dotColor =
+            item.level === 'error' ? '#ef4444' : item.level === 'success' ? '#10b981' : item.level === 'warn' ? '#f59e0b' : '#38bdf8';
+          return `<div style="display:flex;align-items:flex-start;gap:7px;padding:6px 8px;border-bottom:1px solid rgba(255,255,255,0.07);font-size:11px;line-height:1.4;">
+            <span style="width:7px;height:7px;border-radius:50%;background:${dotColor};margin-top:4px;flex-shrink:0;"></span>
+            <span style="color:#94a3b8;font-family:monospace;flex-shrink:0;">${item.time}</span>
+            <span style="color:#e2e8f0;word-break:break-word;">${item.text.replace(/</g, '&lt;')}</span>
+          </div>`;
+        })
+        .join('');
+}
+
+function appendBridgeLog(text, bg = '') {
+  if (!text) return;
+  // Gom các bước đếm giây liên tiếp (1s), (2s)... để log gọn, chỉ ghi mỗi 5s hoặc khi đổi nội dung chính
+  const baseKey = text.replace(/\(\d+s[^)]*\)/g, '(Xs)').replace(/\(\d+\/\d+\)/g, '(X)');
+  const now = Date.now();
+  if (baseKey === window.__AI_CANVAS_LOG_LAST_KEY__ && now - (window.__AI_CANVAS_LOG_LAST_AT__ || 0) < 5000) {
+    return;
+  }
+  window.__AI_CANVAS_LOG_LAST_KEY__ = baseKey;
+  window.__AI_CANVAS_LOG_LAST_AT__ = now;
+
+  const isMuse = window.location.hostname.includes('muse.ai');
+  const level =
+    bg.includes('#dc2626') || text.includes('❌') || text.includes('⚠️')
+      ? 'error'
+      : bg.includes('#10b981') || text.includes('✅')
+      ? 'success'
+      : bg.includes('#f59e0b') || text.includes('⏳')
+      ? 'warn'
+      : 'info';
+
+  const entry = {
+    time: new Date().toLocaleTimeString('vi-VN', { hour12: false }),
+    source: isMuse ? 'Muse AI' : 'Google Flow',
+    text,
+    level
+  };
+  window.__AI_CANVAS_BRIDGE_LOGS__.push(entry);
+  if (window.__AI_CANVAS_BRIDGE_LOGS__.length > 80) {
+    window.__AI_CANVAS_BRIDGE_LOGS__.shift();
+  }
+  renderBridgeLogPanel();
+
+  try {
+    if (chrome && chrome.runtime && chrome.runtime.id) {
+      chrome.runtime.sendMessage({ type: 'BRIDGE_LOG_EVENT', log: entry }).catch?.(() => {});
+    }
+  } catch (e) {}
+}
+
 function mountConnectionBadge() {
   const isMuse = window.location.hostname.includes('muse.ai');
   let badge = document.getElementById('ai-canvas-flow-badge');
   if (!badge) {
     badge = document.createElement('div');
     badge.id = 'ai-canvas-flow-badge';
+    badge.title = 'Nhấn để mở / thu gọn Nhật ký hoạt động';
     badge.style.cssText =
-      'position:fixed;bottom:18px;left:18px;z-index:2147483647;background:rgba(15,23,42,0.92);backdrop-filter:blur(8px);color:#fff;border:1px solid rgba(16,185,129,0.5);padding:8px 16px;border-radius:999px;font-family:system-ui,-apple-system,sans-serif;font-size:12px;font-weight:600;box-shadow:0 6px 20px rgba(0,0,0,0.5);display:flex;align-items:center;gap:8px;pointer-events:none;transition:all 0.3s ease;';
-    badge.innerHTML = `<span style="width:10px;height:10px;border-radius:50%;background:#10b981;box-shadow:0 0 10px #10b981;display:inline-block;animation:pulse 2s infinite;"></span><span id="ai-canvas-flow-badge-text">AI Canvas Bridge v5.7: Đã kết nối (${isMuse ? 'Muse AI' : 'Flow'})</span>`;
+      'position:fixed;bottom:18px;left:18px;z-index:2147483647;background:rgba(15,23,42,0.92);backdrop-filter:blur(10px);color:#fff;border:1px solid rgba(16,185,129,0.5);padding:8px 14px;border-radius:999px;font-family:system-ui,-apple-system,sans-serif;font-size:12px;font-weight:600;box-shadow:0 6px 20px rgba(0,0,0,0.45);display:flex;align-items:center;gap:8px;pointer-events:auto;cursor:pointer;user-select:none;transition:all 0.25s ease;';
+    badge.innerHTML = `<span style="width:10px;height:10px;border-radius:50%;background:#10b981;box-shadow:0 0 10px #10b981;display:inline-block;flex-shrink:0;"></span><span id="ai-canvas-flow-badge-text">AI Canvas Bridge v6.0: Đã kết nối (${isMuse ? 'Muse AI' : 'Flow'})</span><span id="ai-canvas-flow-log-count" style="background:rgba(255,255,255,0.18);padding:1px 6px;border-radius:999px;font-size:10px;">0</span><span id="ai-canvas-flow-badge-arrow" style="font-size:10px;opacity:0.85;">▲</span>`;
+    badge.addEventListener('click', (e) => {
+      e.stopPropagation();
+      window.__AI_CANVAS_LOG_OPEN__ = !window.__AI_CANVAS_LOG_OPEN__;
+      const arrow = document.getElementById('ai-canvas-flow-badge-arrow');
+      if (arrow) arrow.textContent = window.__AI_CANVAS_LOG_OPEN__ ? '▼' : '▲';
+      renderBridgeLogPanel();
+    });
     (document.body || document.documentElement).appendChild(badge);
+  }
+
+  if (!document.getElementById('ai-canvas-flow-log-panel')) {
+    const panel = document.createElement('div');
+    panel.id = 'ai-canvas-flow-log-panel';
+    panel.style.cssText =
+      'position:fixed;bottom:62px;left:18px;z-index:2147483647;width:360px;max-width:calc(100vw - 36px);max-height:280px;background:rgba(15,23,42,0.95);backdrop-filter:blur(12px);color:#f8fafc;border:1px solid rgba(56,189,248,0.35);border-radius:16px;box-shadow:0 12px 32px rgba(0,0,0,0.55);display:none;flex-direction:column;overflow:hidden;font-family:system-ui,-apple-system,sans-serif;';
+    panel.innerHTML = `
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:rgba(30,41,59,0.9);border-bottom:1px solid rgba(255,255,255,0.1);font-size:12px;font-weight:700;">
+        <span>📋 Nhật ký ${isMuse ? 'Muse AI' : 'Flow'} Bridge</span>
+        <div style="display:flex;gap:6px;">
+          <button id="ai-canvas-flow-log-clear" style="background:rgba(255,255,255,0.12);border:none;color:#cbd5e1;padding:2px 8px;border-radius:6px;font-size:11px;cursor:pointer;">Xóa</button>
+          <button id="ai-canvas-flow-log-close" style="background:rgba(255,255,255,0.12);border:none;color:#cbd5e1;padding:2px 8px;border-radius:6px;font-size:11px;cursor:pointer;">Thu gọn ▾</button>
+        </div>
+      </div>
+      <div id="ai-canvas-flow-log-list" style="overflow-y:auto;max-height:225px;padding:4px;"></div>
+    `;
+    (document.body || document.documentElement).appendChild(panel);
+    panel.querySelector('#ai-canvas-flow-log-clear')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      window.__AI_CANVAS_BRIDGE_LOGS__ = [];
+      renderBridgeLogPanel();
+    });
+    panel.querySelector('#ai-canvas-flow-log-close')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      window.__AI_CANVAS_LOG_OPEN__ = false;
+      const arrow = document.getElementById('ai-canvas-flow-badge-arrow');
+      if (arrow) arrow.textContent = '▲';
+      renderBridgeLogPanel();
+    });
   }
 }
 
@@ -37,6 +148,7 @@ function updateBridgeBadgeText(text, bg = 'rgba(15,23,42,0.92)') {
   if (txt && txt.textContent !== text) {
     txt.textContent = text;
   }
+  appendBridgeLog(text, bg);
 }
 
 function showClickMarker(x, y) {
@@ -1806,7 +1918,7 @@ function captureNewMediaOutput(
       const hasExternalMutation = mutations.some((m) => {
         const t = m.target;
         if (!t || !t.closest) return true;
-        return !t.closest('#ai-canvas-flow-badge') && !t.closest('#ai-canvas-click-marker');
+        return !t.closest('#ai-canvas-flow-badge') && !t.closest('#ai-canvas-flow-log-panel') && !t.closest('#ai-canvas-click-marker');
       });
       if (hasExternalMutation) {
         scheduleCheckMedia();

@@ -108,6 +108,61 @@ export default function WorkflowNodeCanvas({ project, onSaveProject }) {
     );
   };
 
+  // Nhật ký hoạt động trực tiếp (Logs) nhận từ Web Canvas và tab Muse AI chạy ngầm
+  const [bridgeLogs, setBridgeLogs] = useState([
+    {
+      id: 'init-1',
+      time: new Date().toLocaleTimeString('vi-VN', { hour12: false }),
+      source: 'Canvas',
+      text: 'Sẵn sàng chạy Workflow ngầm với Muse AI / Google Flow',
+      level: 'success'
+    }
+  ]);
+  const [isLogPanelOpen, setIsLogPanelOpen] = useState(false);
+
+  const pushWorkflowLog = useCallback((text, level = 'info', source = 'Canvas') => {
+    if (!text) return;
+    setBridgeLogs((prev) => {
+      const last = prev[prev.length - 1];
+      if (last && last.text === text && last.source === source) return prev;
+      const next = [
+        ...prev,
+        {
+          id: `${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+          time: new Date().toLocaleTimeString('vi-VN', { hour12: false }),
+          source,
+          text,
+          level
+        }
+      ];
+      return next.length > 80 ? next.slice(next.length - 80) : next;
+    });
+  }, []);
+
+  useEffect(() => {
+    const onExtLog = (event) => {
+      if (event.data?.source === 'AI_CANVAS_EXTENSION' && event.data?.type === 'BRIDGE_LOG_EVENT' && event.data?.log) {
+        const l = event.data.log;
+        pushWorkflowLog(l.text, l.level || 'info', l.source || 'Muse AI');
+      }
+    };
+    window.addEventListener('message', onExtLog);
+    return () => window.removeEventListener('message', onExtLog);
+  }, [pushWorkflowLog]);
+
+  useEffect(() => {
+    if (!statusBanner) return;
+    const lvl =
+      statusBanner.includes('❌') || statusBanner.includes('Lỗi')
+        ? 'error'
+        : statusBanner.includes('✅') || statusBanner.includes('Hoàn tất')
+        ? 'success'
+        : statusBanner.includes('⚠️') || statusBanner.includes('⏹️')
+        ? 'warn'
+        : 'info';
+    pushWorkflowLog(statusBanner, lvl, 'Canvas');
+  }, [statusBanner, pushWorkflowLog]);
+
   // Debounce lưu dự án (chỉ lưu sau khi người dùng ngừng kéo 600ms để không bao giờ gây giật lag)
   useEffect(() => {
     if (!onSaveProject) return;
@@ -1546,6 +1601,94 @@ export default function WorkflowNodeCanvas({ project, onSaveProject }) {
             );
           })}
         </div>
+      </div>
+
+      {/* Thanh Pill & Bảng Nhật Ký Hoạt Động (Logs) góc dưới trái - Nhấn để mở rộng hoặc thu gọn */}
+      <div className="fixed bottom-4 left-4 z-50 flex flex-col items-start gap-2 pointer-events-auto">
+        {isLogPanelOpen && (
+          <div className="w-[380px] max-w-[calc(100vw-32px)] max-h-[300px] rounded-2xl bg-slate-900/95 backdrop-blur-md border border-sky-400/35 text-slate-100 shadow-2xl flex flex-col overflow-hidden">
+            <div className="flex items-center justify-between px-3 py-2 bg-slate-800/90 border-b border-white/10 text-xs font-bold">
+              <span>📋 Nhật ký chạy Workflow &amp; Muse AI</span>
+              <div className="flex items-center gap-1.5">
+                <button
+                  onClick={() =>
+                    window.postMessage({ source: 'AI_CANVAS_WEB', type: 'FOCUS_FLOW_TAB', jobId: 'focus-' + Date.now() }, '*')
+                  }
+                  className="px-2 py-0.5 rounded-md bg-sky-500/20 hover:bg-sky-500/35 text-sky-300 text-[11px] font-semibold transition cursor-pointer"
+                  title="Chuyển sang xem tab Muse AI"
+                >
+                  Mở tab Muse
+                </button>
+                <button
+                  onClick={() => setBridgeLogs([])}
+                  className="px-2 py-0.5 rounded-md bg-white/10 hover:bg-white/20 text-slate-300 text-[11px] font-semibold transition cursor-pointer"
+                >
+                  Xóa
+                </button>
+                <button
+                  onClick={() => setIsLogPanelOpen(false)}
+                  className="px-2 py-0.5 rounded-md bg-white/10 hover:bg-white/20 text-slate-300 text-[11px] font-semibold transition cursor-pointer"
+                >
+                  Thu gọn ▾
+                </button>
+              </div>
+            </div>
+            <div className="overflow-y-auto max-h-[245px] p-1.5 space-y-0.5 text-[11px]">
+              {bridgeLogs.length === 0 ? (
+                <div className="text-center text-slate-400 py-4">Chưa có nhật ký hoạt động.</div>
+              ) : (
+                bridgeLogs
+                  .slice()
+                  .reverse()
+                  .map((log) => (
+                    <div
+                      key={log.id}
+                      className="flex items-start gap-2 px-2 py-1.5 rounded-lg hover:bg-white/5 border-b border-white/5"
+                    >
+                      <span
+                        className={`w-2 h-2 rounded-full mt-1 shrink-0 ${
+                          log.level === 'error'
+                            ? 'bg-rose-500'
+                            : log.level === 'success'
+                            ? 'bg-emerald-400'
+                            : log.level === 'warn'
+                            ? 'bg-amber-400'
+                            : 'bg-sky-400'
+                        }`}
+                      />
+                      <span className="font-mono text-slate-400 shrink-0">{log.time}</span>
+                      <span className="px-1.5 py-0.2 rounded bg-white/10 text-[10px] font-bold text-sky-300 shrink-0">
+                        {log.source}
+                      </span>
+                      <span className="text-slate-200 break-words leading-snug">{log.text}</span>
+                    </div>
+                  ))
+              )}
+            </div>
+          </div>
+        )}
+
+        <button
+          type="button"
+          onClick={() => setIsLogPanelOpen((v) => !v)}
+          title="Nhấn để mở / thu gọn Nhật ký hoạt động"
+          className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold text-white shadow-xl border backdrop-blur-md transition cursor-pointer ${
+            isRunningAll
+              ? 'bg-amber-500/95 border-amber-300/60'
+              : bridgeLogs[bridgeLogs.length - 1]?.level === 'error'
+              ? 'bg-rose-600/95 border-rose-300/60'
+              : 'bg-emerald-600/95 border-emerald-300/60'
+          }`}
+        >
+          <span className="w-2.5 h-2.5 rounded-full bg-white animate-pulse shadow-[0_0_8px_#fff]" />
+          <span className="max-w-[300px] truncate">
+            {bridgeLogs[bridgeLogs.length - 1]?.text || 'Sẵn sàng chạy Workflow ngầm'}
+          </span>
+          <span className="px-1.5 py-0.5 rounded-full bg-black/25 text-[10px] font-extrabold">
+            {bridgeLogs.length}
+          </span>
+          <span className="text-[10px] opacity-90">{isLogPanelOpen ? '▼' : '▲'}</span>
+        </button>
       </div>
     </div>
   );

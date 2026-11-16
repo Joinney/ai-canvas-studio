@@ -209,6 +209,19 @@ async function focusFlowTabAndWindow(tabId, windowId) {
   } catch (e) {}
 }
 
+async function broadcastLogToCanvasTabs(log) {
+  try {
+    const canvasTabs = await chrome.tabs.query({
+      url: ['http://localhost/*', 'http://127.0.0.1/*']
+    });
+    for (const tab of canvasTabs) {
+      if (tab.id) {
+        chrome.tabs.sendMessage(tab.id, { type: 'BRIDGE_LOG_BROADCAST', log }).catch(() => {});
+      }
+    }
+  } catch (e) {}
+}
+
 // Tìm hoặc cấp phát Tab Google Flow / Muse AI (chờ tuần tự cho đến khi tab rảnh hoàn toàn)
 async function acquireAvailableFlowTab() {
   const waitStart = Date.now();
@@ -234,9 +247,9 @@ async function acquireAvailableFlowTab() {
       return freeWorker;
     }
 
-    // Nếu chưa mở bất kỳ tab nào -> tự động mở mới
+    // Nếu chưa mở bất kỳ tab nào -> tự động mở ngầm ở tab nền (không cướp màn hình của người dùng)
     if (workerTabs.length === 0) {
-      const newTab = await chrome.tabs.create({ url: FLOW_DEFAULT_URL, active: true });
+      const newTab = await chrome.tabs.create({ url: FLOW_DEFAULT_URL, active: false });
       await waitForTabComplete(newTab.id);
       const worker = { tabId: newTab.id, windowId: newTab.windowId, busy: true };
       workerTabs.push(worker);
@@ -286,8 +299,14 @@ async function processQueue() {
       try {
         if (!dynamicSelectors) await syncDynamicSelectors();
 
-        await focusFlowTabAndWindow(worker.tabId, worker.windowId);
+        // Chạy ngầm hoàn toàn trên tab Muse AI / Google Flow, KHÔNG tự động chuyển tab làm gián đoạn trang Tool của người dùng
         await ensureContentScriptReady(worker.tabId);
+        broadcastLogToCanvasTabs({
+          time: new Date().toLocaleTimeString('vi-VN', { hour12: false }),
+          source: 'Bridge',
+          text: `⚙️ Đang gửi lệnh (${job.payload?.mode || 'IMAGE'}) sang tab Muse AI chạy ngầm...`,
+          level: 'info'
+        });
 
         const response = await chrome.tabs.sendMessage(worker.tabId, {
           type: 'EXECUTE_FLOW_NODE',
@@ -343,9 +362,9 @@ async function pollBackendBridge() {
         if (type === 'PING_FLOW_TAB') {
           let targetTab = primaryTab;
           if (!targetTab) {
-            targetTab = await chrome.tabs.create({ url: FLOW_DEFAULT_URL, active: true });
+            targetTab = await chrome.tabs.create({ url: FLOW_DEFAULT_URL, active: false });
             await waitForTabComplete(targetTab.id);
-          } else {
+          } else if (payload?.focus) {
             await focusFlowTabAndWindow(targetTab.id, targetTab.windowId);
           }
           await ensureContentScriptReady(targetTab.id);
@@ -399,7 +418,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       const target = { tabId };
       try {
         await chrome.debugger.attach(target, '1.3').catch(() => {});
-        await chrome.debugger.sendCommand(target, 'Page.bringToFront').catch(() => {});
         if (typeof x === 'number' && typeof y === 'number') {
           await chrome.debugger.sendCommand(target, 'Input.dispatchMouseEvent', {
             type: 'mousePressed',
@@ -445,7 +463,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       const target = { tabId };
       try {
         await chrome.debugger.attach(target, '1.3').catch(() => {});
-        await chrome.debugger.sendCommand(target, 'Page.bringToFront').catch(() => {});
         if (typeof x === 'number' && typeof y === 'number') {
           await chrome.debugger.sendCommand(target, 'Input.dispatchMouseEvent', {
             type: 'mouseMoved',
@@ -546,15 +563,38 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     return true;
   }
 
+  if (message.type === 'BRIDGE_LOG_EVENT' && message.log) {
+    broadcastLogToCanvasTabs(message.log);
+    return false;
+  }
+
+  if (message.type === 'FOCUS_FLOW_TAB') {
+    (async () => {
+      try {
+        const openTabs = await queryFlowTabs();
+        let targetTab = openTabs[0];
+        if (!targetTab) {
+          targetTab = await chrome.tabs.create({ url: FLOW_DEFAULT_URL, active: true });
+        } else {
+          await focusFlowTabAndWindow(targetTab.id, targetTab.windowId);
+        }
+        sendResponse({ success: true, tabId: targetTab.id });
+      } catch (err) {
+        sendResponse({ success: false, error: err.message });
+      }
+    })();
+    return true;
+  }
+
   if (message.type === 'PING_FLOW_TAB') {
     (async () => {
       try {
         let openTabs = await queryFlowTabs();
         let targetTab = openTabs[0];
         if (!targetTab) {
-          targetTab = await chrome.tabs.create({ url: FLOW_DEFAULT_URL, active: true });
+          targetTab = await chrome.tabs.create({ url: FLOW_DEFAULT_URL, active: false });
           await waitForTabComplete(targetTab.id);
-        } else {
+        } else if (message.payload?.focus) {
           await focusFlowTabAndWindow(targetTab.id, targetTab.windowId);
         }
 
