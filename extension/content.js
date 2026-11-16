@@ -1187,12 +1187,11 @@ function isValidGeneratedMedia(el, src, promptEl = null, inputFingerprints = [],
   // 1. Không bao giờ nhận chip đính kèm trong ô prompt
   if (isAttachmentOrChipElement(el, promptEl)) return false;
 
-  // 2. Loại trừ mọi phần tử thuộc Popup, Dialog, Settings, Menu, Navigation, Header
-  if (
-    el.closest?.(
-      '[role="dialog"], [role="menu"], [role="listbox"], [role="tooltip"], .mat-mdc-menu-panel, .cdk-overlay-pane, .dialog, .modal, .popup, aside, nav, header'
-    )
-  ) {
+  // 2. Loại trừ phần tử thuộc Header, Navigation, Tooltip
+  if (el.closest?.('header, nav, aside, [role="tooltip"], [role="menu"]')) {
+    return false;
+  }
+  if (!isMuse && el.closest?.('[role="dialog"], .mat-mdc-menu-panel, .cdk-overlay-pane, .dialog, .modal, .popup')) {
     return false;
   }
 
@@ -1200,15 +1199,20 @@ function isValidGeneratedMedia(el, src, promptEl = null, inputFingerprints = [],
   const rect = el.getBoundingClientRect();
   const minLeft = isMuse ? 60 : 240; // Muse AI thanh bar bên trái chỉ rộng 60px
   if (rect.left < minLeft) return false;
-  if (rect.top < 40) return false; // Loại bỏ header/topbar
-  if (rect.bottom > window.innerHeight - 70) return false; // Loại bỏ dock bar ở đáy
-  const minDimension = isMuse ? 90 : 180;
+  if (rect.top < 35) return false; // Loại bỏ header/topbar
+  if (rect.bottom > window.innerHeight - 60) return false; // Loại bỏ dock bar ở đáy
+  const minDimension = isMuse ? 80 : 180;
   if (rect.width < minDimension || rect.height < minDimension) return false; // Loại bỏ thumbnail bé/icon
 
   // Trên Muse AI: Loại bỏ avatar mascot hoặc widget bên panel phải
-  if (isMuse && rect.left > window.innerWidth * 0.78) return false;
+  if (isMuse && rect.left > window.innerWidth * 0.82) return false;
 
-  // 4. Kiểm tra kích thước tự nhiên: Ảnh sinh bởi AI
+  // 4. Nếu là VIDEO: Chấp nhận video có kích thước hợp lệ
+  if (el.tagName === 'VIDEO') {
+    return true;
+  }
+
+  // 5. Kiểm tra kích thước tự nhiên: Ảnh sinh bởi AI
   if (el.tagName === 'IMG') {
     if (!el.complete) return false;
     const nw = el.naturalWidth || 0;
@@ -1217,7 +1221,7 @@ function isValidGeneratedMedia(el, src, promptEl = null, inputFingerprints = [],
     if (nw < minNatural || nh < minNatural) return false;
   }
 
-  // 5. SO SÁNH VỚI ẢNH ĐẦU VÀO: Tuyệt đối KHÔNG ĐƯỢC trùng với bất kỳ ảnh tham chiếu nào (Ảnh Mẫu hoặc Ảnh Trang Phục)
+  // 6. SO SÁNH VỚI ẢNH ĐẦU VÀO: Tuyệt đối KHÔNG ĐƯỢC trùng với bất kỳ ảnh tham chiếu nào (Ảnh Mẫu hoặc Ảnh Trang Phục)
   if (candidateFingerprint && Array.isArray(inputFingerprints) && inputFingerprints.length > 0) {
     for (const inFp of inputFingerprints) {
       if (inFp && isFingerprintMatch(candidateFingerprint, inFp)) {
@@ -1312,6 +1316,7 @@ function captureNewMediaOutput(
     };
 
     let isChecking = false;
+    let hasAutoConfirmedMuse = false;
 
     const checkMedia = async () => {
       if (isResolved || isChecking) return;
@@ -1327,6 +1332,52 @@ function captureNewMediaOutput(
             '#e11d48'
           );
           return;
+        }
+
+        // TỰ ĐỘNG THÚC ĐẨY (Auto-Nudge) NẾU MUSE AI DỪNG LẠI Ở BƯỚC "SẴN SÀNG":
+        const bodyText = (document.body.innerText || '') + ' ' + (document.body.textContent || '');
+        if (
+          isMuse &&
+          !hasAutoConfirmedMuse &&
+          elapsed > 4000 &&
+          (bodyText.includes('no video was actually created') ||
+            bodyText.includes('got ready to make your AI video') ||
+            bodyText.includes('sẵn sàng tạo video'))
+        ) {
+          hasAutoConfirmedMuse = true;
+          updateBridgeBadgeText('⚡ Phát hiện Muse AI chờ xác nhận -> Tự động xác nhận "Tạo video ngay"...', '#f59e0b');
+
+          // Đóng popup task log nếu có nút ✕
+          const modalCloseBtns = queryAllDeep(document).filter((el) => {
+            const r = el.getBoundingClientRect();
+            if (r.width < 14 || r.width > 55 || r.height < 14 || r.height > 55) return false;
+            if (r.top > window.innerHeight * 0.40) return false; // Nằm ở góc trên modal
+            const label = ((el.getAttribute?.('aria-label') || '') + ' ' + (el.innerText || '')).toLowerCase();
+            return /close|đóng|x/i.test(label) || label.includes('✕') || label.includes('×') || !!el.querySelector?.('svg');
+          });
+          if (modalCloseBtns.length > 0) {
+            try { modalCloseBtns[0].click(); } catch (e) {}
+            await new Promise((r) => setTimeout(r, 400));
+          }
+
+          const promptTarget = findFlowPromptElement();
+          if (promptTarget) {
+            const confirmTxt = mode === 'VIDEO' ? 'Yes, create and generate the video now! Execute media tool immediately.' : 'Yes, generate the image now!';
+            await typePromptTextIntoElement(promptTarget, confirmTxt);
+            await new Promise((r) => setTimeout(r, 400));
+            const btnTarget = findMuseSubmitTarget(promptTarget);
+            if (btnTarget) {
+              triggerDOMClickAt(btnTarget);
+              try {
+                chrome.runtime.sendMessage({
+                  type: 'NATIVE_CLICK_AND_ENTER',
+                  x: btnTarget.x,
+                  y: btnTarget.y,
+                  clickOnly: false
+                });
+              } catch (e) {}
+            }
+          }
         }
 
         // 2. Phát hiện trạng thái đang sinh (Progress bar, spinner, Generating...)
