@@ -920,3 +920,240 @@ export const BEAUTY_MIST_PROJECT = convertDaAiCanvasToProject(BEAUTY_MIST_RAW_CA
   previewVideo: 'https://cdn.quantv.com/canvas/cmr3dblp4009k4mekj63tv8h1/gen_1783164832889_vpcsowohx7.mp4',
   previewImage: 'https://cdn.quantv.com/canvas/cmr3dblp4009k4mekj63tv8h1/gen_1783071423252_kwz5uqugix8.png'
 });
+
+// Dự án 4: Lookbook Thu Đông 6 Bộ Trang Phục & Video Quick-Cut 15s (Autumn Vibes Outfit Change)
+export const AUTUMN_OUTFIT_RAW_CANVAS_JSON = {
+  __canvas: 'da-ai-canvas',
+  version: 2,
+  nodes: [
+    {
+      id: 'node-1794641448882-231',
+      kind: 'image',
+      title: 'Image Node (Look 1 • Grey Commuter Base)',
+      x: 266,
+      y: 709.6,
+      width: 139,
+      height: 262,
+      meta: {
+        dimensions: '941 x 1672',
+        content: 'Double-click canvas to add a new node',
+        imageTone: 'soft',
+        settings: { modelId: 'cmotfqnds0000gwg7q4dtt5u3' },
+        prompt:
+          'Full-body fashion editorial photo, a 26-year-old Chinese woman, 168cm, slim build, standing in a relaxed natural pose facing the camera, wearing a light grey crinkled cotton button-up shirt tucked into black high-waisted wide-leg wool trousers with sharp pressed creases, brown suede ankle boots with a small silver buckle strap, a black smooth leather slouchy shoulder bag hanging from her right shoulder, her hair in a low loose bun, natural minimal makeup, standing against a clean warm beige seamless wall, soft directional light from the upper left, photorealistic, 50mm lens, 35mm film grain, warm autumn palette, vertical 9:16, no text, no watermark',
+        mediaUrl: 'https://cdn.quantv.com/canvas/featured/1794641508070_a9wh2hae83h.png',
+        objectFit: 'contain'
+      }
+    },
+    {
+      id: 'node-1794641448882-232',
+      kind: 'image',
+      title: 'Image Node (Look 2 • Oatmeal Knit Cardigan)',
+      x: 1145.95,
+      y: 81,
+      width: 139,
+      height: 262,
+      meta: {
+        dimensions: '941 x 1672',
+        content: 'Double-click canvas to add a new node',
+        imageTone: 'soft',
+        settings: { modelId: 'cmotfqnds0000gwg7q4dtt5u3' },
+        prompt:
+          'Full-body fashion editorial photo, a 26-year-old Chinese woman, 168cm, slim build, standing relaxed with one hand in her trouser pocket, facing the camera, wearing an oversized oatmeal beige cable-knit cardigan over a white ribbed top, ivory white straight-leg wool trousers, brown suede loafers with a rounded toe, a camel suede tote bag hanging from her forearm, her hair in loose natural waves, natural minimal makeup, standing against a clean warm beige seamless wall, soft directional light from the upper left, photorealistic, 50mm lens, 35mm film grain, warm autumn palette, vertical 9:16, no text, no watermark',
+        mediaUrl: 'https://cdn.quantv.com/canvas/featured/1794641508070_nfbc91dszs.webp',
+        objectFit: 'contain'
+      }
+    },
+    {
+      id: 'node-1794641448882-233',
+      kind: 'image',
+      title: 'Image Node (Look 3 • Caramel Vintage Blazer)',
+      x: 1167.66,
+      y: 442.9,
+      width: 139,
+      height: 262,
+      meta: {
+        dimensions: '941 x 1672',
+        content: 'Double-click canvas to add a new node',
+        imageTone: 'soft',
+        settings: { modelId: 'cmotfqnds0000gwg7q4dtt5u3' },
+        prompt:
+          'Full-body fashion editorial photo, a 26-year-old Chinese woman, 168cm, slim build, walking toward the camera with a natural stride, wearing a caramel brown fine-wale corduroy blazer over a cream fine knit, dark indigo straight-leg rigid jeans, dark brown leather Chelsea boots with elastic side panels, a burgundy smooth leather shoulder bag with a gold clasp, her hair in a low ponytail, natural minimal makeup, walking against a clean warm beige seamless wall, soft golden directional light from the left, photorealistic, 50mm lens, 35mm film grain, warm autumn palette, vertical 9:16, no text, no watermark',
+        mediaUrl: 'https://cdn.quantv.com/canvas/featured/1794641508071_ekx371in7zm.png',
+        objectFit: 'contain'
+      }
+    },
+    {
+      id: 'node-1794641448882-234',
+      kind: 'image',
+      title: 'Image Node (Look 4 • Cream Sweet Turtleneck)',
+      x: 1165.25,
+      y: 722.77,
+      width: 139,
+      height: 262,
+      meta: {
+        dimensions: '941 x 1672',
+        content: 'Double-click canvas to add a new node',
+        imageTone: 'soft',
+        settings: { modelId: 'cmotfqnds0000gwg7q4dtt5u3' },
+        prompt:
+          'Full-body fashion editorial photo, a 26-year-old Chinese woman, 168cm, slim build, standing with both hands in her trouser pockets, facing the camera, wearing a cream white ribbed turtleneck sweater tucked into light oat beige pleated wide-leg trousers, beige suede ankle boots with a low block heel, a milky beige leather bucket bag with a drawstring closure over one shoulder, her hair clipped up in a loose claw clip, natural minimal makeup, standing against a clean warm beige seamless wall, soft diffused warm light from the upper left, photorealistic, 50mm lens, 35mm film grain, warm autumn palette, vertical 9:16, no text, no watermark',
+        mediaUrl: 'https://cdn.quantv.com/canvas/featured/1794641508072_1f69k7hv2qt.png',
+        objectFit: 'contain'
+      }
+    },
+    {
+      id: 'node-1794641448882-235',
+      kind: 'image',
+      title: 'Image Node (Look 5 • Charcoal Cool Blazer)',
+      x: 1162.83,
+      y: 1053.3,
+      width: 139,
+      height: 262,
+      meta: {
+        dimensions: '941 x 1672',
+        content: 'Double-click canvas to add a new node',
+        imageTone: 'soft',
+        settings: { modelId: 'cmotfqnds0000gwg7q4dtt5u3' },
+        prompt:
+          'Full-body fashion editorial photo, a 26-year-old Chinese woman, 168cm, slim build, standing straight with a confident posture, facing the camera, wearing a charcoal grey herringbone wool blazer over a black thin knit, black micro-flare trousers, black pointed-toe leather ankle boots with a slim heel, a black structured pebbled leather tote bag carried in her right hand, her hair in a sleek low bun, natural minimal makeup, standing against a clean warm beige seamless wall, dramatic side directional light from the left with crisp shadows, photorealistic, 50mm lens, 35mm film grain, warm autumn palette, vertical 9:16, no text, no watermark',
+        mediaUrl: 'https://cdn.quantv.com/canvas/featured/1794641508117_ymfiv5o9t2o.png',
+        objectFit: 'contain'
+      }
+    },
+    {
+      id: 'node-1794641448882-236',
+      kind: 'image',
+      title: 'Image Node (Look 6 • Vintage Preppy Argyle)',
+      x: 1177.91,
+      y: 1390.17,
+      width: 139,
+      height: 262,
+      meta: {
+        dimensions: '941 x 1672',
+        content: 'Double-click canvas to add a new node',
+        imageTone: 'soft',
+        settings: { modelId: 'cmotfqnds0000gwg7q4dtt5u3' },
+        prompt:
+          'Full-body fashion editorial photo, a 26-year-old Chinese woman, 168cm, slim build, standing with a slight head tilt and a small natural smile, facing the camera, wearing a brown and cream argyle wool sweater vest over a white collared shirt with the cuffs showing, khaki wide-leg cotton twill chino trousers, dark brown leather derby shoes with subtle brogue perforations, an olive canvas tote bag with brown leather handles on her shoulder, her hair in a half-up ponytail, natural minimal makeup, standing against a clean warm beige seamless wall, warm afternoon directional light from the upper left, photorealistic, 50mm lens, 35mm film grain, warm autumn palette, vertical 9:16, no text, no watermark',
+        mediaUrl: 'https://cdn.quantv.com/canvas/featured/1794641508153_6ogdufcqeka.png',
+        objectFit: 'contain'
+      }
+    },
+    {
+      id: 'node-1794641448882-237',
+      kind: 'video',
+      title: 'Video Node (Autumn 6-Look Quick-Cut 15s 9:16)',
+      x: 2293.92,
+      y: 611.19,
+      width: 180,
+      height: 190,
+      meta: {
+        dimensions: '1024 x 1024',
+        content: 'Double-click canvas to add a new node',
+        imageTone: 'soft',
+        settings: {
+          modelId: 'cmt6sesgp42l0u3d02qsbdist',
+          params: { ratio: '9:16', duration: '15', resolution: '720p' }
+        },
+        prompt:
+          '15-second vertical 9:16 fashion outfit-change montage video, static tripod camera at chest height, completely locked off with zero pan, tilt, zoom, or handheld shake. Six crisp hard cuts synced precisely to heavy drum beats.\nConsistent warm beige seamless wall, soft upper-left directional light, 50mm lens, warm autumn palette, 35mm film grain. Same 26-year-old woman (168cm, slim build) standing in the exact same spot with full-body framing throughout.\n0-2s: Standing facing away, wearing light grey crinkled shirt, black wide-leg trousers, brown suede ankle boots, black leather shoulder bag. She turns to face the camera as her hair sweeps across the frame.\n2-4s: Hard cut, identical framing. Wearing oatmeal cable-knit cardigan, ivory straight-leg trousers, brown loafers, camel tote bag. She turns sideways as the cardigan hem sweeps past.\n4-6s: Hard cut. Wearing caramel corduroy blazer, dark indigo jeans, brown Chelsea boots, burgundy shoulder bag. She steps forward as the blazer hem swings past.\n6-8s: Hard cut. Wearing cream turtleneck, oat pleated wide-leg trousers, beige suede ankle boots, milky bucket bag. She raises her hand to adjust her claw clip as the wide sleeve crosses frame.\n8-10s: Hard cut. Wearing charcoal herringbone blazer over black knit, black micro-flare trousers, pointed-toe ankle boots, structured black tote. Arms crossed, chin slightly raised in crisper side light, then lowers her arm across frame.\n10-12s: Hard cut. Wearing brown/cream argyle sweater vest over white shirt, khaki wide-leg chinos, brown derby shoes, olive canvas tote. A breeze blows golden maple leaves across the lens as she turns toward the light.\n12-15s: Hard cut. Now standing in an autumn park carpeted with golden fallen leaves, wearing the argyle vest outfit, warm backlight filtering through trees while golden leaves drift gently down as she gazes calmly at the camera.\nAudio: Warm instrumental lo-fi hip-hop beat (4/4 brush drums, lazy electric piano loop, upright bass, subtle vinyl crackle), purely instrumental with zero vocals/lyrics/dialogue; crisp fabric rustle SFX right before each cut and gentle autumn wind with rustling leaves at the end. Photorealistic fashion editorial quality, no fades, no dissolves, no text or watermarks.',
+        mediaUrl: 'https://cdn.quantv.com/canvas/featured/1794641508155_yjjqyr432gi.mp4',
+        objectFit: 'contain'
+      }
+    }
+  ],
+  edges: [
+    { id: 'edge-1794641448882-238', from: 'node-1794641448882-231', to: 'node-1794641448882-232' },
+    { id: 'edge-1794641448882-239', from: 'node-1794641448882-231', to: 'node-1794641448882-233' },
+    { id: 'edge-1794641448882-240', from: 'node-1794641448882-231', to: 'node-1794641448882-234' },
+    { id: 'edge-1794641448882-241', from: 'node-1794641448882-231', to: 'node-1794641448882-235' },
+    { id: 'edge-1794641448882-242', from: 'node-1794641448882-231', to: 'node-1794641448882-236' },
+    { id: 'edge-1794641448882-243', from: 'node-1794641448882-231', to: 'node-1794641448882-237' },
+    { id: 'edge-1794641448882-244', from: 'node-1794641448882-232', to: 'node-1794641448882-237' },
+    { id: 'edge-1794641448882-245', from: 'node-1794641448882-233', to: 'node-1794641448882-237' },
+    { id: 'edge-1794641448882-246', from: 'node-1794641448882-234', to: 'node-1794641448882-237' },
+    { id: 'edge-1794641448882-247', from: 'node-1794641448882-235', to: 'node-1794641448882-237' },
+    { id: 'edge-1794641448882-248', from: 'node-1794641448882-236', to: 'node-1794641448882-237' }
+  ],
+  stickers: [
+    {
+      id: 'sticker-1794641469915-249',
+      x: 205,
+      y: 507,
+      width: 260,
+      height: 120,
+      targetType: 'free',
+      title: 'Note • Look 1',
+      html: '<p><b>Grey Commuter</b> — Base Look • Timeless &amp; Versatile</p>',
+      style: { theme: 'yellow', opacity: 0.98, radius: 16 }
+    },
+    {
+      id: 'sticker-1794641474194-250',
+      x: 1378,
+      y: 118,
+      width: 250,
+      height: 110,
+      targetType: 'free',
+      title: 'Note • Look 2',
+      html: '<p><b>Oatmeal Knit</b> — Cozy • Most Photogenic</p>',
+      style: { theme: 'yellow', opacity: 0.98, radius: 16 }
+    },
+    {
+      id: 'sticker-1794641476788-251',
+      x: 1376,
+      y: 490,
+      width: 250,
+      height: 110,
+      targetType: 'free',
+      title: 'Note • Look 3',
+      html: '<p><b>Caramel Vintage</b> — Storytelling • Autumn Leaves Vibe</p>',
+      style: { theme: 'yellow', opacity: 0.98, radius: 16 }
+    },
+    {
+      id: 'sticker-1794641479132-252',
+      x: 1390,
+      y: 795,
+      width: 250,
+      height: 110,
+      targetType: 'free',
+      title: 'Note • Look 4',
+      html: '<p><b>Cream Sweet</b> — Soft &amp; Clean Aesthetic</p>',
+      style: { theme: 'yellow', opacity: 0.98, radius: 16 }
+    },
+    {
+      id: 'sticker-1794641482523-253',
+      x: 1368,
+      y: 1132,
+      width: 250,
+      height: 110,
+      targetType: 'free',
+      title: 'Note • Look 5',
+      html: '<p><b>Charcoal Cool</b> — Editorial Luxury • Slimming Silhouette</p>',
+      style: { theme: 'yellow', opacity: 0.98, radius: 16 }
+    },
+    {
+      id: 'sticker-1794641487573-254',
+      x: 1385,
+      y: 1420,
+      width: 250,
+      height: 110,
+      targetType: 'free',
+      title: 'Note • Look 6',
+      html: '<p><b>Vintage Preppy</b> — Youthful &amp; Fresh</p>',
+      style: { theme: 'yellow', opacity: 0.98, radius: 16 }
+    }
+  ]
+};
+
+export const AUTUMN_OUTFIT_PROJECT = convertDaAiCanvasToProject(AUTUMN_OUTFIT_RAW_CANVAS_JSON, {
+  id: 'proj-autumn-vibes-outfit-change',
+  category: 'video',
+  name: 'Autumn Vibes Outfit Change — 6-Look Quick-Cut 15s (9:16)',
+  description:
+    'Dự án thời trang Thu Đông 6 bộ trang phục (Look 1 → Look 6) kết nối thành Video Quick-Cut Montage 15 giây (9:16) chuyển cảnh theo nhịp trống Lo-Fi.',
+  badge: 'Dự Án Thực Tế (6 Looks)',
+  techTag: 'DA-V2',
+  previewVideo: 'https://cdn.quantv.com/canvas/featured/1794641508155_yjjqyr432gi.mp4',
+  previewImage: 'https://cdn.quantv.com/canvas/featured/1794641508070_a9wh2hae83h.png'
+});

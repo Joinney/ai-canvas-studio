@@ -19,7 +19,12 @@ import LayerPanel from './components/LayerPanel';
 import LayerProperties from './components/LayerProperties';
 import HomeDashboard, { PRESET_TEMPLATES } from './components/HomeDashboard';
 import WorkflowNodeCanvas from './components/WorkflowNodeCanvas';
-import { WINTER_FUR_PROJECT, MIRROR_SELFIE_PROJECT, BEAUTY_MIST_PROJECT } from './utils/daCanvasConverter';
+import {
+  WINTER_FUR_PROJECT,
+  MIRROR_SELFIE_PROJECT,
+  BEAUTY_MIST_PROJECT,
+  AUTUMN_OUTFIT_PROJECT
+} from './utils/daCanvasConverter';
 
 const cloneProjectSafe = (proj) => {
   if (!proj) return proj;
@@ -109,6 +114,9 @@ export default function App() {
           if (!map.has(BEAUTY_MIST_PROJECT.id)) {
             map.set(BEAUTY_MIST_PROJECT.id, cloneProjectSafe(BEAUTY_MIST_PROJECT));
           }
+          if (!map.has(AUTUMN_OUTFIT_PROJECT.id)) {
+            map.set(AUTUMN_OUTFIT_PROJECT.id, cloneProjectSafe(AUTUMN_OUTFIT_PROJECT));
+          }
           const merged = Array.from(map.values());
           localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
           return merged;
@@ -117,6 +125,7 @@ export default function App() {
       const initial = [
         cloneProjectSafe(MIRROR_SELFIE_PROJECT),
         cloneProjectSafe(BEAUTY_MIST_PROJECT),
+        cloneProjectSafe(AUTUMN_OUTFIT_PROJECT),
         cloneProjectSafe(WINTER_FUR_PROJECT)
       ];
       localStorage.setItem(STORAGE_KEY, JSON.stringify(initial));
@@ -125,6 +134,7 @@ export default function App() {
       return [
         cloneProjectSafe(MIRROR_SELFIE_PROJECT),
         cloneProjectSafe(BEAUTY_MIST_PROJECT),
+        cloneProjectSafe(AUTUMN_OUTFIT_PROJECT),
         cloneProjectSafe(WINTER_FUR_PROJECT)
       ];
     }
@@ -352,6 +362,15 @@ export default function App() {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(BEAUTY_MIST_PROJECT)
+          }).catch(() => {});
+        }
+
+        if (!map.has(AUTUMN_OUTFIT_PROJECT.id)) {
+          map.set(AUTUMN_OUTFIT_PROJECT.id, cloneProjectSafe(AUTUMN_OUTFIT_PROJECT));
+          fetch('http://localhost:5001/api/ai/projects', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(AUTUMN_OUTFIT_PROJECT)
           }).catch(() => {});
         }
 
