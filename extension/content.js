@@ -71,7 +71,7 @@ function appendBridgeLog(text, bg = '') {
   const entry = {
     id: `muse-${now}-${Math.random().toString(36).slice(2, 6)}`,
     time: new Date().toLocaleTimeString('vi-VN', { hour12: false }),
-    source: isMuse ? 'Muse AI' : 'Google Flow',
+    source: 'AI Engine',
     text,
     level
   };
@@ -141,7 +141,7 @@ function applyMuseEmbeddedLayout() {
       document.documentElement.style.overflowX = '';
       if (badge) badge.style.display = 'none';
       if (panel) panel.style.display = 'none';
-      if (hideMuseBtn) hideMuseBtn.textContent = '👁️ Hiện Muse';
+      if (hideMuseBtn) hideMuseBtn.textContent = '👁️ Hiện AI Engine';
       if (resizer) resizer.style.right = '0px';
     } else {
       document.documentElement.style.marginLeft = `${w}vw`;
@@ -155,7 +155,7 @@ function applyMuseEmbeddedLayout() {
         panel.style.left = `calc(${w}vw + 14px)`;
         panel.style.display = window.__AI_CANVAS_LOG_OPEN__ ? 'flex' : 'none';
       }
-      if (hideMuseBtn) hideMuseBtn.textContent = '👁️ Ẩn Muse (Chạy ngầm)';
+      if (hideMuseBtn) hideMuseBtn.textContent = '👁️ Ẩn AI Engine (Chạy ngầm)';
       if (resizer) resizer.style.right = '-5px';
     }
     if (toggleBtn) toggleBtn.textContent = '✕ Đóng Tool';
@@ -224,12 +224,12 @@ function toggleMuseEmbeddedTool(forceOpen = null) {
       <div style="height:40px;background:linear-gradient(90deg,#0f172a,#1e293b);color:#f8fafc;display:flex;align-items:center;justify-content:space-between;padding:0 12px;border-bottom:1px solid rgba(255,255,255,0.12);font-size:12px;font-weight:700;flex-shrink:0;gap:8px;">
         <div style="display:flex;align-items:center;gap:8px;min-width:0;">
           <span style="width:8px;height:8px;border-radius:50%;background:#10b981;box-shadow:0 0 8px #10b981;flex-shrink:0;"></span>
-          <span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">🎨 AI Canvas Studio • Dùng chung trang Muse AI</span>
+          <span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">🎨 AI Canvas Studio • Chế độ song song</span>
         </div>
         <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;">
           <button id="ai-canvas-embed-w50" style="background:rgba(255,255,255,0.12);border:none;color:#e2e8f0;padding:4px 8px;border-radius:6px;font-size:11px;cursor:pointer;">50/50</button>
           <button id="ai-canvas-embed-w68" style="background:rgba(255,255,255,0.12);border:none;color:#e2e8f0;padding:4px 8px;border-radius:6px;font-size:11px;cursor:pointer;">68/32</button>
-          <button id="ai-canvas-embed-hide-muse" style="background:rgba(16,185,129,0.28);border:1px solid rgba(16,185,129,0.5);color:#a7f3d0;padding:4px 9px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;">👁️ Ẩn Muse (Chạy ngầm)</button>
+          <button id="ai-canvas-embed-hide-muse" style="background:rgba(16,185,129,0.28);border:1px solid rgba(16,185,129,0.5);color:#a7f3d0;padding:4px 9px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;">👁️ Ẩn AI Engine (Chạy ngầm)</button>
           <button id="ai-canvas-embed-split" style="background:rgba(14,165,233,0.28);border:1px solid rgba(56,189,248,0.45);color:#bae6fd;padding:4px 8px;border-radius:6px;font-size:11px;cursor:pointer;" title="Tách thành 2 cửa sổ song song">🪟 Tách 2 cửa sổ</button>
           <button id="ai-canvas-embed-close" style="background:rgba(239,68,68,0.25);border:none;color:#fecaca;padding:4px 8px;border-radius:6px;font-size:11px;cursor:pointer;">✕ Đóng</button>
         </div>
@@ -313,7 +313,7 @@ function mountConnectionBadge() {
     badge.title = 'Nhấn để mở / thu gọn Nhật ký hoạt động';
     badge.style.cssText =
       'position:fixed;bottom:18px;left:18px;z-index:2147483647;background:rgba(15,23,42,0.92);backdrop-filter:blur(10px);color:#fff;border:1px solid rgba(16,185,129,0.5);padding:6px 12px;border-radius:999px;font-family:system-ui,-apple-system,sans-serif;font-size:12px;font-weight:600;box-shadow:0 6px 20px rgba(0,0,0,0.45);display:flex;align-items:center;gap:8px;pointer-events:auto;cursor:pointer;user-select:none;transition:all 0.25s ease;';
-    badge.innerHTML = `<span style="width:10px;height:10px;border-radius:50%;background:#10b981;box-shadow:0 0 10px #10b981;display:inline-block;flex-shrink:0;"></span><span id="ai-canvas-flow-badge-text">AI Canvas Bridge v6.0: Đã kết nối (${isMuse ? 'Muse AI' : 'Flow'})</span><span id="ai-canvas-flow-log-count" style="background:rgba(255,255,255,0.18);padding:1px 6px;border-radius:999px;font-size:10px;">0</span><button id="ai-canvas-flow-embed-btn" style="background:rgba(14,165,233,0.35);border:1px solid rgba(56,189,248,0.5);color:#e0f2fe;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:700;cursor:pointer;">🧩 Mở Tool</button><span id="ai-canvas-flow-badge-arrow" style="font-size:10px;opacity:0.85;">▲</span>`;
+    badge.innerHTML = `<span style="width:10px;height:10px;border-radius:50%;background:#10b981;box-shadow:0 0 10px #10b981;display:inline-block;flex-shrink:0;"></span><span id="ai-canvas-flow-badge-text">AI Canvas Bridge v6.0: Đã kết nối (AI Engine)</span><span id="ai-canvas-flow-log-count" style="background:rgba(255,255,255,0.18);padding:1px 6px;border-radius:999px;font-size:10px;">0</span><button id="ai-canvas-flow-embed-btn" style="background:rgba(14,165,233,0.35);border:1px solid rgba(56,189,248,0.5);color:#e0f2fe;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:700;cursor:pointer;">🧩 Mở Tool</button><span id="ai-canvas-flow-badge-arrow" style="font-size:10px;opacity:0.85;">▲</span>`;
     badge.querySelector('#ai-canvas-flow-embed-btn')?.addEventListener('click', (e) => {
       e.stopPropagation();
       toggleMuseEmbeddedTool();
@@ -335,7 +335,7 @@ function mountConnectionBadge() {
       'position:fixed;bottom:62px;left:18px;z-index:2147483647;width:360px;max-width:calc(100vw - 36px);max-height:280px;background:rgba(15,23,42,0.95);backdrop-filter:blur(12px);color:#f8fafc;border:1px solid rgba(56,189,248,0.35);border-radius:16px;box-shadow:0 12px 32px rgba(0,0,0,0.55);display:none;flex-direction:column;overflow:hidden;font-family:system-ui,-apple-system,sans-serif;';
     panel.innerHTML = `
       <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:rgba(30,41,59,0.9);border-bottom:1px solid rgba(255,255,255,0.1);font-size:12px;font-weight:700;">
-        <span>📋 Nhật ký ${isMuse ? 'Muse AI' : 'Flow'} Bridge</span>
+        <span>📋 Nhật ký AI Engine Bridge</span>
         <div style="display:flex;gap:6px;">
           <button id="ai-canvas-flow-log-clear" style="background:rgba(255,255,255,0.12);border:none;color:#cbd5e1;padding:2px 8px;border-radius:6px;font-size:11px;cursor:pointer;">Xóa</button>
           <button id="ai-canvas-flow-log-close" style="background:rgba(255,255,255,0.12);border:none;color:#cbd5e1;padding:2px 8px;border-radius:6px;font-size:11px;cursor:pointer;">Thu gọn ▾</button>
@@ -1438,14 +1438,12 @@ async function fillPromptAndSubmit(rawPromptText, mode = 'IMAGE') {
   if (!promptEl) {
     const isMuse = window.location.hostname.includes('muse.ai');
     throw new Error(
-      isMuse
-        ? 'Không tìm thấy ô nhập câu lệnh trên Muse AI! Hãy đăng nhập vào giao diện tạo video của Muse AI.'
-        : 'Không tìm thấy ô nhập Prompt! Hãy mở trang tạo video trên Muse AI hoặc Google Flow.'
+      'Không tìm thấy ô nhập câu lệnh trên AI Engine! Hãy đăng nhập vào giao diện tạo ảnh/video của AI Engine.'
     );
   }
 
   const isMuse = window.location.hostname.includes('muse.ai');
-  updateBridgeBadgeText(`v5.1: Đang nhập Prompt (${isMuse ? 'Muse AI' : (mode === 'VIDEO' ? 'Veo 2' : 'Imagen 3')})...`, '#2563eb');
+  updateBridgeBadgeText(`v5.1: Đang nhập Prompt (AI Engine)...`, '#2563eb');
   await typePromptTextIntoElement(promptEl, promptText);
   await new Promise((r) => setTimeout(r, 500));
 
@@ -1467,17 +1465,13 @@ async function fillPromptAndSubmit(rawPromptText, mode = 'IMAGE') {
   const targetInfo = findFlowSubmitTarget(promptEl);
   if (!targetInfo || !targetInfo.el) {
     throw new Error(
-      isMuse
-        ? 'Không tìm thấy nút Gửi (Mũi tên xanh ↑ trên Muse AI)! Hãy kiểm tra ô prompt hoặc bấm Gửi thủ công trên trang Muse AI.'
-        : 'Không tìm thấy nút Gửi (Mũi tên trên Google Flow)! Hãy kiểm tra thanh nhập Prompt.'
+      'Không tìm thấy nút Gửi (↑) trên AI Engine! Hãy kiểm tra ô prompt hoặc thử lại.'
     );
   }
 
   if (targetInfo.el.disabled || targetInfo.el.getAttribute?.('aria-disabled') === 'true') {
     throw new Error(
-      isMuse
-        ? 'Nút Gửi trên Muse AI đang bị khóa (disabled). Vui lòng đợi tải xong ảnh đính kèm hoặc bấm nút Gửi xanh (↑) thủ công trên trang Muse AI!'
-        : 'Nút Gửi trên Google Flow vẫn bị khóa (disabled). Vui lòng đợi Google Flow tải xong ảnh đính kèm hoặc bấm Gửi thủ công trên trang Flow!'
+      'Nút Gửi trên AI Engine đang bị khóa (disabled). Vui lòng đợi tải xong ảnh đính kèm!'
     );
   }
 
@@ -1499,7 +1493,7 @@ async function fillPromptAndSubmit(rawPromptText, mode = 'IMAGE') {
     if (/\b(stop|dừng|cancel)\b/i.test(btnLabel) || btnLabel.includes('⏹') || btnLabel.includes('■')) {
       console.warn('[AI Canvas] Bỏ qua click vì nút đang ở trạng thái Stop/Dừng.');
     } else {
-      updateBridgeBadgeText(`v5.8: Bấm nút Gửi (${isMuse ? '↑ Muse AI' : '➔ Flow'})...`, '#e11d48');
+      updateBridgeBadgeText(`v5.8: Bấm nút Gửi (AI Engine)...`, '#e11d48');
       showClickMarker(currentTarget.x, currentTarget.y);
 
       // CHỈ GỬI DUY NHẤT 1 LẦN NATIVE HARDWARE CLICK (isTrusted: true), KHÔNG gọi el.click() trước đó
@@ -1556,11 +1550,11 @@ async function fillPromptAndSubmit(rawPromptText, mode = 'IMAGE') {
 
   // 5. XÁC MINH CUỐI CÙNG: Nếu vẫn còn nguyên text trong ô nhập và nút Stop chưa bật => báo lỗi rõ ràng, KHÔNG chạy mù sang bước chờ kết quả
   if (isMuse && currentText.length > 10 && !stopBtnActive) {
-    updateBridgeBadgeText('❌ Chưa gửi được lệnh lên Muse AI! Hãy kiểm tra nút Gửi.', '#dc2626');
-    throw new Error('Không thể xác nhận đã gửi câu lệnh lên Muse AI (ô nhập vẫn còn chữ). Vui lòng thử lại!');
+    updateBridgeBadgeText('❌ Chưa gửi được lệnh lên AI Engine! Hãy kiểm tra nút Gửi.', '#dc2626');
+    throw new Error('Không thể xác nhận đã gửi câu lệnh lên AI Engine (ô nhập vẫn còn chữ). Vui lòng thử lại!');
   }
 
-  updateBridgeBadgeText(`🚀 v5.9: Đã gửi lệnh thành công! Đang đợi kết quả từ ${isMuse ? 'Muse AI' : 'Google Flow'}...`, '#7c3aed');
+  updateBridgeBadgeText(`🚀 v5.9: Đã gửi lệnh thành công! Đang đợi kết quả từ AI Engine...`, '#7c3aed');
 }
 
 function scrollFlowGalleryToTop() {
@@ -1846,7 +1840,7 @@ function captureNewMediaOutput(
     const timer = setTimeout(() => {
       if (isResolved) return;
       cleanup();
-      reject(new Error(`Quá thời gian chờ ${isMuse ? 'Muse AI' : 'Google Flow'} sinh ${mode === 'VIDEO' ? 'Video' : 'Ảnh'} (${Math.round(timeoutMs / 1000)}s)`));
+      reject(new Error(`Quá thời gian chờ AI Engine sinh ${mode === 'VIDEO' ? 'Video' : 'Ảnh'} (${Math.round(timeoutMs / 1000)}s)`));
     }, timeoutMs);
 
     const checkAutoApproveButtons = () => {
@@ -1910,7 +1904,7 @@ function captureNewMediaOutput(
         const elapsed = now - submitTimestamp;
         if (elapsed < MIN_WAIT_MS) {
           updateBridgeBadgeText(
-            `⏳ ${isMuse ? 'Muse AI' : 'Google Flow'} đang xử lý... (${Math.max(1, Math.round((MIN_WAIT_MS - elapsed) / 1000))}s)`,
+            `⏳ AI Engine đang xử lý... (${Math.max(1, Math.round((MIN_WAIT_MS - elapsed) / 1000))}s)`,
             '#e11d48'
           );
           return;
@@ -1927,7 +1921,7 @@ function captureNewMediaOutput(
             bodyText.includes('sẵn sàng tạo video'))
         ) {
           hasAutoConfirmedMuse = true;
-          updateBridgeBadgeText('⚡ Phát hiện Muse AI chờ xác nhận -> Tự động xác nhận "Tạo video ngay"...', '#f59e0b');
+          updateBridgeBadgeText('⚡ Phát hiện AI Engine chờ xác nhận -> Tự động xác nhận "Tạo video ngay"...', '#f59e0b');
           dismissAnyOpenModal();
 
           const promptTarget = findFlowPromptElement();
@@ -1952,7 +1946,7 @@ function captureNewMediaOutput(
         if (document.hidden && elapsed > 8000 && now - lastWakeupPulseAt >= 8000) {
           lastWakeupPulseAt = now;
           updateBridgeBadgeText(
-            `⚡ Đánh thức tab ${isMuse ? 'Muse AI' : 'Flow'} để lấy kết quả rồi tự quay về trang Tool...`,
+            `⚡ Đánh thức tab AI Engine để lấy kết quả rồi tự quay về trang Tool...`,
             '#3b82f6'
           );
           await pulseTabWakeup();
@@ -2042,7 +2036,7 @@ function captureNewMediaOutput(
 
           // Nếu ở mode VIDEO: Bắt buộc đã trôi qua ít nhất 18s
           if (mode === 'VIDEO' && elapsed < 18000) {
-            updateBridgeBadgeText(`⏳ Đang đợi Muse AI render xong Video 9:16... (${Math.round(elapsed / 1000)}s / 20s)`, '#3b82f6');
+            updateBridgeBadgeText(`⏳ Đang đợi AI Engine render xong Video 9:16... (${Math.round(elapsed / 1000)}s / 20s)`, '#3b82f6');
             return;
           }
 
@@ -2124,7 +2118,7 @@ function captureNewMediaOutput(
             } catch (e) {}
           }
 
-          updateBridgeBadgeText(`✅ v6.0: Bắt được kết quả ${mode === 'VIDEO' ? 'Video MP4' : 'Ảnh'} từ ${isMuse ? 'Muse AI' : 'Google Flow'}! Đang đồng bộ về bàn vẽ...`, '#10b981');
+          updateBridgeBadgeText(`✅ v6.0: Bắt được kết quả ${mode === 'VIDEO' ? 'Video MP4' : 'Ảnh'} từ AI Engine! Đang đồng bộ về bàn vẽ...`, '#10b981');
           let base64Data = finalMediaSrc;
           if (mode === 'VIDEO') {
             if (finalMediaSrc.startsWith('blob:')) {
@@ -2141,7 +2135,7 @@ function captureNewMediaOutput(
 
         if (isMuseBusy || flowProgressActive) {
           updateBridgeBadgeText(
-            `⚡ ${isMuse ? 'Muse AI' : 'Google Flow'} đang thực thi sinh ${mode === 'VIDEO' ? 'Video' : 'Ảnh'}... (${Math.round(elapsed / 1000)}s)`,
+            `⚡ AI Engine đang thực thi sinh ${mode === 'VIDEO' ? 'Video' : 'Ảnh'}... (${Math.round(elapsed / 1000)}s)`,
             '#f59e0b'
           );
           return; // Đang chạy, chưa có kết quả hoàn chỉnh
@@ -2160,7 +2154,7 @@ function captureNewMediaOutput(
 
           if (hasPendingLoadingMedia) {
             textOnlySince = null;
-            updateBridgeBadgeText(`⏳ Đang tải ảnh kết quả từ Muse AI... (${Math.round(elapsed / 1000)}s)`, '#3b82f6');
+            updateBridgeBadgeText(`⏳ Đang tải ảnh kết quả từ AI Engine... (${Math.round(elapsed / 1000)}s)`, '#3b82f6');
             return;
           }
 
@@ -2174,7 +2168,7 @@ function captureNewMediaOutput(
             if (isExplicitRefusal) {
               const snippet = assistantText.slice(0, 150);
               cleanup();
-              const errMsg = `Muse AI từ chối / chỉ trả về chữ (không tạo được ${mode === 'VIDEO' ? 'Video' : 'Ảnh'}): "${snippet}"`;
+              const errMsg = `AI Engine từ chối / chỉ trả về chữ (không tạo được ${mode === 'VIDEO' ? 'Video' : 'Ảnh'}): "${snippet}"`;
               updateBridgeBadgeText(`❌ ${errMsg}`, '#dc2626');
               reject(new Error(errMsg));
               return;
@@ -2188,7 +2182,7 @@ function captureNewMediaOutput(
               if (now - textOnlySince >= 12000) {
                 const snippet = assistantText.slice(0, 150);
                 cleanup();
-                const errMsg = `Muse AI chỉ trả về chữ, không xuất ${mode === 'VIDEO' ? 'Video' : 'Ảnh'}: "${snippet}"`;
+                const errMsg = `AI Engine chỉ trả về chữ, không xuất ${mode === 'VIDEO' ? 'Video' : 'Ảnh'}: "${snippet}"`;
                 updateBridgeBadgeText(`❌ ${errMsg}`, '#dc2626');
                 reject(new Error(errMsg));
                 return;
@@ -2209,14 +2203,14 @@ function captureNewMediaOutput(
           updateBridgeBadgeText('⚠️ Bị từ chối tạo (Hãy đổi ảnh hoặc câu lệnh)', '#dc2626');
           reject(
             new Error(
-              `${isMuse ? 'Muse AI' : 'Google Flow'} báo không thành công. Hãy thử đổi câu lệnh Prompt!`
+              `AI Engine báo không thành công. Hãy thử đổi câu lệnh Prompt!`
             )
           );
           return;
         }
 
         updateBridgeBadgeText(
-          `🔍 Đang chờ ${isMuse ? 'Muse AI' : 'Google Flow'} xuất ${mode === 'VIDEO' ? 'Video' : 'Ảnh'}... (${Math.round(elapsed / 1000)}s)`,
+          `🔍 Đang chờ AI Engine xuất ${mode === 'VIDEO' ? 'Video' : 'Ảnh'}... (${Math.round(elapsed / 1000)}s)`,
           '#f59e0b'
         );
       } catch (err) {
@@ -2326,7 +2320,7 @@ window.__AI_CANVAS_RUN_FLOW_TASK__ = async function (payload = {}) {
       submitTimestamp,
       prompt
     );
-    updateBridgeBadgeText(`✅ v5.5: Đã nhận kết quả thành công từ ${isMuse ? 'Muse AI' : 'Google Flow'}!`, 'rgba(16,185,129,0.95)');
+    updateBridgeBadgeText(`✅ v5.5: Đã nhận kết quả thành công từ AI Engine!`, 'rgba(16,185,129,0.95)');
     return {
       ok: true,
       mode,

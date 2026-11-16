@@ -305,7 +305,7 @@ async function processQueue() {
         broadcastLogToCanvasTabs({
           time: new Date().toLocaleTimeString('vi-VN', { hour12: false }),
           source: 'Bridge',
-          text: `⚙️ Đang gửi lệnh (${job.payload?.mode || 'IMAGE'}) sang tab Muse AI chạy ngầm...`,
+          text: `⚙️ Đang gửi lệnh (${job.payload?.mode || 'IMAGE'}) sang AI Engine chạy ngầm...`,
           level: 'info'
         });
 
@@ -343,7 +343,7 @@ async function processQueue() {
           success: false,
           ok: false,
           tabId: worker?.tabId,
-          error: err.message || 'Lỗi khi thực thi trên tab Google Flow / Muse AI'
+          error: err.message || 'Lỗi khi thực thi trên AI Engine'
         });
       } finally {
         if (wakeupTimer) clearInterval(wakeupTimer);
@@ -602,7 +602,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     broadcastLogToCanvasTabs({
       time: new Date().toLocaleTimeString('vi-VN', { hour12: false }),
       source: 'Bridge',
-      text: '⏹️ Đã dừng toàn bộ tác vụ đang chạy trên Muse AI!',
+      text: '⏹️ Đã dừng toàn bộ tác vụ đang chạy trên AI Engine!',
       level: 'warn'
     });
     sendResponse({ ok: true });

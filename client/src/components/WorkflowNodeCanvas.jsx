@@ -41,14 +41,14 @@ const NODE_TYPES_META = {
     hasOutput: true
   },
   FLOW_IMAGE_GEN: {
-    label: 'Cột 2: Tạo Ảnh (Muse / Flow)',
+    label: 'Cột 2: Tạo Ảnh (AI Studio)',
     badgeClass: 'bg-cyan-500/15 text-cyan-800 border-cyan-500/35',
     headerAccent: 'border-t-4 border-t-cyan-500',
     hasInput: true,
     hasOutput: true
   },
   FLOW_VIDEO_GEN: {
-    label: 'Cột 3: Tạo Video (Muse / Veo 2)',
+    label: 'Cột 3: Tạo Video (AI Video)',
     badgeClass: 'bg-teal-500/15 text-teal-800 border-teal-500/35',
     headerAccent: 'border-t-4 border-t-teal-500',
     hasInput: true,
@@ -174,7 +174,7 @@ export default function WorkflowNodeCanvas({ project, onSaveProject }) {
       id: 'init-1',
       time: new Date().toLocaleTimeString('vi-VN', { hour12: false }),
       source: 'Canvas',
-      text: 'Sẵn sàng chạy Workflow ngầm với Muse AI / Google Flow',
+      text: 'Sẵn sàng chạy Workflow ngầm với AI Engine',
       level: 'success'
     }
   ]);
@@ -207,7 +207,7 @@ export default function WorkflowNodeCanvas({ project, onSaveProject }) {
     const onExtLog = (event) => {
       if (event.data?.source === 'AI_CANVAS_EXTENSION' && event.data?.type === 'BRIDGE_LOG_EVENT' && event.data?.log) {
         const l = event.data.log;
-        pushWorkflowLog(l.text, l.level || 'info', l.source || 'Muse AI', l.id || null, l.time || null);
+        pushWorkflowLog(l.text, l.level || 'info', l.source || 'AI Engine', l.id || null, l.time || null);
       }
     };
     window.addEventListener('message', onExtLog);
@@ -585,12 +585,12 @@ export default function WorkflowNodeCanvas({ project, onSaveProject }) {
       const out = res?.base64 || res?.rawUrl;
       if (!out) {
         throw new Error(
-          `Muse AI / Google Flow không trả về video cho "${node.data.title}". Hãy kiểm tra lại tab tạo Video!`
+          `AI Engine không trả về video cho "${node.data.title}". Hãy kiểm tra lại tiến trình tạo Video!`
         );
       }
       if (inputMediaList.includes(out) || usedOutputsSet.has(out)) {
         throw new Error(
-          `Kết quả nhận về bị trùng với ảnh đầu vào hoặc output cũ cho "${node.data.title}". Muse AI chưa hoàn tất sinh Video mới!`
+          `Kết quả nhận về bị trùng với ảnh đầu vào hoặc output cũ cho "${node.data.title}". AI Engine chưa hoàn tất sinh Video mới!`
         );
       }
       return out;
@@ -781,7 +781,7 @@ export default function WorkflowNodeCanvas({ project, onSaveProject }) {
           const val = runtimeOutputs[sn.id];
           if (!val) {
             throw new Error(
-              `Node "${targetNode?.data?.title}" chưa thể chạy vì node nguồn "${sn.data?.title}" chưa có kết quả trả về từ Muse AI!`
+              `Node "${targetNode?.data?.title}" chưa thể chạy vì node nguồn "${sn.data?.title}" chưa có kết quả trả về từ AI Engine!`
             );
           }
         }
@@ -836,7 +836,7 @@ export default function WorkflowNodeCanvas({ project, onSaveProject }) {
         const inputs = getInputsForNode(node.id);
         setSelectedNodeId(node.id);
         setStatusBanner(
-          `⚡ [Bước ${stepIndex}/${totalSteps}] Đang chờ Muse AI hoàn tất: "${node.data.title}" (${inputs.length} dữ liệu đầu vào)... Đợi có kết quả nạp vào bàn vẽ mới chuyển bước tiếp theo!`
+          `⚡ [Bước ${stepIndex}/${totalSteps}] Đang chờ AI Engine hoàn tất: "${node.data.title}" (${inputs.length} dữ liệu đầu vào)... Đợi có kết quả nạp vào bàn vẽ mới chuyển bước tiếp theo!`
         );
         updateNodeData(node.id, { status: 'running', error: null });
 
@@ -859,7 +859,7 @@ export default function WorkflowNodeCanvas({ project, onSaveProject }) {
           for (let sec = 4; sec > 0; sec--) {
             if (isCancelledRef.current) break;
             setStatusBanner(
-              `⏳ [Bước ${stepIndex - 1}/${totalSteps}] Đã có kết quả "${node.data.title}" trên bàn vẽ! Nghỉ ${sec}s để Muse AI ổn định rồi mới chuyển sang bước tiếp theo...`
+              `⏳ [Bước ${stepIndex - 1}/${totalSteps}] Đã có kết quả "${node.data.title}" trên bàn vẽ! Nghỉ ${sec}s để AI Engine ổn định rồi mới chuyển sang bước tiếp theo...`
             );
             await new Promise((r) => setTimeout(r, 1000));
           }
@@ -1775,7 +1775,7 @@ export default function WorkflowNodeCanvas({ project, onSaveProject }) {
         {isLogPanelOpen && (
           <div className="w-[380px] max-w-[calc(100vw-32px)] max-h-[300px] rounded-2xl bg-slate-900/95 backdrop-blur-md border border-sky-400/35 text-slate-100 shadow-2xl flex flex-col overflow-hidden">
             <div className="flex items-center justify-between px-3 py-2 bg-slate-800/90 border-b border-white/10 text-xs font-bold">
-              <span>📋 Nhật ký chạy Workflow &amp; Muse AI</span>
+              <span>📋 Nhật ký chạy Workflow &amp; AI Engine</span>
               <div className="flex items-center gap-1.5">
                 <button
                   onClick={() =>
@@ -1802,7 +1802,7 @@ export default function WorkflowNodeCanvas({ project, onSaveProject }) {
                     )
                   }
                   className="px-2 py-0.5 rounded-md bg-emerald-500/20 hover:bg-emerald-500/35 text-emerald-300 text-[11px] font-semibold transition cursor-pointer"
-                  title="Mở 2 cửa sổ song song (Trái: Tool, Phải: Muse AI)"
+                  title="Mở 2 cửa sổ song song (Trái: Tool, Phải: AI Engine)"
                 >
                   🪟 Chia đôi
                 </button>
@@ -1811,9 +1811,9 @@ export default function WorkflowNodeCanvas({ project, onSaveProject }) {
                     window.postMessage({ source: 'AI_CANVAS_WEB', type: 'FOCUS_FLOW_TAB', jobId: 'focus-' + Date.now() }, '*')
                   }
                   className="px-2 py-0.5 rounded-md bg-sky-500/20 hover:bg-sky-500/35 text-sky-300 text-[11px] font-semibold transition cursor-pointer"
-                  title="Chuyển sang xem tab Muse AI"
+                  title="Chuyển sang xem tab AI Engine"
                 >
-                  Mở tab Muse
+                  Mở tab AI
                 </button>
                 <button
                   onClick={() => setBridgeLogs([])}

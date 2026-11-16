@@ -323,7 +323,7 @@ export async function executeGoogleFlowNode(rawPayload, timeoutMs = 600000) {
       window.removeEventListener('message', handleMessage);
       resolve({
         done: true,
-        error: 'Quá thời gian phản hồi từ Muse AI / Google Flow (240s)'
+        error: 'Quá thời gian phản hồi từ AI Engine (240s)'
       });
     }, timeoutMs);
 
@@ -354,7 +354,7 @@ export async function executeGoogleFlowNode(rawPayload, timeoutMs = 600000) {
         } else {
           resolve({
             done: true,
-            error: res?.error || 'Lỗi thực thi Node trên Muse AI / Google Flow'
+            error: res?.error || 'Lỗi thực thi Node trên AI Engine'
           });
         }
       }
@@ -391,7 +391,7 @@ export async function executeGoogleFlowNode(rawPayload, timeoutMs = 600000) {
   if (res && res.success && res.ok) {
     return res;
   }
-  throw new Error(res?.error || data?.error || 'Lỗi thực thi Node trên Muse AI / Google Flow');
+  throw new Error(res?.error || data?.error || 'Lỗi thực thi Node trên AI Engine');
 }
 
 /**

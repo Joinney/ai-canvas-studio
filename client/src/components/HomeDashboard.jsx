@@ -352,7 +352,7 @@ export default function HomeDashboard({
                     (flowStatus.connected ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500')
                   }
                 />
-                <span>MUSE AI BRIDGE</span>
+                <span>AI ENGINE BRIDGE</span>
               </div>
               <button
                 onClick={onCheckFlow}
@@ -367,7 +367,7 @@ export default function HomeDashboard({
             <span className="text-[10px] font-bold opacity-75">
               {flowStatus.connected
                 ? `🟢 Sẵn sàng (${flowStatus.openFlowTabs || 1} tab mở)`
-                : '🟠 Chưa phát hiện tab Muse AI'}
+                : '🟠 Chưa phát hiện tab AI Engine'}
             </span>
           </div>
 
@@ -440,7 +440,7 @@ export default function HomeDashboard({
               <span>{clockStr}</span>
             </div>
 
-            {/* Nút Test Ping Muse AI */}
+            {/* Nút Test Ping AI Engine */}
             <button
               onClick={onPingFlow}
               className="box box-hover px-3.5 py-1.5 text-xs font-extrabold flex items-center gap-1.5 cursor-pointer"
@@ -448,7 +448,7 @@ export default function HomeDashboard({
             >
               <div className="circle-overlay" />
               <Zap className="w-3.5 h-3.5 text-amber-500" />
-              <span>Test Ping Muse AI</span>
+              <span>Test Ping AI Engine</span>
             </button>
 
             {/* Nút Hướng Dẫn Sử Dụng QuanTV */}
@@ -486,7 +486,7 @@ export default function HomeDashboard({
                 <Sparkles className="w-3.5 h-3.5" /> AI Studio • ĐỘT PHÁ TỰ ĐỘNG HÓA WORKFLOW
               </span>
               <span className="text-[11px] font-extrabold px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-600 dark:text-emerald-300 border border-emerald-500/30">
-                Veo 2 & Muse AI Auto-Piping
+                AI Studio Auto-Piping
               </span>
             </div>
 
@@ -496,7 +496,7 @@ export default function HomeDashboard({
               </h1>
               <p className="text-xs font-bold leading-relaxed opacity-80">
                 Quy trình nối dây đa nhánh tự động hóa từ Ảnh Người Mẫu gốc, Thử đồ 2K đến Video Chuyển động Tự nhiên trên
-                Muse AI &amp; Google Flow. Thực thi tuần tự từng bước, đảm bảo an toàn dữ liệu và đồng bộ tức thì.
+                hệ thống AI Cloud. Thực thi tuần tự từng bước, đảm bảo an toàn dữ liệu và đồng bộ tức thì.
               </p>
             </div>
 
@@ -586,7 +586,7 @@ export default function HomeDashboard({
                   Video Studio • Video 9:16
                 </h3>
                 <p className="text-[11px] font-bold opacity-70 leading-relaxed">
-                  Sinh video chuyển động tự nhiên 7s mượt mà từ ảnh người mẫu đã thử đồ trên Muse AI.
+                  Sinh video chuyển động tự nhiên 7s mượt mà từ ảnh người mẫu đã thử đồ trên AI Studio.
                 </p>
               </div>
               <div className="flex items-center gap-1 text-[11px] font-black text-indigo-600">
@@ -937,7 +937,7 @@ export default function HomeDashboard({
                       <Workflow className="w-3.5 h-3.5" /> Sơ Đồ Node DAG
                     </span>
                     <span className="text-[10px] font-semibold opacity-75">
-                      Nối dây tuần tự 4 cột, tự động hoá chạy Muse AI.
+                      Nối dây tuần tự 4 cột, tự động hoá chạy AI Cloud.
                     </span>
                   </button>
 
