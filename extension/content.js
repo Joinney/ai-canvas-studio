@@ -409,18 +409,22 @@ function triggerDOMClickAt(targetInfo) {
 }
 
 async function clearPreviousPromptAttachments(promptEl) {
-  if (!promptEl) return;
-  const pr = promptEl.getBoundingClientRect();
+  const pr = promptEl ? promptEl.getBoundingClientRect() : null;
 
-  const topStripCandidates = queryAllDeep(document).filter((el) => {
+  // Quét toàn bộ nút xóa (x) chip đính kèm trên cả Google Flow và Muse AI
+  const removeButtons = queryAllDeep(document).filter((el) => {
     const r = el.getBoundingClientRect();
-    if (r.width < 10 || r.width > 40 || r.height < 10 || r.height > 40) return false;
-    const inTopStrip =
-      r.left >= pr.left - 40 &&
-      r.right <= pr.right + 60 &&
-      r.top >= pr.top - 155 &&
-      r.bottom <= pr.top + 14;
-    if (!inTopStrip) return false;
+    if (r.width < 10 || r.width > 50 || r.height < 10 || r.height > 50) return false;
+    
+    // Nếu có promptEl, ưu tiên các nút xóa nằm gần vùng prompt (phía trên hoặc trong dock prompt)
+    if (pr) {
+      const nearPrompt =
+        r.left >= pr.left - 120 &&
+        r.right <= pr.right + 120 &&
+        r.top >= pr.top - 280 &&
+        r.bottom <= pr.bottom + 80;
+      if (!nearPrompt) return false;
+    }
 
     const tag = (el.tagName || '').toLowerCase();
     const isClickable =
@@ -438,23 +442,34 @@ async function clearPreviousPromptAttachments(promptEl) {
     ).toLowerCase();
 
     if (/expand|fullscreen|open_in_full|mở rộng|phóng to|maximize/i.test(label)) return false;
-    return true;
+    return /remove|xóa|delete|close|dismiss|clear|huỷ|hủy/i.test(label) || label.trim() === '✕' || label.trim() === '×';
   });
 
-  for (const btn of topStripCandidates) {
+  for (const btn of removeButtons) {
     try {
       btn.click();
-      await new Promise((r) => setTimeout(r, 100));
+      await new Promise((r) => setTimeout(r, 60));
     } catch (e) {}
   }
 
+  // Xóa sạch cả các thẻ input[type="file"] cũ nếu còn lưu files
+  queryAllDeep(document)
+    .filter((el) => el.tagName === 'INPUT' && el.type === 'file')
+    .forEach((finput) => {
+      try {
+        finput.value = '';
+      } catch (e) {}
+    });
+
   try {
     const freshPrompt = findFlowPromptElement() || promptEl;
-    freshPrompt.focus();
-    const existingText = (freshPrompt.innerText || freshPrompt.value || '').trim();
-    if (existingText.length > 0) {
-      document.execCommand('selectAll', false, null);
-      document.execCommand('delete', false, null);
+    if (freshPrompt) {
+      freshPrompt.focus();
+      const existingText = (freshPrompt.innerText || freshPrompt.value || '').trim();
+      if (existingText.length > 0) {
+        document.execCommand('selectAll', false, null);
+        document.execCommand('delete', false, null);
+      }
     }
   } catch (e) {}
   await new Promise((r) => setTimeout(r, 150));
@@ -489,7 +504,24 @@ async function pasteSingleFileIntoPrompt(file, useNativeFocus = false) {
   const dt = new DataTransfer();
   dt.items.add(file);
 
-  // 1. Dispatch sự kiện ClipboardEvent('paste') vào cả ô nhập Prompt và Box cha
+  // 1. Chỉ ưu tiên input[type="file"] nếu có trên giao diện (cách nạp chuẩn xác 100% không bị nhân đôi)
+  const availableFileInputs = queryAllDeep(document).filter((el) => {
+    if (el.tagName !== 'INPUT' || el.type !== 'file') return false;
+    const r = el.getBoundingClientRect();
+    return r.top > window.innerHeight * 0.3;
+  });
+
+  if (availableFileInputs.length > 0) {
+    try {
+      const targetInput = availableFileInputs[0];
+      targetInput.files = dt.files;
+      targetInput.dispatchEvent(new Event('change', { bubbles: true }));
+      targetInput.dispatchEvent(new Event('input', { bubbles: true }));
+      return;
+    } catch (e) {}
+  }
+
+  // 2. Nếu không có file input, dùng ClipboardEvent('paste') duy nhất 1 lần vào freshPrompt
   freshPrompt.dispatchEvent(
     new ClipboardEvent('paste', {
       bubbles: true,
@@ -498,42 +530,6 @@ async function pasteSingleFileIntoPrompt(file, useNativeFocus = false) {
       clipboardData: dt
     })
   );
-
-  if (promptBox && promptBox !== freshPrompt) {
-    promptBox.dispatchEvent(
-      new ClipboardEvent('paste', {
-        bubbles: true,
-        cancelable: true,
-        composed: true,
-        clipboardData: dt
-      })
-    );
-  }
-
-  // 2. Giả lập sự kiện Drag & Drop (DragEnter, DragOver, Drop) trên Prompt Box
-  const dragOpts = { bubbles: true, cancelable: true, composed: true, dataTransfer: dt };
-  const dropTargets = [freshPrompt, promptBox].filter(Boolean);
-  for (const tgt of dropTargets) {
-    try {
-      tgt.dispatchEvent(new DragEvent('dragenter', dragOpts));
-      tgt.dispatchEvent(new DragEvent('dragover', dragOpts));
-      tgt.dispatchEvent(new DragEvent('drop', dragOpts));
-    } catch (e) {}
-  }
-
-  // 3. Nếu có input file ở nửa dưới màn hình (thuộc thanh prompt dock), nạp trực tiếp file
-  const fileInputs = queryAllDeep(document).filter((el) => {
-    if (el.tagName !== 'INPUT' || el.type !== 'file') return false;
-    const r = el.getBoundingClientRect();
-    return r.top > window.innerHeight * 0.4;
-  });
-  for (const finput of fileInputs) {
-    try {
-      finput.files = dt.files;
-      finput.dispatchEvent(new Event('change', { bubbles: true }));
-      finput.dispatchEvent(new Event('input', { bubbles: true }));
-    } catch (e) {}
-  }
 }
 
 // Tính fingerprint 16x16 grayscale trực tiếp từ thẻ <img> có sẵn trên DOM (0ms, hoàn toàn đồng bộ, không bao giờ nghẽn tab)
@@ -714,17 +710,17 @@ async function waitForAttachmentsReady(expectedCount, maxWaitMs = 25000) {
     const isUploading = isAnyAttachmentUploading(promptEl);
 
     updateBridgeBadgeText(
-      `⏳ v4.2: Đang tải ảnh lên Google Flow (${chipCount}/${expectedCount} ảnh xong)... Vui lòng đợi!`,
+      `⏳ v5.0: Đang nạp ảnh (${chipCount}/${expectedCount} ảnh hoàn tất)... Vui lòng đợi!`,
       '#f59e0b'
     );
 
     // Đã đủ số lượng chip đính kèm VÀ không còn thanh tiến trình/spinner loading
     if (chipCount >= expectedCount && !isUploading) {
       stableReadyCycles++;
-      // Đợi ổn định liên tiếp 2 chu kỳ thăm dò (1.2 giây) để Google Flow hoàn tất đồng bộ state
+      // Đợi ổn định liên tiếp 2 chu kỳ thăm dò (1.2 giây) để hoàn tất đồng bộ state
       if (stableReadyCycles >= 2) {
         updateBridgeBadgeText(
-          `✅ v4.2: Đã tải xong ${chipCount} ảnh vào Google Flow! Chuẩn bị gửi lệnh...`,
+          `✅ v5.0: Đã nạp xong ${chipCount} ảnh! Chuẩn bị gửi lệnh...`,
           '#10b981'
         );
         await new Promise((r) => setTimeout(r, 800));
@@ -748,22 +744,23 @@ async function uploadInputImages(images = []) {
 
   const initialPrompt = findFlowPromptElement();
   await clearPreviousPromptAttachments(initialPrompt);
+  await new Promise((r) => setTimeout(r, 400));
 
   for (let i = 0; i < safeList.length; i++) {
     const roleText = i === 0 ? 'Mẫu (Image 1)' : 'Trang phục (Image 2)';
-    updateBridgeBadgeText(`v4.2: Đang dán ảnh ${i + 1}/${safeList.length} [${roleText}] vào Google Flow...`, '#2563eb');
+    updateBridgeBadgeText(`v5.0: Đang nạp ảnh ${i + 1}/${safeList.length} [${roleText}]...`, '#2563eb');
     const file = await base64ToFile(safeList[i], `flow_ref_${Date.now()}_${i + 1}.jpg`);
     await pasteSingleFileIntoPrompt(file, i === 0);
 
-    // Chờ cho ảnh này xuất hiện chip và bắt đầu tải
-    await new Promise((r) => setTimeout(r, 2200));
+    // Chờ cho ảnh này được giao diện nhận diện chip
+    await new Promise((r) => setTimeout(r, 1200));
 
-    // Đợi ảnh này nạp xong trước khi dán tiếp ảnh sau
-    await waitForAttachmentsReady(i + 1, 15000);
+    // Đợi ảnh này nạp xong trước khi nạp tiếp ảnh sau
+    await waitForAttachmentsReady(i + 1, 12000);
   }
 
-  // Đợi cho TẤT CẢ các ảnh hoàn tất 100% (không còn spinner quay)
-  await waitForAttachmentsReady(safeList.length, 25000);
+  // Đợi cho TẤT CẢ các ảnh hoàn tất 100%
+  await waitForAttachmentsReady(safeList.length, 18000);
 
   // Tính sẵn fingerprint của ảnh đầu vào để loại trừ tuyệt đối, không bắt nhầm
   const fingerprints = [];
