@@ -1310,3 +1310,218 @@ export const BLUSH_LIVESTREAM_PROJECT = convertDaAiCanvasToProject(BLUSH_LIVESTR
   previewVideo: 'https://cdn.quantv.com/canvas/cmr3dblp4009k4mekj63tv8h1/gen_1783002067695_lcpouv2v6no.mp4',
   previewImage: 'https://cdn.quantv.com/canvas/cmq9ci6ye019likyknr7ga025/gen_1782892661893_hv8hwbt2xf.png'
 });
+
+const ECOM_TRYON_OUTFIT_RAW_CANVAS_JSON = {
+  __canvas: 'da-ai-canvas',
+  version: 2,
+  nodes: [
+    {
+      id: 'node-1781246538503',
+      kind: 'image',
+      title: 'Image Node (Original Top)',
+      x: 1099.177608634467,
+      y: 424.9606219056517,
+      width: 139,
+      height: 262,
+      meta: {
+        dimensions: '1440 x 2560',
+        content: 'Original top garment',
+        imageTone: 'soft',
+        settings: {
+          modelId: 'cmroohfag2msfrykqadspaznz'
+        },
+        mediaUrl: 'https://cdn.quantv.com/canvas/cmq6fnyyb00jdi5mx1up2qyl5/img_1782123313292_ihxnuyrjd1.jpg',
+        objectFit: 'contain'
+      }
+    },
+    {
+      id: 'node-1781246550511',
+      kind: 'image',
+      title: 'Image Node (Top Flat-Lay 9:16)',
+      x: 1106.5387197455777,
+      y: -20.143544761014596,
+      width: 139,
+      height: 262,
+      meta: {
+        dimensions: '941 x 1672',
+        content: 'E-commerce flat-lay top',
+        imageTone: 'soft',
+        settings: {
+          modelId: 'cmroohfag2msfrykqadspaznz',
+          params: {
+            ratio: '9:16',
+            resolution: '1K'
+          }
+        },
+        prompt: 'Generate a 9:16 e-commerce flat-lay product display image of the top/shirt from @Image 1.',
+        mediaUrl: 'https://cdn.quantv.com/canvas/cmq6fnyyb00jdi5mx1up2qyl5/gen_1782123382582_odlovl846oa.png',
+        objectFit: 'contain'
+      }
+    },
+    {
+      id: 'node-1781246630390',
+      kind: 'image',
+      title: 'Image Node (Original Pants)',
+      x: 775.4166666666666,
+      y: 415.18749999999994,
+      width: 139,
+      height: 262,
+      meta: {
+        dimensions: '1280 x 2275',
+        content: 'Original pants garment',
+        imageTone: 'soft',
+        mediaUrl: 'https://cdn.quantv.com/canvas/cmq6fnyyb00jdi5mx1up2qyl5/img_1782123310078_4ekmh63o0vu.jpg',
+        objectFit: 'contain',
+        settings: {
+          modelId: 'cmroohfag2msfrykqadspaznz'
+        }
+      }
+    },
+    {
+      id: 'node-1781246637110',
+      kind: 'image',
+      title: 'Image Node (Pants Flat-Lay 9:16)',
+      x: 769.0972222222221,
+      y: -8.145833333333485,
+      width: 139,
+      height: 262,
+      meta: {
+        dimensions: '941 x 1672',
+        content: 'E-commerce flat-lay pants',
+        imageTone: 'soft',
+        settings: {
+          modelId: 'cmroohfag2msfrykqadspaznz',
+          params: {
+            ratio: '9:16',
+            resolution: '1K'
+          }
+        },
+        prompt: 'Generate a 9:16 e-commerce flat-lay product display image of the pants from @Image 1.',
+        mediaUrl: 'https://cdn.quantv.com/canvas/cmq6fnyyb00jdi5mx1up2qyl5/gen_1782123380137_37p5r5j3wdg.png',
+        objectFit: 'contain'
+      }
+    },
+    {
+      id: 'node-1781247655790',
+      kind: 'image',
+      title: 'Image Node (Base Model 9:16)',
+      x: 359.7734624635036,
+      y: -4.610351170063296,
+      width: 139,
+      height: 262,
+      meta: {
+        dimensions: '1440 x 2560',
+        content: 'Base model portrait',
+        imageTone: 'soft',
+        settings: {
+          modelId: 'cmroohfag2msfrykqadspaznz',
+          functionId: 'cmqakuo3y00dyr3w7ita8f60i',
+          params: {
+            ratio: '9:16',
+            resolution: '2K'
+          }
+        },
+        mediaUrl: 'https://cdn.quantv.com/canvas/cmq6fnyyb00jdi5mx1up2qyl5/gen_1782126343791_o6h1oiv1k4.png',
+        objectFit: 'contain'
+      }
+    },
+    {
+      id: 'node-1781249908651',
+      kind: 'image',
+      title: 'Image Node (Outfit Try-On 9:16)',
+      x: 1096.6095715580072,
+      y: -588.4493818773807,
+      width: 139,
+      height: 262,
+      meta: {
+        dimensions: '941 x 1672',
+        content: 'Virtual try-on result',
+        imageTone: 'soft',
+        settings: {
+          modelId: 'cmroohfag2msfrykqadspaznz',
+          params: {
+            ratio: '9:16',
+            resolution: '1K'
+          }
+        },
+        prompt:
+          '@Image 1 is the model, @Image 2 is the pants, @Image 3 is the top. Dress the model in the pants from @Image 2 and the top from @Image 3, keeping the model face, pose, lighting, and background unchanged.',
+        mediaUrl: 'https://cdn.quantv.com/canvas/cmq6fnyyb00jdi5mx1up2qyl5/gen_1782126559737_p0o74f7qxjl.png',
+        objectFit: 'contain'
+      }
+    },
+    {
+      id: 'node-1781254917738',
+      kind: 'video',
+      title: 'Video Node (Outfit Showcase 6s)',
+      x: 1128.0744935728492,
+      y: -1032.913979201911,
+      width: 139,
+      height: 272,
+      meta: {
+        dimensions: '720 x 1280',
+        content: 'Fashion showcase video',
+        imageTone: 'soft',
+        settings: {
+          modelId: 'cmpm7dmx00000cym8mrr4xy2p',
+          params: {
+            model: 'mivideo_pro',
+            ratio: '9:16',
+            duration: '6',
+            resolution: '720p'
+          },
+          functionId: 'cmqapsf9b005dg1vd4b6qlida'
+        },
+        prompt:
+          'Animate @Image 1 into a smooth 6-second 9:16 fashion lookbook video: the model naturally shifts her pose and turns slightly to showcase the fit and drape of the top and pants, with gentle fabric movement, consistent face, soft natural lighting, and no text or watermarks.',
+        mediaUrl: 'https://cdn.quantv.com/canvas/cmq6fnyyb00jdi5mx1up2qyl5/gen_1782126850491_l3et0oc7w1.mp4',
+        objectFit: 'contain'
+      }
+    },
+    {
+      id: 'node-1782125975470',
+      kind: 'image',
+      title: 'Image Node (Reference Model 3:4)',
+      x: 347.5679048913406,
+      y: -544.3243818773806,
+      width: 184,
+      height: 262,
+      meta: {
+        dimensions: '1728 x 2304',
+        content: 'Reference model portrait',
+        imageTone: 'soft',
+        settings: {
+          modelId: 'cmroohfag2msfrykqadspaznz',
+          params: {
+            ratio: '3:4',
+            resolution: '2K'
+          },
+          functionId: 'cmqakuo3y00dyr3w7ita8f60i'
+        },
+        mediaUrl: 'https://cdn.quantv.com/canvas/cmq6fnyyb00jdi5mx1up2qyl5/gen_1782126078498_dry8ggnmnjr.png',
+        objectFit: 'contain'
+      }
+    }
+  ],
+  edges: [
+    { id: 'edge-1781246550511', from: 'node-1781246538503', to: 'node-1781246550511' },
+    { id: 'edge-1781246637110', from: 'node-1781246630390', to: 'node-1781246637110' },
+    { id: 'edge-1781249908652', from: 'node-1781247655790', to: 'node-1781249908651' },
+    { id: 'edge-1781249910370', from: 'node-1781246637110', to: 'node-1781249908651' },
+    { id: 'edge-1781249912123', from: 'node-1781246550511', to: 'node-1781249908651' },
+    { id: 'edge-1781254917738', from: 'node-1781249908651', to: 'node-1781254917738' }
+  ],
+  stickers: []
+};
+
+export const ECOM_TRYON_OUTFIT_PROJECT = convertDaAiCanvasToProject(ECOM_TRYON_OUTFIT_RAW_CANVAS_JSON, {
+  id: 'proj-ecom-flatlay-tryon',
+  category: 'tryon',
+  name: 'E-Commerce Flat-Lay & Outfit Try-On — 6s Lookbook (9:16)',
+  description:
+    'Quy trình tách đồ thương mại điện tử: Áo & Quần gốc → Flat-lay 9:16 → Ghép lên người mẫu (Try-On) → Video Lookbook 6s (9:16).',
+  badge: 'Dự Án Thực Tế (Try-On)',
+  techTag: 'DA-V2',
+  previewVideo: 'https://cdn.quantv.com/canvas/cmq6fnyyb00jdi5mx1up2qyl5/gen_1782126850491_l3et0oc7w1.mp4',
+  previewImage: 'https://cdn.quantv.com/canvas/cmq6fnyyb00jdi5mx1up2qyl5/gen_1782126559737_p0o74f7qxjl.png'
+});
