@@ -96,7 +96,7 @@ export const WINTER_FUR_RAW_CANVAS_JSON = {
       height: 272,
       meta: {
         dimensions: '480 x 854',
-        content: '双击画布添加的新节点',
+        content: 'Double-click canvas to add a new node',
         imageTone: 'soft',
         settings: {
           modelId: 'cmsy1f45p04ueps1w2xysub04',
@@ -128,7 +128,7 @@ export const WINTER_FUR_RAW_CANVAS_JSON = {
       height: 158,
       meta: {
         dimensions: '1671 x 941',
-        content: '双击画布添加的新节点',
+        content: 'Double-click canvas to add a new node',
         imageTone: 'soft',
         settings: {
           modelId: 'cmotfqnds0000gwg7q4dtt5u3',
@@ -154,7 +154,7 @@ export const WINTER_FUR_RAW_CANVAS_JSON = {
       height: 158,
       meta: {
         dimensions: '1671 x 941',
-        content: '双击画布添加的新节点',
+        content: 'Double-click canvas to add a new node',
         imageTone: 'soft',
         settings: {
           modelId: 'cmotfqnds0000gwg7q4dtt5u3',
@@ -180,7 +180,7 @@ export const WINTER_FUR_RAW_CANVAS_JSON = {
       height: 158,
       meta: {
         dimensions: '1670 x 941',
-        content: '双击画布添加的新节点',
+        content: 'Double-click canvas to add a new node',
         imageTone: 'soft',
         settings: {
           modelId: 'cmotfqnds0000gwg7q4dtt5u3',
@@ -206,7 +206,7 @@ export const WINTER_FUR_RAW_CANVAS_JSON = {
       height: 158,
       meta: {
         dimensions: '1671 x 941',
-        content: '双击画布添加的新节点',
+        content: 'Double-click canvas to add a new node',
         imageTone: 'soft',
         settings: {
           modelId: 'cmotfqnds0000gwg7q4dtt5u3',
@@ -563,7 +563,7 @@ export const MIRROR_SELFIE_RAW_CANVAS_JSON = {
       height: 262,
       meta: {
         dimensions: '1152 x 2048',
-        content: '双击画布添加的新节点',
+        content: 'Double-click canvas to add a new node',
         imageTone: 'soft',
         settings: {
           modelId: 'cmroohfag2msfrykqadspaznz',
@@ -587,7 +587,7 @@ export const MIRROR_SELFIE_RAW_CANVAS_JSON = {
       height: 262,
       meta: {
         dimensions: '1152 x 2048',
-        content: '双击画布添加的新节点',
+        content: 'Double-click canvas to add a new node',
         imageTone: 'soft',
         settings: {
           modelId: 'cmroohfag2msfrykqadspaznz',
@@ -596,7 +596,7 @@ export const MIRROR_SELFIE_RAW_CANVAS_JSON = {
             resolution: '2K'
           }
         },
-        prompt: '@图片1 模特，穿上@图片2 全套服装，@图片1 环境及姿势保持不变',
+        prompt: 'The female model in @Image 1 wears the complete outfit from @Image 2, keeping the exact environment and pose of @Image 1 unchanged',
         mediaUrl: 'https://cdn.quantv.com/canvas/cmq9bkm10017bikykdxe89ywm/gen_1782892263992_1cjcvk0qycz.png',
         objectFit: 'contain'
       }
@@ -611,7 +611,7 @@ export const MIRROR_SELFIE_RAW_CANVAS_JSON = {
       height: 262,
       meta: {
         dimensions: '423 x 587',
-        content: '双击画布添加的新节点',
+        content: 'Double-click canvas to add a new node',
         imageTone: 'soft',
         mediaUrl: 'https://cdn.quantv.com/canvas/cmq9bkm10017bikykdxe89ywm/img_1782891965428_5zdhmwg2s34.png',
         objectFit: 'contain'
@@ -627,7 +627,7 @@ export const MIRROR_SELFIE_RAW_CANVAS_JSON = {
       height: 262,
       meta: {
         dimensions: '720 x 1280',
-        content: '双击画布添加的新节点',
+        content: 'Double-click canvas to add a new node',
         imageTone: 'soft',
         settings: {
           modelId: 'cmpm7dmx00000cym8mrr4xy2p',
@@ -639,7 +639,7 @@ export const MIRROR_SELFIE_RAW_CANVAS_JSON = {
           }
         },
         prompt:
-          '总时长 7 秒，女生原图人物保持一致，全程不更换身上所有服饰\n0–2 秒：女生身穿@图片1 抬手举到镜头角度完成对镜自拍，侧身看向镜面，抬手轻拨发丝，氛围松弛街头休闲风；\n2–7 秒：身体微微转向镜子，微调站姿、整理肩带，拨弄裙摆，镜子完整反射全身穿搭，背景简约干净，明亮自然光，清晰还原整套穿搭细节，动作流畅自然，面部五官全程不畸变，无转场无卡点，一镜到底。清新韩系街头胶片质感。',
+          'Total duration 7 seconds, keep the female model in @Image 1 completely consistent throughout with the same outfit.\n0-2s: The girl wearing @Image 1 raises her phone to camera angle taking a mirror selfie, turning slightly toward the mirror and lightly brushing her hair in a relaxed Korean street casual vibe;\n2-7s: Subtly turns toward the mirror, adjusts her standing posture, fixes the shoulder strap and skirt hem, mirror reflects the full outfit clearly in bright natural daylight over a clean minimal background, smooth natural motion, distortion-free face, seamless one-take continuous shot, fresh Korean street film aesthetic.',
         mediaUrl: 'https://cdn.quantv.com/canvas/cmq9bkm10017bikykdxe89ywm/gen_1782893845609_7ra6cpsf6pm.mp4',
         objectFit: 'contain'
       }
@@ -654,7 +654,7 @@ export const MIRROR_SELFIE_RAW_CANVAS_JSON = {
       height: 262,
       meta: {
         dimensions: '1152 x 2048',
-        content: '双击画布添加的新节点',
+        content: 'Double-click canvas to add a new node',
         imageTone: 'soft',
         settings: {
           modelId: 'cmroohfag2msfrykqadspaznz',
@@ -678,7 +678,7 @@ export const MIRROR_SELFIE_RAW_CANVAS_JSON = {
       height: 262,
       meta: {
         dimensions: '446 x 593',
-        content: '双击画布添加的新节点',
+        content: 'Double-click canvas to add a new node',
         imageTone: 'soft',
         mediaUrl: 'https://cdn.quantv.com/canvas/cmq9bkm10017bikykdxe89ywm/img_1782894151969_7wnsis1zc5m.png',
         objectFit: 'contain'
@@ -694,7 +694,7 @@ export const MIRROR_SELFIE_RAW_CANVAS_JSON = {
       height: 262,
       meta: {
         dimensions: '1152 x 2048',
-        content: '双击画布添加的新节点',
+        content: 'Double-click canvas to add a new node',
         imageTone: 'soft',
         settings: {
           modelId: 'cmroohfag2msfrykqadspaznz',
@@ -703,7 +703,7 @@ export const MIRROR_SELFIE_RAW_CANVAS_JSON = {
             resolution: '2K'
           }
         },
-        prompt: '@图片1 模特，穿上@图片2  全套服装，@图片1 环境及姿势保持不变',
+        prompt: 'The female model in @Image 1 wears the complete outfit from @Image 2, keeping the exact environment and pose of @Image 1 unchanged',
         mediaUrl: 'https://cdn.quantv.com/canvas/cmq9bkm10017bikykdxe89ywm/gen_1782894391693_yz7oiy8lbzf.png',
         objectFit: 'contain'
       }
@@ -718,7 +718,7 @@ export const MIRROR_SELFIE_RAW_CANVAS_JSON = {
       height: 262,
       meta: {
         dimensions: '720 x 1280',
-        content: '双击画布添加的新节点',
+        content: 'Double-click canvas to add a new node',
         imageTone: 'soft',
         settings: {
           modelId: 'cmpm7dmx00000cym8mrr4xy2p',
@@ -730,7 +730,7 @@ export const MIRROR_SELFIE_RAW_CANVAS_JSON = {
           }
         },
         prompt:
-          '35mm 胶片实拍效果，柔和自然光，自然细腻，高对比度，高饱和度，皮肤带有轻微颗粒感与轻微通透感，能看见毛孔，皮肤质感丰富，有轻微细纹，脸部无油光，相机拍摄直出效果。整体高清，电影级真实光影，细节丰富，无低质感，无塑料感，无卡通感，无Q版。光源：左侧日光，注意人物脸上的环境光，发丝光，侧光，反射光总时长 7 秒，女生原图@图片1 保持一致，全程不更换身上所有服饰\n0–2 秒：女生身穿@图片1 抬手举到镜头角度完成对镜自拍，侧身看向镜面，抬手轻拨发丝，微抬右脚后点地；2–7 秒：身体微微转向镜子，微调站姿、整理脖颈配饰，拨弄裙摆，镜子完整反射全身穿搭，背景简约干净，明亮阳光，清晰还原整套穿搭细节，动作流畅自然，面部五官全程不畸变，无转场无卡点，一镜到底，氛围性感轻熟风',
+          '35mm film camera real shot effect, soft natural daylight from left window, high contrast, rich saturation, translucent skin texture with fine film grain and natural pores, straight-out-of-camera cinematic realism, no plastic/cartoon look, natural ambient and rim hair light. Total duration 7 seconds, keep the female model in @Image 1 completely consistent with her exact outfit throughout.\n0-2s: The girl wearing @Image 1 raises her phone to camera angle taking a mirror selfie, turning slightly toward the mirror, lightly brushing her hair and gently tapping her right heel;\n2-7s: Subtly turns toward the mirror, adjusts her pose, necklace, and skirt hem, mirror reflects the full outfit clearly in bright sunlight over a clean background, smooth natural motion, distortion-free face, seamless one-take continuous shot, chic mature aesthetic.',
         mediaUrl: 'https://cdn.quantv.com/canvas/cmqhyosec000dw8lh6053yvwu/gen_1782898035452_z3rfro88n7m.mp4',
         objectFit: 'contain'
       }

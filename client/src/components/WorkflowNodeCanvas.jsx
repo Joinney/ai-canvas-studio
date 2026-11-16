@@ -75,11 +75,30 @@ const normalizeChineseTitle = (title) =>
     .replace(/三视图/g, '3-View')
     .replace(/便签/g, 'Note');
 
+const normalizeChinesePrompt = (prompt) => {
+  const p = String(prompt || '');
+  if (!/[\u4e00-\u9fff]/.test(p)) return p;
+  if (p.includes('环境及姿势保持不变') || (p.includes('模特') && p.includes('全套服装'))) {
+    return 'The female model in @Image 1 wears the complete outfit from @Image 2, keeping the exact environment and pose of @Image 1 unchanged';
+  }
+  if (p.includes('35mm 胶片实拍效果')) {
+    return '35mm film camera real shot effect, soft natural daylight from left window, high contrast, rich saturation, translucent skin texture with fine film grain and natural pores, straight-out-of-camera cinematic realism, no plastic/cartoon look, natural ambient and rim hair light. Total duration 7 seconds, keep the female model in @Image 1 completely consistent with her exact outfit throughout.\n0-2s: The girl wearing @Image 1 raises her phone to camera angle taking a mirror selfie, turning slightly toward the mirror, lightly brushing her hair and gently tapping her right heel;\n2-7s: Subtly turns toward the mirror, adjusts her pose, necklace, and skirt hem, mirror reflects the full outfit clearly in bright sunlight over a clean background, smooth natural motion, distortion-free face, seamless one-take continuous shot, chic mature aesthetic.';
+  }
+  if (p.includes('总时长 7 秒') || p.includes('清新韩系街头胶片质感')) {
+    return 'Total duration 7 seconds, keep the female model in @Image 1 completely consistent throughout with the same outfit.\n0-2s: The girl wearing @Image 1 raises her phone to camera angle taking a mirror selfie, turning slightly toward the mirror and lightly brushing her hair in a relaxed Korean street casual vibe;\n2-7s: Subtly turns toward the mirror, adjusts her standing posture, fixes the shoulder strap and skirt hem, mirror reflects the full outfit clearly in bright natural daylight over a clean minimal background, smooth natural motion, distortion-free face, seamless one-take continuous shot, fresh Korean street film aesthetic.';
+  }
+  return p.replace(/@图片(\d+)/g, '@Image $1');
+};
+
 export default function WorkflowNodeCanvas({ project, onSaveProject }) {
   const [nodes, setNodes] = useState(() =>
     (project?.nodes || []).map((n) => ({
       ...n,
-      data: { ...n.data, title: normalizeChineseTitle(n.data?.title || '') }
+      data: {
+        ...n.data,
+        title: normalizeChineseTitle(n.data?.title || ''),
+        prompt: normalizeChinesePrompt(n.data?.prompt || '')
+      }
     }))
   );
   const [edges, setEdges] = useState(() => project?.edges || []);
