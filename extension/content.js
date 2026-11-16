@@ -88,24 +88,41 @@ function appendBridgeLog(text, bg = '') {
 
 window.__AI_CANVAS_EMBED_OPEN__ = window.__AI_CANVAS_EMBED_OPEN__ || false;
 window.__AI_CANVAS_EMBED_WIDTH__ = window.__AI_CANVAS_EMBED_WIDTH__ || 54;
+window.__AI_CANVAS_EMBED_LAST_SPLIT_WIDTH__ = window.__AI_CANVAS_EMBED_LAST_SPLIT_WIDTH__ || 54;
 
 function applyMuseEmbeddedLayout() {
   const dock = document.getElementById('ai-canvas-muse-tool-dock');
   const badge = document.getElementById('ai-canvas-flow-badge');
   const panel = document.getElementById('ai-canvas-flow-log-panel');
   const toggleBtn = document.getElementById('ai-canvas-flow-embed-btn');
-  const w = window.__AI_CANVAS_EMBED_WIDTH__ || 54;
+  const hideMuseBtn = document.getElementById('ai-canvas-embed-hide-muse');
+  const resizer = document.getElementById('ai-canvas-embed-resizer');
+  const w = Math.max(25, Math.min(100, Number(window.__AI_CANVAS_EMBED_WIDTH__) || 54));
+  const isFullHideMuse = w >= 98;
 
   if (window.__AI_CANVAS_EMBED_OPEN__) {
     if (dock) {
       dock.style.display = 'flex';
       dock.style.width = `${w}vw`;
     }
-    document.documentElement.style.marginLeft = `${w}vw`;
-    document.documentElement.style.width = `${100 - w}vw`;
-    document.documentElement.style.overflowX = 'hidden';
-    if (badge) badge.style.left = `calc(${w}vw + 14px)`;
-    if (panel) panel.style.left = `calc(${w}vw + 14px)`;
+    if (isFullHideMuse) {
+      // Toàn màn hình Tool (Ẩn Muse phía sau nhưng vẫn giữ Muse AI 100vw bình thường không bị bóp méo)
+      document.documentElement.style.marginLeft = '';
+      document.documentElement.style.width = '';
+      document.documentElement.style.overflowX = '';
+      if (badge) badge.style.left = '18px';
+      if (panel) panel.style.left = '18px';
+      if (hideMuseBtn) hideMuseBtn.textContent = '👁️ Hiện Muse';
+      if (resizer) resizer.style.right = '0px';
+    } else {
+      document.documentElement.style.marginLeft = `${w}vw`;
+      document.documentElement.style.width = `${100 - w}vw`;
+      document.documentElement.style.overflowX = 'hidden';
+      if (badge) badge.style.left = `calc(${w}vw + 14px)`;
+      if (panel) panel.style.left = `calc(${w}vw + 14px)`;
+      if (hideMuseBtn) hideMuseBtn.textContent = '👁️ Ẩn Muse (100%)';
+      if (resizer) resizer.style.right = '-5px';
+    }
     if (toggleBtn) toggleBtn.textContent = '✕ Đóng Tool';
   } else {
     if (dock) dock.style.display = 'none';
@@ -118,6 +135,35 @@ function applyMuseEmbeddedLayout() {
   }
 }
 
+async function sendNativeCdpWithDockPassThrough(message) {
+  const dock = document.getElementById('ai-canvas-muse-tool-dock');
+  const needTempHide = Boolean(
+    dock &&
+      window.__AI_CANVAS_EMBED_OPEN__ &&
+      (window.__AI_CANVAS_EMBED_WIDTH__ >= 95 ||
+        (typeof message.x === 'number' && message.x <= (window.innerWidth * window.__AI_CANVAS_EMBED_WIDTH__) / 100))
+  );
+  if (needTempHide && dock) {
+    dock.style.visibility = 'hidden';
+    dock.style.pointerEvents = 'none';
+    await new Promise((r) => setTimeout(r, 40));
+  }
+  try {
+    return await new Promise((resolve) => {
+      try {
+        chrome.runtime.sendMessage(message, (res) => resolve(res));
+      } catch (e) {
+        resolve({ ok: false });
+      }
+    });
+  } finally {
+    if (needTempHide && dock) {
+      dock.style.visibility = 'visible';
+      dock.style.pointerEvents = 'auto';
+    }
+  }
+}
+
 function toggleMuseEmbeddedTool(forceOpen = null) {
   window.__AI_CANVAS_EMBED_OPEN__ = forceOpen !== null ? Boolean(forceOpen) : !window.__AI_CANVAS_EMBED_OPEN__;
 
@@ -126,32 +172,48 @@ function toggleMuseEmbeddedTool(forceOpen = null) {
     dock = document.createElement('div');
     dock.id = 'ai-canvas-muse-tool-dock';
     dock.style.cssText =
-      'position:fixed;top:0;left:0;height:100vh;width:54vw;z-index:2147483646;background:#0f172a;border-right:2px solid rgba(56,189,248,0.45);box-shadow:8px 0 32px rgba(0,0,0,0.45);display:flex;flex-direction:column;font-family:system-ui,-apple-system,sans-serif;';
+      'position:fixed;top:0;left:0;height:100vh;width:54vw;z-index:2147483646;background:#0f172a;border-right:2px solid rgba(56,189,248,0.55);box-shadow:8px 0 32px rgba(0,0,0,0.45);display:flex;flex-direction:column;font-family:system-ui,-apple-system,sans-serif;';
     dock.innerHTML = `
-      <div style="height:38px;background:linear-gradient(90deg,#0f172a,#1e293b);color:#f8fafc;display:flex;align-items:center;justify-content:space-between;padding:0 12px;border-bottom:1px solid rgba(255,255,255,0.12);font-size:12px;font-weight:700;flex-shrink:0;">
-        <div style="display:flex;align-items:center;gap:8px;">
-          <span style="width:8px;height:8px;border-radius:50%;background:#10b981;box-shadow:0 0 8px #10b981;"></span>
-          <span>🎨 AI Canvas Studio • Chạy chung trang Muse AI</span>
+      <div style="height:40px;background:linear-gradient(90deg,#0f172a,#1e293b);color:#f8fafc;display:flex;align-items:center;justify-content:space-between;padding:0 12px;border-bottom:1px solid rgba(255,255,255,0.12);font-size:12px;font-weight:700;flex-shrink:0;gap:8px;">
+        <div style="display:flex;align-items:center;gap:8px;min-width:0;">
+          <span style="width:8px;height:8px;border-radius:50%;background:#10b981;box-shadow:0 0 8px #10b981;flex-shrink:0;"></span>
+          <span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">🎨 AI Canvas Studio • Dùng chung trang Muse AI</span>
         </div>
-        <div style="display:flex;align-items:center;gap:6px;">
-          <button id="ai-canvas-embed-w50" style="background:rgba(255,255,255,0.12);border:none;color:#e2e8f0;padding:3px 8px;border-radius:6px;font-size:11px;cursor:pointer;">50/50</button>
-          <button id="ai-canvas-embed-w62" style="background:rgba(255,255,255,0.12);border:none;color:#e2e8f0;padding:3px 8px;border-radius:6px;font-size:11px;cursor:pointer;">62/38</button>
-          <button id="ai-canvas-embed-split" style="background:rgba(14,165,233,0.28);border:1px solid rgba(56,189,248,0.45);color:#bae6fd;padding:3px 8px;border-radius:6px;font-size:11px;cursor:pointer;" title="Tách thành 2 cửa sổ song song">🪟 Tách 2 cửa sổ</button>
-          <button id="ai-canvas-embed-close" style="background:rgba(239,68,68,0.25);border:none;color:#fecaca;padding:3px 8px;border-radius:6px;font-size:11px;cursor:pointer;">✕ Đóng</button>
+        <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;">
+          <button id="ai-canvas-embed-w50" style="background:rgba(255,255,255,0.12);border:none;color:#e2e8f0;padding:4px 8px;border-radius:6px;font-size:11px;cursor:pointer;">50/50</button>
+          <button id="ai-canvas-embed-w68" style="background:rgba(255,255,255,0.12);border:none;color:#e2e8f0;padding:4px 8px;border-radius:6px;font-size:11px;cursor:pointer;">68/32</button>
+          <button id="ai-canvas-embed-hide-muse" style="background:rgba(16,185,129,0.28);border:1px solid rgba(16,185,129,0.5);color:#a7f3d0;padding:4px 9px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;">👁️ Ẩn Muse (100%)</button>
+          <button id="ai-canvas-embed-split" style="background:rgba(14,165,233,0.28);border:1px solid rgba(56,189,248,0.45);color:#bae6fd;padding:4px 8px;border-radius:6px;font-size:11px;cursor:pointer;" title="Tách thành 2 cửa sổ song song">🪟 Tách 2 cửa sổ</button>
+          <button id="ai-canvas-embed-close" style="background:rgba(239,68,68,0.25);border:none;color:#fecaca;padding:4px 8px;border-radius:6px;font-size:11px;cursor:pointer;">✕ Đóng</button>
         </div>
       </div>
-      <iframe id="ai-canvas-muse-tool-iframe" src="http://localhost:5174/" style="width:100%;height:calc(100% - 38px);border:none;background:#f8fafc;" allow="clipboard-read; clipboard-write"></iframe>
+      <iframe id="ai-canvas-muse-tool-iframe" src="http://localhost:5174/" style="width:100%;height:calc(100% - 40px);border:none;background:#f8fafc;" allow="clipboard-read; clipboard-write"></iframe>
+      <div id="ai-canvas-embed-resizer" title="Kéo sang trái / phải để tùy chỉnh kích thước" style="position:absolute;top:0;right:-5px;width:10px;height:100%;cursor:col-resize;z-index:2147483647;display:flex;align-items:center;justify-content:center;">
+        <div style="width:4px;height:48px;border-radius:999px;background:rgba(56,189,248,0.85);box-shadow:0 0 10px rgba(56,189,248,0.7);"></div>
+      </div>
     `;
     (document.body || document.documentElement).appendChild(dock);
 
     dock.querySelector('#ai-canvas-embed-w50')?.addEventListener('click', (e) => {
       e.stopPropagation();
       window.__AI_CANVAS_EMBED_WIDTH__ = 50;
+      window.__AI_CANVAS_EMBED_LAST_SPLIT_WIDTH__ = 50;
       applyMuseEmbeddedLayout();
     });
-    dock.querySelector('#ai-canvas-embed-w62')?.addEventListener('click', (e) => {
+    dock.querySelector('#ai-canvas-embed-w68')?.addEventListener('click', (e) => {
       e.stopPropagation();
-      window.__AI_CANVAS_EMBED_WIDTH__ = 62;
+      window.__AI_CANVAS_EMBED_WIDTH__ = 68;
+      window.__AI_CANVAS_EMBED_LAST_SPLIT_WIDTH__ = 68;
+      applyMuseEmbeddedLayout();
+    });
+    dock.querySelector('#ai-canvas-embed-hide-muse')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (window.__AI_CANVAS_EMBED_WIDTH__ >= 98) {
+        window.__AI_CANVAS_EMBED_WIDTH__ = window.__AI_CANVAS_EMBED_LAST_SPLIT_WIDTH__ || 54;
+      } else {
+        window.__AI_CANVAS_EMBED_LAST_SPLIT_WIDTH__ = window.__AI_CANVAS_EMBED_WIDTH__;
+        window.__AI_CANVAS_EMBED_WIDTH__ = 100;
+      }
       applyMuseEmbeddedLayout();
     });
     dock.querySelector('#ai-canvas-embed-split')?.addEventListener('click', (e) => {
@@ -164,6 +226,31 @@ function toggleMuseEmbeddedTool(forceOpen = null) {
     dock.querySelector('#ai-canvas-embed-close')?.addEventListener('click', (e) => {
       e.stopPropagation();
       toggleMuseEmbeddedTool(false);
+    });
+
+    // Kéo thả co giãn kích thước tự do (25vw - 100vw)
+    const resizer = dock.querySelector('#ai-canvas-embed-resizer');
+    const iframeEl = dock.querySelector('#ai-canvas-muse-tool-iframe');
+    resizer?.addEventListener('mousedown', (ev) => {
+      ev.preventDefault();
+      ev.stopPropagation();
+      if (iframeEl) iframeEl.style.pointerEvents = 'none';
+      document.body.style.userSelect = 'none';
+
+      const onMove = (moveEv) => {
+        const pct = Math.max(25, Math.min(100, (moveEv.clientX / window.innerWidth) * 100));
+        window.__AI_CANVAS_EMBED_WIDTH__ = Math.round(pct * 10) / 10;
+        if (pct < 95) window.__AI_CANVAS_EMBED_LAST_SPLIT_WIDTH__ = window.__AI_CANVAS_EMBED_WIDTH__;
+        applyMuseEmbeddedLayout();
+      };
+      const onUp = () => {
+        if (iframeEl) iframeEl.style.pointerEvents = 'auto';
+        document.body.style.userSelect = '';
+        window.removeEventListener('mousemove', onMove);
+        window.removeEventListener('mouseup', onUp);
+      };
+      window.addEventListener('mousemove', onMove);
+      window.addEventListener('mouseup', onUp);
     });
   }
 
@@ -1354,20 +1441,11 @@ async function fillPromptAndSubmit(rawPromptText, mode = 'IMAGE') {
 
       // CHỈ GỬI DUY NHẤT 1 LẦN NATIVE HARDWARE CLICK (isTrusted: true), KHÔNG gọi el.click() trước đó
       // để tránh tình trạng nút Send vừa bấm xong biến thành nút Stop và bị click tiếp lần 2 làm dừng AI!
-      const nativeRes = await new Promise((resolve) => {
-        try {
-          chrome.runtime.sendMessage(
-            {
-              type: 'NATIVE_CLICK_AND_ENTER',
-              x: currentTarget.x,
-              y: currentTarget.y,
-              clickOnly: true
-            },
-            (res) => resolve(res)
-          );
-        } catch (err) {
-          resolve({ ok: false });
-        }
+      const nativeRes = await sendNativeCdpWithDockPassThrough({
+        type: 'NATIVE_CLICK_AND_ENTER',
+        x: currentTarget.x,
+        y: currentTarget.y,
+        clickOnly: true
       });
 
       // Chỉ fallback sang DOM click nếu Chrome Debugger không khả dụng
@@ -1401,20 +1479,11 @@ async function fillPromptAndSubmit(rawPromptText, mode = 'IMAGE') {
   if (currentText.length > 10 && !stopBtnActive) {
     console.log('[AI Canvas] Ô prompt vẫn còn văn bản và AI chưa chạy, kích hoạt Enter dự phòng qua CDP...');
     const pr = checkPromptEl.getBoundingClientRect();
-    await new Promise((resolve) => {
-      try {
-        chrome.runtime.sendMessage(
-          {
-            type: 'NATIVE_CLICK_AND_ENTER',
-            x: pr.left + pr.width * 0.5,
-            y: pr.top + pr.height * 0.5,
-            clickOnly: false
-          },
-          () => resolve()
-        );
-      } catch (e) {
-        resolve();
-      }
+    await sendNativeCdpWithDockPassThrough({
+      type: 'NATIVE_CLICK_AND_ENTER',
+      x: pr.left + pr.width * 0.5,
+      y: pr.top + pr.height * 0.5,
+      clickOnly: false
     });
     await new Promise((r) => setTimeout(r, 1200));
     checkPromptEl = findFlowPromptElement();
