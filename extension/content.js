@@ -1,5 +1,5 @@
 /**
- * CONTENT SCRIPT (v4.0.0) CHẠY TRÊN TAB GOOGLE FLOW (labs.google / flow.google.com)
+ * CONTENT SCRIPT (v5.1.0) CHẠY TRÊN TAB MUSE AI (muse.ai) & GOOGLE FLOW (labs.google / flow.google.com)
  * XỬ LÝ TRIỆT ĐỂ LỖI CHỜ LÂU:
  * 1. Bỏ toàn bộ cơ chế chặn đệm 3.5s sau khi Submit (không bao giờ vô tình nuốt mất ảnh mới sinh ra).
  * 2. Ưu tiên trích xuất Base64 tức thì (2ms) bằng thẻ <img> trực tiếp trên DOM qua Canvas (không nghẽn network).
@@ -48,9 +48,9 @@ function showClickMarker(x, y) {
 }
 
 function flashPingBadge() {
-  updateBridgeBadgeText('⚡ Nhận tín hiệu Ping thành công từ Web Canvas (v4.0)!', '#4f46e5');
+  updateBridgeBadgeText('⚡ Nhận tín hiệu Ping thành công từ Web Canvas (v5.1)!', '#4f46e5');
   setTimeout(() => {
-    updateBridgeBadgeText('AI Canvas Bridge v4.0: Đã kết nối', 'rgba(16,185,129,0.95)');
+    updateBridgeBadgeText('AI Canvas Bridge v5.1: Đã kết nối', 'rgba(16,185,129,0.95)');
   }, 3000);
 }
 
@@ -281,18 +281,120 @@ function isTrueSubmitButton(el) {
   return false;
 }
 
+function findMuseSubmitTarget(promptEl) {
+  const allElements = queryAllDeep(document);
+
+  // 1. Quét toàn bộ nút / clickable ở nửa dưới màn hình (khu vực dock prompt)
+  const candidateButtons = allElements.filter((el) => {
+    const tag = (el.tagName || '').toLowerCase();
+    const role = (el.getAttribute?.('role') || '').toLowerCase();
+    const isClickable =
+      tag === 'button' ||
+      role === 'button' ||
+      el.getAttribute?.('type') === 'submit' ||
+      window.getComputedStyle(el).cursor === 'pointer';
+    if (!isClickable) return false;
+
+    const r = el.getBoundingClientRect();
+    if (r.width < 14 || r.width > 90 || r.height < 14 || r.height > 90) return false;
+    // Nằm ở nửa dưới màn hình (gần thanh nhập dock)
+    if (r.bottom < window.innerHeight * 0.35) return false;
+
+    // Loại trừ nút microphone, settings, và nút close/remove chip
+    const label = (
+      (el.getAttribute?.('aria-label') || '') +
+      ' ' +
+      (el.getAttribute?.('title') || '') +
+      ' ' +
+      (el.getAttribute?.('data-testid') || '') +
+      ' ' +
+      (el.innerText || '')
+    ).toLowerCase();
+
+    if (/mic|voice|record|ghi âm|micro/i.test(label)) return false;
+    if (/setting|tune|tùy chọn|cài đặt|slider|parameter/i.test(label)) return false;
+    if (/remove|xóa|delete|close|dismiss/i.test(label) || label.trim() === '✕' || label.trim() === '×') return false;
+
+    return true;
+  });
+
+  // 1.1. Ưu tiên cao nhất: Nút hình tròn có nền màu xanh dương đặc trưng trên Muse AI (màu blue chiếm ưu thế)
+  const blueButtons = candidateButtons.filter((el) => {
+    const style = window.getComputedStyle(el);
+    const bg = style.backgroundColor || '';
+    const m = bg.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/);
+    if (m) {
+      const red = Number(m[1]);
+      const green = Number(m[2]);
+      const blue = Number(m[3]);
+      const alpha = m[4] !== undefined ? Number(m[4]) : 1;
+      if (alpha > 0.35 && blue > 140 && blue > red * 1.25) {
+        return true;
+      }
+    }
+    const cls = (el.className || '').toString().toLowerCase();
+    return cls.includes('blue') || cls.includes('primary');
+  });
+
+  if (blueButtons.length > 0) {
+    // Sắp xếp: Chọn nút nằm thấp nhất và xa nhất về bên phải
+    blueButtons.sort((a, b) => {
+      const ra = a.getBoundingClientRect();
+      const rb = b.getBoundingClientRect();
+      return (rb.bottom + rb.right) - (ra.bottom + ra.right);
+    });
+    const target = blueButtons[0];
+    const tr = target.getBoundingClientRect();
+    const btnEl = target.closest?.('button, [role="button"]') || target;
+    return { el: btnEl, x: tr.left + tr.width / 2, y: tr.top + tr.height / 2 };
+  }
+
+  // 1.2. Tìm nút có chứa icon SVG mũi tên (upward arrow ↑ / send)
+  const arrowButtons = candidateButtons.filter((el) => {
+    const hasSvg = !!el.querySelector?.('svg');
+    const label = ((el.getAttribute?.('aria-label') || '') + ' ' + (el.innerText || '')).toLowerCase();
+    if (el.type === 'submit' || /send|gửi|submit|tạo/i.test(label) || label.includes('↑')) {
+      return true;
+    }
+    return hasSvg;
+  });
+
+  if (arrowButtons.length > 0) {
+    arrowButtons.sort((a, b) => {
+      const ra = a.getBoundingClientRect();
+      const rb = b.getBoundingClientRect();
+      return (rb.bottom + rb.right) - (ra.bottom + ra.right);
+    });
+    const target = arrowButtons[0];
+    const tr = target.getBoundingClientRect();
+    const btnEl = target.closest?.('button, [role="button"]') || target;
+    return { el: btnEl, x: tr.left + tr.width / 2, y: tr.top + tr.height / 2 };
+  }
+
+  return null;
+}
+
 function findFlowSubmitTarget(promptEl) {
   if (!promptEl) return null;
+
+  // Nếu đang ở trên trang Muse AI, ưu tiên thuật toán nhận diện nút Submit Muse AI
+  const isMuseAi = window.location.hostname.includes('muse.ai');
+  if (isMuseAi) {
+    const museTarget = findMuseSubmitTarget(promptEl);
+    if (museTarget) return museTarget;
+  }
+
   const pr = promptEl.getBoundingClientRect();
   const promptBox = getPromptBoxContainer(promptEl);
   const boxRect = promptBox ? promptBox.getBoundingClientRect() : pr;
 
   const allElements = queryAllDeep(document);
 
+  // Mở rộng tọa độ toolbar góc dưới phải để không bị lệch khi textarea nhiều dòng
   const inBottomRightToolbar = (r) => {
-    if (r.width < 13 || r.width > 75 || r.height < 13 || r.height > 65) return false;
-    const isBelowOrAtBottomOfPrompt = r.top >= pr.bottom - 20 && r.bottom <= Math.max(pr.bottom + 90, boxRect.bottom + 25);
-    const isOnRightHalf = r.left >= pr.left + pr.width * 0.48 && r.right <= Math.max(pr.right + 65, boxRect.right + 25);
+    if (r.width < 13 || r.width > 85 || r.height < 13 || r.height > 85) return false;
+    const isBelowOrAtBottomOfPrompt = r.top >= pr.top - 20 && r.bottom <= Math.max(pr.bottom + 120, boxRect.bottom + 60);
+    const isOnRightHalf = r.left >= pr.left + pr.width * 0.40 && r.right <= Math.max(pr.right + 80, boxRect.right + 40);
     return isBelowOrAtBottomOfPrompt && isOnRightHalf;
   };
 
@@ -312,7 +414,32 @@ function findFlowSubmitTarget(promptEl) {
     return { el: btnEl, x: tr.left + tr.width / 2, y: tr.top + tr.height / 2 };
   }
 
-  // 2. Nút nền trắng/sáng có mũi tên gửi ở góc dưới bên phải
+  // 1.5. Nút màu xanh dương (Muse AI hoặc theme hiện đại)
+  const blueButtons = allElements.filter((el) => {
+    const r = el.getBoundingClientRect();
+    if (!inBottomRightToolbar(r)) return false;
+    if (isSettingsOrOptionsButton(el)) return false;
+    const style = window.getComputedStyle(el);
+    const bg = style.backgroundColor || '';
+    const m = bg.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/);
+    if (m) {
+      const red = Number(m[1]);
+      const blue = Number(m[3]);
+      const alpha = m[4] !== undefined ? Number(m[4]) : 1;
+      if (alpha > 0.35 && blue > 140 && blue > red * 1.25) return true;
+    }
+    return false;
+  });
+
+  if (blueButtons.length > 0) {
+    blueButtons.sort((a, b) => b.getBoundingClientRect().right - a.getBoundingClientRect().right);
+    const target = blueButtons[0];
+    const tr = target.getBoundingClientRect();
+    const btnEl = target.closest?.('button, [role="button"]') || target;
+    return { el: btnEl, x: tr.left + tr.width / 2, y: tr.top + tr.height / 2 };
+  }
+
+  // 2. Nút nền trắng/sáng có mũi tên gửi ở góc dưới bên phải (Google Flow)
   const whiteButtons = allElements.filter((el) => {
     const r = el.getBoundingClientRect();
     if (!inBottomRightToolbar(r)) return false;
@@ -345,7 +472,7 @@ function findFlowSubmitTarget(promptEl) {
     return { el: btnEl, x: tr.left + tr.width / 2, y: tr.top + tr.height / 2 };
   }
 
-  // 3. Nút clickable ở ngoài cùng bên phải, TUYỆT ĐỐI KHÔNG CHỌN nút cài đặt / tùy chọn / tỉ lệ
+  // 3. Fallback nút clickable ở ngoài cùng bên phải, TUYỆT ĐỐI KHÔNG CHỌN nút cài đặt / tùy chọn / tỉ lệ
   const bottomRightClickables = allElements.filter((el) => {
     const r = el.getBoundingClientRect();
     if (!inBottomRightToolbar(r)) return false;
@@ -367,7 +494,8 @@ function findFlowSubmitTarget(promptEl) {
     return { el: btnEl, x: tr.left + tr.width / 2, y: tr.top + tr.height / 2 };
   }
 
-  return null;
+  // Cuối cùng thử bằng findMuseSubmitTarget (ngay cả khi URL không khớp domain)
+  return findMuseSubmitTarget(promptEl);
 }
 
 function triggerDOMClickAt(targetInfo) {
@@ -695,7 +823,7 @@ function isSubmitButtonReady(promptEl) {
   if (btn.classList?.contains('disabled')) return false;
   const style = window.getComputedStyle(btn);
   if (style.pointerEvents === 'none') return false;
-  if (parseFloat(style.opacity || '1') < 0.45) return false;
+  if (parseFloat(style.opacity || '1') < 0.35) return false;
   return true;
 }
 
@@ -901,14 +1029,15 @@ async function fillPromptAndSubmit(rawPromptText, mode = 'IMAGE') {
     );
   }
 
-  updateBridgeBadgeText(`v4.2: Đang nhập Prompt (${mode === 'VIDEO' ? 'Veo 2' : 'Imagen 3'})...`, '#2563eb');
+  const isMuse = window.location.hostname.includes('muse.ai');
+  updateBridgeBadgeText(`v5.1: Đang nhập Prompt (${isMuse ? 'Muse AI' : (mode === 'VIDEO' ? 'Veo 2' : 'Imagen 3')})...`, '#2563eb');
   await typePromptTextIntoElement(promptEl, promptText);
   await new Promise((r) => setTimeout(r, 500));
 
   // Đảm bảo tab không bị kẹt ở "Tệp tải lên" để khi tạo xong ảnh sẽ hiển thị ngay
   ensureFlowCanvasView();
 
-  // Chờ nút Gửi sẵn sàng (Google Flow kích hoạt nút Gửi sau khi upload ảnh xong)
+  // Chờ nút Gửi sẵn sàng (Muse AI / Google Flow kích hoạt nút Gửi sau khi upload ảnh xong)
   let submitReady = false;
   for (let waitSubmit = 0; waitSubmit < 25; waitSubmit++) {
     promptEl = findFlowPromptElement() || promptEl;
@@ -916,18 +1045,24 @@ async function fillPromptAndSubmit(rawPromptText, mode = 'IMAGE') {
       submitReady = true;
       break;
     }
-    updateBridgeBadgeText(`⏳ v4.2: Đang đợi ảnh đồng bộ xong để kích hoạt nút Gửi (${waitSubmit + 1}/25)...`, '#f59e0b');
+    updateBridgeBadgeText(`⏳ v5.1: Đang đợi ảnh đồng bộ xong để kích hoạt nút Gửi (${waitSubmit + 1}/25)...`, '#f59e0b');
     await new Promise((r) => setTimeout(r, 600));
   }
 
   const targetInfo = findFlowSubmitTarget(promptEl);
   if (!targetInfo || !targetInfo.el) {
-    throw new Error('Không tìm thấy nút Gửi (Mũi tên) trên Google Flow! Hãy kiểm tra thanh nhập Prompt.');
+    throw new Error(
+      isMuse
+        ? 'Không tìm thấy nút Gửi (Mũi tên xanh ↑ trên Muse AI)! Hãy kiểm tra ô prompt hoặc bấm Gửi thủ công trên trang Muse AI.'
+        : 'Không tìm thấy nút Gửi (Mũi tên trên Google Flow)! Hãy kiểm tra thanh nhập Prompt.'
+    );
   }
 
   if (targetInfo.el.disabled || targetInfo.el.getAttribute?.('aria-disabled') === 'true') {
     throw new Error(
-      'Nút Gửi trên Google Flow vẫn bị khóa (disabled). Vui lòng đợi Google Flow tải xong ảnh đính kèm hoặc bấm Gửi thủ công trên trang Flow!'
+      isMuse
+        ? 'Nút Gửi trên Muse AI đang bị khóa (disabled). Vui lòng đợi tải xong ảnh đính kèm hoặc bấm nút Gửi xanh (↑) thủ công trên trang Muse AI!'
+        : 'Nút Gửi trên Google Flow vẫn bị khóa (disabled). Vui lòng đợi Google Flow tải xong ảnh đính kèm hoặc bấm Gửi thủ công trên trang Flow!'
     );
   }
 
@@ -940,7 +1075,7 @@ async function fillPromptAndSubmit(rawPromptText, mode = 'IMAGE') {
 
     const currentTarget = findFlowSubmitTarget(promptEl) || targetInfo;
     if (currentTarget && currentTarget.el && !currentTarget.el.disabled) {
-      updateBridgeBadgeText(`v4.2: Bấm nút Gửi (➔) [Lần ${attempt}]...`, '#e11d48');
+      updateBridgeBadgeText(`v5.1: Bấm nút Gửi (${isMuse ? '↑ Muse AI' : '➔ Flow'}) [Lần ${attempt}]...`, '#e11d48');
       triggerDOMClickAt(currentTarget);
 
       await new Promise((resolve) => {
@@ -950,7 +1085,7 @@ async function fillPromptAndSubmit(rawPromptText, mode = 'IMAGE') {
               type: 'NATIVE_CLICK_AND_ENTER',
               x: currentTarget.x,
               y: currentTarget.y,
-              clickOnly: true
+              clickOnly: false
             },
             (res) => resolve(res)
           );
@@ -958,6 +1093,14 @@ async function fillPromptAndSubmit(rawPromptText, mode = 'IMAGE') {
           resolve(null);
         }
       });
+
+      // Dispatch thêm sự kiện phím Enter trực tiếp vào promptEl
+      try {
+        promptEl.focus();
+        promptEl.dispatchEvent(new KeyboardEvent('keydown', { bubbles: true, cancelable: true, key: 'Enter', code: 'Enter', keyCode: 13, which: 13 }));
+        promptEl.dispatchEvent(new KeyboardEvent('keypress', { bubbles: true, cancelable: true, key: 'Enter', code: 'Enter', keyCode: 13, which: 13 }));
+        promptEl.dispatchEvent(new KeyboardEvent('keyup', { bubbles: true, cancelable: true, key: 'Enter', code: 'Enter', keyCode: 13, which: 13 }));
+      } catch (e) {}
     }
 
     await new Promise((r) => setTimeout(r, 800));
@@ -969,7 +1112,7 @@ async function fillPromptAndSubmit(rawPromptText, mode = 'IMAGE') {
     }
   }
 
-  updateBridgeBadgeText('🚀 v4.2: Đã gửi lệnh! Đang đợi kết quả từ Google Flow...', '#7c3aed');
+  updateBridgeBadgeText(`🚀 v5.1: Đã gửi lệnh! Đang đợi kết quả từ ${isMuse ? 'Muse AI' : 'Google Flow'}...`, '#7c3aed');
 }
 
 function scrollFlowGalleryToTop() {
@@ -1039,6 +1182,7 @@ function isAttachmentOrChipElement(el, promptEl = null) {
 function isValidGeneratedMedia(el, src, promptEl = null, inputFingerprints = [], candidateFingerprint = null) {
   if (!src) return false;
   if (/googleusercontent\.com\/(a|ogw)\//i.test(src)) return false; // Avatar/profile icon
+  const isMuse = window.location.hostname.includes('muse.ai');
 
   // 1. Không bao giờ nhận chip đính kèm trong ô prompt
   if (isAttachmentOrChipElement(el, promptEl)) return false;
@@ -1052,19 +1196,25 @@ function isValidGeneratedMedia(el, src, promptEl = null, inputFingerprints = [],
     return false;
   }
 
-  // 3. Phải nằm trong khu vực hiển thị Workspace / Canvas / Gallery chính của Google Flow
+  // 3. Phải nằm trong khu vực hiển thị Workspace / Chat Feed / Gallery chính
   const rect = el.getBoundingClientRect();
-  if (rect.left < 240) return false; // Loại bỏ cột sidebar "Tệp tải lên" / menu bên trái
-  if (rect.top < 50) return false; // Loại bỏ header/topbar
-  if (rect.bottom > window.innerHeight - 80) return false; // Loại bỏ dock bar ở đáy
-  if (rect.width < 180 || rect.height < 180) return false; // Loại bỏ thumbnail bé
+  const minLeft = isMuse ? 60 : 240; // Muse AI thanh bar bên trái chỉ rộng 60px
+  if (rect.left < minLeft) return false;
+  if (rect.top < 40) return false; // Loại bỏ header/topbar
+  if (rect.bottom > window.innerHeight - 70) return false; // Loại bỏ dock bar ở đáy
+  const minDimension = isMuse ? 90 : 180;
+  if (rect.width < minDimension || rect.height < minDimension) return false; // Loại bỏ thumbnail bé/icon
 
-  // 4. Kiểm tra kích thước tự nhiên: Ảnh sinh bởi Imagen 3 luôn có độ phân giải cao (ít nhất 480x480)
+  // Trên Muse AI: Loại bỏ avatar mascot hoặc widget bên panel phải
+  if (isMuse && rect.left > window.innerWidth * 0.78) return false;
+
+  // 4. Kiểm tra kích thước tự nhiên: Ảnh sinh bởi AI
   if (el.tagName === 'IMG') {
     if (!el.complete) return false;
     const nw = el.naturalWidth || 0;
     const nh = el.naturalHeight || 0;
-    if (nw < 480 || nh < 480) return false;
+    const minNatural = isMuse ? 180 : 480;
+    if (nw < minNatural || nh < minNatural) return false;
   }
 
   // 5. SO SÁNH VỚI ẢNH ĐẦU VÀO: Tuyệt đối KHÔNG ĐƯỢC trùng với bất kỳ ảnh tham chiếu nào (Ảnh Mẫu hoặc Ảnh Trang Phục)
@@ -1108,7 +1258,8 @@ function captureNewMediaOutput(
   return new Promise((resolve, reject) => {
     let isResolved = false;
     let lastApproveClickAt = 0;
-    const MIN_WAIT_MS = mode === 'VIDEO' ? 12000 : 5000;
+    const isMuse = window.location.hostname.includes('muse.ai');
+    const MIN_WAIT_MS = isMuse ? (mode === 'VIDEO' ? 8000 : 3500) : (mode === 'VIDEO' ? 12000 : 5000);
 
     const cleanup = () => {
       isResolved = true;
@@ -1131,7 +1282,7 @@ function captureNewMediaOutput(
     const timer = setTimeout(() => {
       if (isResolved) return;
       cleanup();
-      reject(new Error(`Quá thời gian chờ Google Flow sinh ${mode === 'VIDEO' ? 'Video' : 'Ảnh'} (${Math.round(timeoutMs / 1000)}s)`));
+      reject(new Error(`Quá thời gian chờ ${isMuse ? 'Muse AI' : 'Google Flow'} sinh ${mode === 'VIDEO' ? 'Video' : 'Ảnh'} (${Math.round(timeoutMs / 1000)}s)`));
     }, timeoutMs);
 
     const checkAutoApproveButtons = () => {
@@ -1151,10 +1302,10 @@ function captureNewMediaOutput(
           lastApproveClickAt = Date.now();
           const cx = r.left + r.width / 2;
           const cy = r.top + r.height / 2;
-          updateBridgeBadgeText('⚡ v4.1: Tự động bấm "Phê duyệt" trên Google Flow...', '#f59e0b');
+          updateBridgeBadgeText('⚡ v5.1: Tự động bấm "Phê duyệt"...', '#f59e0b');
           triggerDOMClickAt({ el: approveBtn, x: cx, y: cy });
           try {
-            chrome.runtime.sendMessage({ type: 'NATIVE_CLICK_AND_ENTER', x: cx, y: cy });
+            chrome.runtime.sendMessage({ type: 'NATIVE_CLICK_AND_ENTER', x: cx, y: cy, clickOnly: true });
           } catch (e) {}
         }
       }
@@ -1168,11 +1319,11 @@ function captureNewMediaOutput(
       try {
         checkAutoApproveButtons();
 
-        // 1. Kiểm tra thời gian tối thiểu kể từ khi bấm Gửi (Google Flow cần ít nhất 5s để sinh ảnh)
+        // 1. Kiểm tra thời gian tối thiểu kể từ khi bấm Gửi
         const elapsed = Date.now() - submitTimestamp;
         if (elapsed < MIN_WAIT_MS) {
           updateBridgeBadgeText(
-            `⏳ Google Flow đang xử lý... (${Math.max(1, Math.round((MIN_WAIT_MS - elapsed) / 1000))}s)`,
+            `⏳ ${isMuse ? 'Muse AI' : 'Google Flow'} đang xử lý... (${Math.max(1, Math.round((MIN_WAIT_MS - elapsed) / 1000))}s)`,
             '#e11d48'
           );
           return;
@@ -1197,7 +1348,7 @@ function captureNewMediaOutput(
 
         if (progressEls.length > 0) {
           updateBridgeBadgeText(
-            `⚡ Google Flow đang sinh ${mode === 'VIDEO' ? 'Video' : 'Ảnh'}... (${Math.round(elapsed / 1000)}s)`,
+            `⚡ ${isMuse ? 'Muse AI' : 'Google Flow'} đang sinh ${mode === 'VIDEO' ? 'Video' : 'Ảnh'}... (${Math.round(elapsed / 1000)}s)`,
             '#f59e0b'
           );
           return; // Đang chạy, chưa xong!
@@ -1243,7 +1394,7 @@ function captureNewMediaOutput(
           existingSet.add(src);
           cleanup();
 
-          updateBridgeBadgeText('✅ v4.1: Bắt được ảnh kết quả sinh mới! Đang gửi về bàn vẽ...', '#10b981');
+          updateBridgeBadgeText(`✅ v5.1: Bắt được kết quả từ ${isMuse ? 'Muse AI' : 'Google Flow'}! Đang đồng bộ về bàn vẽ...`, '#10b981');
           const base64Data = await convertFlowUrlToBase64(src, el);
           resolve({ rawUrl: src, base64Data });
           return;
@@ -1255,15 +1406,15 @@ function captureNewMediaOutput(
           await new Promise((r) => setTimeout(r, 4000));
           if (isResolved) return;
           cleanup();
-          updateBridgeBadgeText('⚠️ Google Flow từ chối tạo (Hãy đổi ảnh hoặc câu lệnh)', '#dc2626');
+          updateBridgeBadgeText('⚠️ Bị từ chối tạo (Hãy đổi ảnh hoặc câu lệnh)', '#dc2626');
           reject(
             new Error(
-              'Google Flow báo "Không thành công" (Do bộ lọc an toàn của Google. Hãy thử đổi câu lệnh Prompt!).'
+              `${isMuse ? 'Muse AI' : 'Google Flow'} báo không thành công. Hãy thử đổi câu lệnh Prompt!`
             )
           );
         }
       } catch (err) {
-        console.warn('⚠️ [FlowContent v4.1] Lỗi khi quét Media mới:', err);
+        console.warn(`⚠️ [FlowContent v5.1] Lỗi khi quét Media mới:`, err);
       } finally {
         isChecking = false;
       }
@@ -1316,7 +1467,8 @@ window.__AI_CANVAS_RUN_FLOW_TASK__ = async function (payload = {}) {
     timeoutMs,
     submitTimestamp
   );
-  updateBridgeBadgeText('✅ v4.1: Đã nhận kết quả thành công từ Google Flow!', 'rgba(16,185,129,0.95)');
+  const isMuse = window.location.hostname.includes('muse.ai');
+  updateBridgeBadgeText(`✅ v5.1: Đã nhận kết quả thành công từ ${isMuse ? 'Muse AI' : 'Google Flow'}!`, 'rgba(16,185,129,0.95)');
   return {
     ok: true,
     mode,
