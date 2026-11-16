@@ -134,8 +134,38 @@ exports.urlToBase64 = async (req, res) => {
   }
 };
 
+const CN_TO_EN_MAP = [
+  ['图片节点', 'Image Node'],
+  ['视频节点', 'Video Node'],
+  ['音频节点', 'Audio Node'],
+  ['文本节点', 'Text Node'],
+  ['三视图', '3-View'],
+  ['工作流', 'Workflow'],
+  ['便签', 'Note'],
+  ['画布', 'Canvas'],
+  ['项目', 'Project'],
+  ['模特', 'Model'],
+  ['服装', 'Outfit'],
+  ['换装', 'Try-On'],
+  ['原图', 'Original'],
+  ['高清', 'HD'],
+  ['修复', 'Upscale'],
+  ['生成', 'Generate']
+];
+
+function convertChineseToEnglish(text) {
+  let out = String(text || '');
+  for (const [cn, en] of CN_TO_EN_MAP) {
+    out = out.split(cn).join(en);
+  }
+  // Loại bỏ các ký tự tiếng Trung còn sót lại (nếu có) để tên thư mục/file luôn sạch
+  out = out.replace(/[\u4e00-\u9fff\u3400-\u4dbf]+/g, ' ');
+  return out;
+}
+
 function sanitizeWindowsName(name, fallback = 'Untitled') {
-  const cleaned = String(name || '')
+  const translated = convertChineseToEnglish(name);
+  const cleaned = translated
     .replace(/[<>:"/\\|?*\x00-\x1f]/g, ' ')
     .replace(/\s+/g, ' ')
     .replace(/[. ]+$/g, '')
