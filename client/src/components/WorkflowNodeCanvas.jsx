@@ -58,9 +58,13 @@ const NODE_TYPES_META = {
   }
 };
 
-const isVideoMedia = (url) =>
+const isVideoMedia = (url, nodeType) =>
   typeof url === 'string' &&
-  (url.startsWith('data:video/') || /\.(mp4|webm|mov|mkv)(\?|$)/i.test(url));
+  !url.startsWith('data:image/') &&
+  !/\.(png|jpe?g|webp|gif)(\?|$)/i.test(url) &&
+  (url.startsWith('data:video/') ||
+    /\.(mp4|webm|mov|mkv)(\?|$)/i.test(url) ||
+    (nodeType === 'FLOW_VIDEO_GEN' && (url.startsWith('http://') || url.startsWith('https://'))));
 
 export default function WorkflowNodeCanvas({ project, onSaveProject }) {
   const [nodes, setNodes] = useState(() => project?.nodes || []);
@@ -925,7 +929,8 @@ export default function WorkflowNodeCanvas({ project, onSaveProject }) {
             height: '1px'
           }}
         >
-          {/* Lớp SVG vẽ dây cáp quang học bạc xanh */}
+          {/* Lớp SVG vẽ dây cáp quang học bạc xanh & hiệu ứng dòng chảy loading khi đang chạy */}
+          <style>{`@keyframes cableDashFlow { to { stroke-dashoffset: -44; } }`}</style>
           <svg
             width="5000"
             height="4000"
@@ -937,6 +942,18 @@ export default function WorkflowNodeCanvas({ project, onSaveProject }) {
                 <stop offset="50%" stopColor="#06b6d4" />
                 <stop offset="100%" stopColor="#10b981" />
               </linearGradient>
+              <linearGradient id="cableActiveFlow" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stopColor="#38bdf8" />
+                <stop offset="50%" stopColor="#22d3ee" />
+                <stop offset="100%" stopColor="#34d399" />
+              </linearGradient>
+              <filter id="edgeGlow" x="-20%" y="-20%" width="140%" height="140%">
+                <feGaussianBlur stdDeviation="4" result="blur" />
+                <feMerge>
+                  <feMergeNode in="blur" />
+                  <feMergeNode in="SourceGraphic" />
+                </feMerge>
+              </filter>
             </defs>
 
             {edges.map((edge) => {
@@ -950,22 +967,53 @@ export default function WorkflowNodeCanvas({ project, onSaveProject }) {
               const y2 = tgtNode.y + PORT_OFFSET_Y;
               const midX = (x1 + x2) / 2;
               const midY = (y1 + y2) / 2;
+              const bezierD = buildBezierPath(x1, y1, x2, y2);
+              const isEdgeRunning = tgtNode.data?.status === 'running';
 
               return (
                 <g key={edge.id} className="pointer-events-auto group">
                   {/* Đường ẩn dày hơn để dễ rê chuột vào dây */}
                   <path
-                    d={buildBezierPath(x1, y1, x2, y2)}
+                    d={bezierD}
                     stroke="transparent"
                     strokeWidth="18"
                     fill="none"
                   />
+                  {/* Lớp phát sáng nền khi dây đang truyền tải tới Node đang chạy */}
+                  {isEdgeRunning && (
+                    <path
+                      d={bezierD}
+                      stroke="#38bdf8"
+                      strokeWidth="10"
+                      strokeOpacity="0.35"
+                      filter="url(#edgeGlow)"
+                      fill="none"
+                    />
+                  )}
+                  {/* Đường dây cáp nền */}
                   <path
-                    d={buildBezierPath(x1, y1, x2, y2)}
-                    stroke="url(#cableSilverCyan)"
+                    d={bezierD}
+                    stroke={isEdgeRunning ? 'rgba(14,165,233,0.35)' : 'url(#cableSilverCyan)'}
                     strokeWidth="4"
                     fill="none"
                   />
+                  {/* Hiệu ứng xung ánh sáng chạy dọc theo dây khi đang xử lý Node đích */}
+                  {isEdgeRunning && (
+                    <>
+                      <path
+                        d={bezierD}
+                        stroke="url(#cableActiveFlow)"
+                        strokeWidth="4.5"
+                        strokeDasharray="12 10"
+                        strokeLinecap="round"
+                        fill="none"
+                        style={{ animation: 'cableDashFlow 0.7s linear infinite' }}
+                      />
+                      <circle r="5.5" fill="#ffffff" stroke="#0ea5e9" strokeWidth="2.5" filter="url(#edgeGlow)">
+                        <animateMotion dur="1.15s" repeatCount="indefinite" path={bezierD} />
+                      </circle>
+                    </>
+                  )}
                   <g
                     transform={`translate(${midX - 12}, ${midY - 12})`}
                     onClick={(ev) => {
@@ -1319,7 +1367,7 @@ export default function WorkflowNodeCanvas({ project, onSaveProject }) {
                             style={{ '--r': '20px' }}
                           >
                             <div className="circle-overlay" />
-                            {isVideoMedia(node.data.resultUrl) ? (
+                            {isVideoMedia(node.data.resultUrl, node.type) ? (
                               <video
                                 src={node.data.resultUrl}
                                 controls
@@ -1350,10 +1398,10 @@ export default function WorkflowNodeCanvas({ project, onSaveProject }) {
                             )}
                             <a
                               href={node.data.resultUrl}
-                              download={`flow-${node.id}.${isVideoMedia(node.data.resultUrl) ? 'mp4' : 'png'}`}
+                              download={`flow-${node.id}.${isVideoMedia(node.data.resultUrl, node.type) ? 'mp4' : 'png'}`}
                               className="box absolute top-2 right-2 w-7 h-7 flex items-center justify-center text-sky-700 z-10"
                               style={{ '--r': '50%', width: '28px', height: '28px' }}
-                              title={isVideoMedia(node.data.resultUrl) ? 'Tải Video MP4' : 'Tải Ảnh'}
+                              title={isVideoMedia(node.data.resultUrl, node.type) ? 'Tải Video MP4' : 'Tải Ảnh'}
                             >
                               <div className="circle-overlay" />
                               <Download className="w-3.5 h-3.5" />

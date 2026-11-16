@@ -1656,12 +1656,16 @@ function captureNewMediaOutput(
 
           // BẢO VỆ ĐẶC BIỆT CHO MUSE AI:
           // Ảnh kết quả của Muse AI luôn nằm BÊN DƯỚI bong bóng câu lệnh vừa gửi của người dùng
+          // (Ngoại lệ: Thẻ <video> mới mở trong modal trình phát toàn màn hình)
           if (isMuse) {
-            const er = el.getBoundingClientRect();
-            if (userPromptRect) {
-              if (er.top < userPromptRect.bottom - 12) continue;
-            } else if (promptRect && er.left > promptRect.left + promptRect.width * 0.45) {
-              continue;
+            const isVideoModal = mode === 'VIDEO' && el.tagName === 'VIDEO' && Boolean(el.closest?.('[role="dialog"], [aria-modal="true"]'));
+            if (!isVideoModal) {
+              const er = el.getBoundingClientRect();
+              if (userPromptRect) {
+                if (er.top < userPromptRect.bottom - 12) continue;
+              } else if (promptRect && er.left > promptRect.left + promptRect.width * 0.45) {
+                continue;
+              }
             }
           }
 
@@ -1691,27 +1695,75 @@ function captureNewMediaOutput(
             }
           }
 
-          // Ở mode VIDEO: Ưu tiên tìm link video .mp4 thực sự từ thẻ video hoặc link tải lân cận nếu có
+          // Ở mode VIDEO: TUYỆT ĐỐI CHỈ NHẬN VIDEO THỰC SỰ (thẻ <video> hoặc link .mp4/.webm), KHÔNG TRẢ VỀ ẢNH POSTER!
           let finalMediaSrc = src;
+          let resolvedDomEl = el;
           if (mode === 'VIDEO') {
-            const cardParent = el.closest?.('div, article, section, [class*="message"], [class*="card"]');
-            if (cardParent) {
-              const videoTag = cardParent.querySelector?.('video, source');
-              const mp4Link = cardParent.querySelector?.('a[href*=".mp4"], a[download*=".mp4"], a[href*="video"]');
-              if (videoTag && (videoTag.currentSrc || videoTag.src)) {
-                finalMediaSrc = videoTag.currentSrc || videoTag.src;
-              } else if (mp4Link && (mp4Link.href || mp4Link.getAttribute('href'))) {
-                finalMediaSrc = mp4Link.href || mp4Link.getAttribute('href');
+            if (el.tagName === 'VIDEO') {
+              finalMediaSrc = el.currentSrc || el.src || el.querySelector?.('source')?.src || '';
+            } else {
+              let foundVideoUrl = '';
+              let anc = el.parentElement;
+              for (let d = 0; d < 6 && anc && anc !== document.body; d++) {
+                const videoTag = anc.querySelector?.('video, source');
+                const vUrl = videoTag ? (videoTag.currentSrc || videoTag.src || '') : '';
+                if (vUrl && !existingSet.has(vUrl)) {
+                  foundVideoUrl = vUrl;
+                  resolvedDomEl = videoTag;
+                  break;
+                }
+                const mp4Link = anc.querySelector?.('a[href*=".mp4"], a[download*=".mp4"], a[href*="video"]');
+                const linkUrl = mp4Link ? (mp4Link.href || mp4Link.getAttribute('href') || '') : '';
+                if (linkUrl && !existingSet.has(linkUrl)) {
+                  foundVideoUrl = linkUrl;
+                  break;
+                }
+                anc = anc.parentElement;
               }
+
+              if (!foundVideoUrl) {
+                // Nếu Muse AI mới chỉ hiển thị thumbnail ảnh có nút Play ▶ mà chưa gắn thẻ <video>:
+                // Click 1 lần vào thẻ thumbnail để mở trình phát <video> lấy link MP4 thật
+                if (isMuse && !el.dataset.aiCanvasVideoClicked) {
+                  el.dataset.aiCanvasVideoClicked = 'true';
+                  try {
+                    const clickableCard = el.closest?.('button, [role="button"], a') || el;
+                    clickableCard.click();
+                    updateBridgeBadgeText('🎬 Đang mở trình phát để trích xuất link Video MP4 thật...', '#3b82f6');
+                  } catch (e) {}
+                  return;
+                }
+                // Vẫn chưa có thẻ <video> hoặc link .mp4 => bỏ qua ảnh poster, tiếp tục đợi <video>
+                continue;
+              }
+              finalMediaSrc = foundVideoUrl;
             }
+
+            if (!finalMediaSrc || existingSet.has(finalMediaSrc)) continue;
           }
 
           existingSet.add(src);
           existingSet.add(finalMediaSrc);
           cleanup();
 
-          updateBridgeBadgeText(`✅ v5.8: Bắt được kết quả ${mode === 'VIDEO' ? 'Video' : 'Ảnh'} từ ${isMuse ? 'Muse AI' : 'Google Flow'}! Đang đồng bộ về bàn vẽ...`, '#10b981');
-          const base64Data = prefetchedBase64 && finalMediaSrc === src ? prefetchedBase64 : await convertFlowUrlToBase64(finalMediaSrc, el);
+          // Nếu vừa mở modal trình phát video để lấy URL thì đóng lại gọn gàng
+          if (mode === 'VIDEO' && isMuse) {
+            try {
+              document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', code: 'Escape', keyCode: 27, which: 27, bubbles: true }));
+            } catch (e) {}
+          }
+
+          updateBridgeBadgeText(`✅ v6.0: Bắt được kết quả ${mode === 'VIDEO' ? 'Video MP4' : 'Ảnh'} từ ${isMuse ? 'Muse AI' : 'Google Flow'}! Đang đồng bộ về bàn vẽ...`, '#10b981');
+          let base64Data = finalMediaSrc;
+          if (mode === 'VIDEO') {
+            if (finalMediaSrc.startsWith('blob:')) {
+              base64Data = await convertFlowUrlToBase64(finalMediaSrc, null);
+            }
+          } else {
+            base64Data = prefetchedBase64 && finalMediaSrc === src
+              ? prefetchedBase64
+              : await convertFlowUrlToBase64(finalMediaSrc, resolvedDomEl);
+          }
           resolve({ rawUrl: finalMediaSrc, base64Data: base64Data || finalMediaSrc });
           return;
         }
