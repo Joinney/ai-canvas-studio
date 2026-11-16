@@ -1557,7 +1557,10 @@ function captureNewMediaOutput(
           }
         }
 
-        // 2. Phát hiện trạng thái Muse AI đang sinh (Progress bar, spinner, Generating, Thinking, hoặc nút Stop)
+        // 2. Phát hiện trạng thái Muse AI đang sinh (chỉ quét trong khu vực khung chat chính, loại trừ 2 sidebar)
+        const promptElForBusy = findFlowPromptElement();
+        const prBusy = promptElForBusy ? promptElForBusy.getBoundingClientRect() : null;
+
         const progressCandidates = isMuse
           ? Array.from(document.querySelectorAll('[role="progressbar"], [aria-busy="true"], .animate-spin, .loading-spinner, .progress-bar, [aria-label*="generating" i], [aria-label*="đang tạo" i]'))
           : queryAllDeep(document).filter((el) => {
@@ -1568,8 +1571,10 @@ function captureNewMediaOutput(
             });
 
         const progressEls = progressCandidates.filter((el) => {
+          if (el.closest?.('#ai-canvas-flow-badge, header, nav, aside')) return false;
           const r = el.getBoundingClientRect();
           if (r.width < 8 || r.height < 2 || r.width > 900 || r.height > 900) return false;
+          if (isMuse && (r.left < 65 || r.left > window.innerWidth * 0.76)) return false;
           try {
             const st = window.getComputedStyle(el);
             if (st.display === 'none' || st.visibility === 'hidden' || st.opacity === '0') return false;
@@ -1577,24 +1582,20 @@ function captureNewMediaOutput(
           return true;
         });
 
-        // Kiểm tra xem Muse AI có nút Dừng (Stop / Cancel) hoặc chữ Thinking/Generating không
+        // Kiểm tra nút Dừng (Stop / ■) CHỈ nằm trong vùng thanh nhập Prompt (không quét nhầm sidebar)
         const isMuseBusy = isMuse && (() => {
-          const btns = document.querySelectorAll('button, [role="button"]');
-          for (const el of btns) {
-            const r = el.getBoundingClientRect();
-            if (r.top < window.innerHeight * 0.5 || r.width < 12 || r.height < 12) continue;
-            const lbl = ((el.getAttribute?.('aria-label') || '') + ' ' + (el.title || '') + ' ' + (el.textContent || '')).toLowerCase();
-            if (/stop|dừng|cancel/i.test(lbl) || lbl.includes('⏹')) return true;
+          if (prBusy) {
+            const btns = document.querySelectorAll('button, [role="button"]');
+            for (const el of btns) {
+              const r = el.getBoundingClientRect();
+              if (r.width < 12 || r.height < 12) continue;
+              if (r.left < prBusy.left || r.right > prBusy.right + 100) continue;
+              if (r.top < prBusy.top - 40 || r.bottom > prBusy.bottom + 120) continue;
+              const lbl = ((el.getAttribute?.('aria-label') || '') + ' ' + (el.title || '') + ' ' + (el.textContent || '')).toLowerCase();
+              if (/\b(stop|dừng|cancel)\b/i.test(lbl) || lbl.includes('⏹')) return true;
+            }
           }
-
-          const lowerBody = bodyText.toLowerCase();
-          return (
-            lowerBody.includes('thinking...') ||
-            lowerBody.includes('đang suy nghĩ') ||
-            lowerBody.includes('generating...') ||
-            lowerBody.includes('rendering...') ||
-            lowerBody.includes('executing media')
-          );
+          return false;
         })();
 
         if (progressEls.length > 0 || isMuseBusy) {
