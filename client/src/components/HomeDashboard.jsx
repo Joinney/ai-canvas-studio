@@ -166,7 +166,7 @@ export default function HomeDashboard({
             <div className="flex flex-col">
               <span className="font-black text-sm tracking-tight leading-tight">AI CANVAS STUDIO</span>
               <span className="text-[10px] font-extrabold uppercase tracking-widest text-sky-600 dark:text-sky-400">
-                聚合AI • 创意工坊
+                AI Studio • Creative Lab
               </span>
             </div>
           </div>
@@ -204,7 +204,7 @@ export default function HomeDashboard({
             >
               <div className="circle-overlay" />
               <Grid className="w-4 h-4 text-sky-500" />
-              <span>首页 • Trang Chủ</span>
+              <span>Home • Trang Chủ</span>
             </button>
           </div>
 
@@ -227,7 +227,7 @@ export default function HomeDashboard({
             >
               <div className="circle-overlay" />
               <ImageIcon className="w-4 h-4 text-teal-500" />
-              <span>图片制作 • Thử Đồ 2K</span>
+              <span>Image Studio • Thử Đồ 2K</span>
             </button>
 
             <button
@@ -243,7 +243,7 @@ export default function HomeDashboard({
             >
               <div className="circle-overlay" />
               <Video className="w-4 h-4 text-indigo-500" />
-              <span>视频制作 • Video 9:16</span>
+              <span>Video Studio • Video 9:16</span>
             </button>
 
             <button
@@ -259,7 +259,7 @@ export default function HomeDashboard({
             >
               <div className="circle-overlay" />
               <Layers className="w-4 h-4 text-cyan-500" />
-              <span>无限画布 • Bàn Vẽ Vô Cực</span>
+              <span>Infinite Canvas • Bàn Vẽ Vô Cực</span>
             </button>
 
             <button
@@ -275,7 +275,7 @@ export default function HomeDashboard({
             >
               <div className="circle-overlay" />
               <Workflow className="w-4 h-4 text-amber-500" />
-              <span>节点工作流 • Sơ Đồ DAG</span>
+              <span>Node Workflow • Sơ Đồ DAG</span>
             </button>
           </div>
 
@@ -299,7 +299,7 @@ export default function HomeDashboard({
               <div className="circle-overlay" />
               <div className="flex items-center gap-3">
                 <FolderKanban className="w-4 h-4 text-blue-500" />
-                <span>我的作品 • Dự Án Của Tôi</span>
+                <span>My Projects • Dự Án Của Tôi</span>
               </div>
               <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-sky-500/10 text-sky-600 dark:text-sky-400">
                 {userProjects.length}
@@ -390,7 +390,7 @@ export default function HomeDashboard({
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="搜索应用、工作流、创意模板 (Tìm kiếm ứng dụng, quy trình tạo ảnh, video)..."
+              placeholder="Search apps, workflows, templates (Tìm kiếm ứng dụng, quy trình tạo ảnh, video)..."
               className="w-full bg-transparent text-xs font-semibold focus:outline-none"
             />
           </div>
@@ -446,7 +446,7 @@ export default function HomeDashboard({
 
             <div className="flex flex-wrap items-center gap-2">
               <span className="text-[11px] font-black px-3 py-1 rounded-full bg-sky-500/20 text-sky-600 dark:text-sky-300 border border-sky-500/30 flex items-center gap-1.5">
-                <Sparkles className="w-3.5 h-3.5" /> 聚合AI • ĐỘT PHÁ TỰ ĐỘNG HÓA WORKFLOW
+                <Sparkles className="w-3.5 h-3.5" /> AI Studio • ĐỘT PHÁ TỰ ĐỘNG HÓA WORKFLOW
               </span>
               <span className="text-[11px] font-extrabold px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-600 dark:text-emerald-300 border border-emerald-500/30">
                 Veo 2 & Muse AI Auto-Piping
@@ -514,7 +514,7 @@ export default function HomeDashboard({
               </div>
               <div className="flex flex-col gap-1">
                 <h3 className="text-sm font-black group-hover:text-teal-600 transition">
-                  图片制作 • Thử Đồ 2K
+                  Image Studio • Thử Đồ 2K
                 </h3>
                 <p className="text-[11px] font-bold opacity-70 leading-relaxed">
                   Ghép người mẫu &amp; trang phục giữ nguyên dáng đứng đối gương và bối cảnh phòng thực tế.
@@ -546,7 +546,7 @@ export default function HomeDashboard({
               </div>
               <div className="flex flex-col gap-1">
                 <h3 className="text-sm font-black group-hover:text-indigo-600 transition">
-                  视频制作 • Video 9:16
+                  Video Studio • Video 9:16
                 </h3>
                 <p className="text-[11px] font-bold opacity-70 leading-relaxed">
                   Sinh video chuyển động tự nhiên 7s mượt mà từ ảnh người mẫu đã thử đồ trên Muse AI.
@@ -581,7 +581,7 @@ export default function HomeDashboard({
               </div>
               <div className="flex flex-col gap-1">
                 <h3 className="text-sm font-black group-hover:text-cyan-600 transition">
-                  无限画布 • Bàn Vẽ Tự Do
+                  Infinite Canvas • Bàn Vẽ Tự Do
                 </h3>
                 <p className="text-[11px] font-bold opacity-70 leading-relaxed">
                   Bàn vẽ đa tầng không giới hạn, hỗ trợ kéo thả ảnh, tách nền AI, vẽ mask inpainting.
@@ -613,7 +613,7 @@ export default function HomeDashboard({
               </div>
               <div className="flex flex-col gap-1">
                 <h3 className="text-sm font-black group-hover:text-amber-600 transition">
-                  节点工作流 • Sơ Đồ DAG
+                  Node Workflow • Sơ Đồ DAG
                 </h3>
                 <p className="text-[11px] font-bold opacity-70 leading-relaxed">
                   Quy trình 4 cột tự động hóa: nối dây tuần tự, chờ kết quả từng bước, điều phối thông minh.
@@ -639,7 +639,7 @@ export default function HomeDashboard({
                 style={{ '--r': '999px', width: 'auto' }}
               >
                 <div className="circle-overlay" />
-                全部 • Tất Cả ({allDisplayItems.length})
+                All • Tất Cả ({allDisplayItems.length})
               </button>
 
               <button

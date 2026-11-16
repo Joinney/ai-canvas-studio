@@ -66,10 +66,29 @@ const isVideoMedia = (url, nodeType) =>
     /\.(mp4|webm|mov|mkv)(\?|$)/i.test(url) ||
     (nodeType === 'FLOW_VIDEO_GEN' && (url.startsWith('http://') || url.startsWith('https://'))));
 
+const normalizeChineseTitle = (title) =>
+  String(title || '')
+    .replace(/图片节点/g, 'Image Node')
+    .replace(/视频节点/g, 'Video Node')
+    .replace(/音频节点/g, 'Audio Node')
+    .replace(/文本节点/g, 'Text Node')
+    .replace(/三视图/g, '3-View')
+    .replace(/便签/g, 'Note');
+
 export default function WorkflowNodeCanvas({ project, onSaveProject }) {
-  const [nodes, setNodes] = useState(() => project?.nodes || []);
+  const [nodes, setNodes] = useState(() =>
+    (project?.nodes || []).map((n) => ({
+      ...n,
+      data: { ...n.data, title: normalizeChineseTitle(n.data?.title || '') }
+    }))
+  );
   const [edges, setEdges] = useState(() => project?.edges || []);
-  const [stickers, setStickers] = useState(() => project?.stickers || []);
+  const [stickers, setStickers] = useState(() =>
+    (project?.stickers || []).map((s) => ({
+      ...s,
+      title: normalizeChineseTitle(s.title || '')
+    }))
+  );
   const [selectedNodeId, setSelectedNodeId] = useState(null);
 
   const [pan, setPan] = useState({ x: 60, y: 40 });
@@ -199,7 +218,7 @@ export default function WorkflowNodeCanvas({ project, onSaveProject }) {
       y: Math.round((-panRef.current.y + 120) / zoomRef.current),
       width: 280,
       height: 130,
-      title: '便签 • Ghi chú Workflow',
+      title: 'Note • Ghi chú Workflow',
       html: '<p>Nhập ghi chú hướng dẫn cho Cột / Node tại đây...</p>'
     };
     setStickers((prev) => [...prev, newSticker]);
@@ -921,7 +940,7 @@ export default function WorkflowNodeCanvas({ project, onSaveProject }) {
               onClick={handleAddSticker}
               className="box box-hover px-3.5 py-1.5 text-xs font-extrabold flex items-center gap-1.5"
               style={{ '--r': '999px', width: 'auto' }}
-              title="Thêm ghi chú (Sticker 便签)"
+              title="Thêm ghi chú (Sticker Note)"
             >
               <div className="circle-overlay" />
               <StickyNote className="w-3.5 h-3.5 text-amber-500" /> + Ghi chú
@@ -1181,7 +1200,7 @@ export default function WorkflowNodeCanvas({ project, onSaveProject }) {
                 >
                   <div className="flex items-center gap-1.5 text-[11px] font-black text-amber-800 dark:text-amber-300">
                     <StickyNote className="w-3.5 h-3.5 text-amber-600" />
-                    <span>{sticker.title || '便签 (Ghi chú)'}</span>
+                    <span>{sticker.title || 'Note (Ghi chú)'}</span>
                   </div>
                   <button
                     onClick={() =>

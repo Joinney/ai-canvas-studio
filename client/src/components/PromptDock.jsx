@@ -33,22 +33,22 @@ const SEEDANCE_MODELS = [
 const FEISHU_CASE_TEMPLATES = [
   {
     id: 'case1',
-    name: '案例1: Thay mẫu + trang phục',
+    name: 'Case 1: Thay mẫu + trang phục',
     prompt: 'Cinematic fashion video, the model from @Ảnh1 wearing the outfit and product from @Ảnh2, natural walking movement, studio lighting'
   },
   {
     id: 'case3',
-    name: '案例3: Thay sản phẩm (Giày/Đồ)',
+    name: 'Case 3: Thay sản phẩm (Giày/Đồ)',
     prompt: 'Commercial product showcase video of @Ảnh2 in outdoor natural sunlight, smooth camera orbit, realistic shadows and reflections, 4K'
   },
   {
     id: 'case4',
-    name: '案例4: Người mẫu giới thiệu (口播)',
+    name: 'Case 4: Người mẫu giới thiệu (Presenter)',
     prompt: 'The person in @Ảnh1 speaking naturally to the camera with lifelike facial expressions and hand gestures while presenting @Ảnh2'
   },
   {
     id: 'case5',
-    name: '案例5: Remix Video (视频二创)',
+    name: 'Case 5: Remix Video (Video Remix)',
     prompt: 'Realistic subject motion combining the character from @Ảnh1 and the product from @Ảnh2, smooth camera tracking, lifelike physics'
   }
 ];
@@ -303,7 +303,7 @@ export default function PromptDock({ exportMaskBase64 }) {
             }`}
           >
             <Images className="w-3.5 h-3.5 text-purple-400" />
-            Tham chiếu (@参考)
+            Tham chiếu (@Ref)
           </button>
           <button
             onClick={() => setVideoGenMode('frames')}
@@ -314,7 +314,7 @@ export default function PromptDock({ exportMaskBase64 }) {
             }`}
           >
             <ArrowRightLeft className="w-3.5 h-3.5 text-pink-400" />
-            Khung Đầu - Cuối (首尾帧)
+            Khung Đầu - Cuối (Start-End)
           </button>
         </div>
 
@@ -323,7 +323,7 @@ export default function PromptDock({ exportMaskBase64 }) {
             onClick={handleRemoveBg}
             disabled={isLoading}
             className="bg-zinc-800 hover:bg-zinc-700 px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 cursor-pointer transition"
-            title="Tách nền sản phẩm/nhân vật (抠图)"
+            title="Tách nền sản phẩm/nhân vật (Cutout)"
           >
             <Scissors className="w-3.5 h-3.5 text-indigo-400" /> Tách nền
           </button>
@@ -331,7 +331,7 @@ export default function PromptDock({ exportMaskBase64 }) {
             onClick={handleAutoWritePrompt}
             disabled={isLoading}
             className="bg-purple-500/15 hover:bg-purple-500/25 text-purple-300 border border-purple-500/30 px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 cursor-pointer transition"
-            title="Tự động viết kịch bản chuẩn theo các Node trên Canvas (一键代为撰写)"
+            title="Tự động viết kịch bản chuẩn theo các Node trên Canvas (Auto-Write)"
           >
             <Sparkles className="w-3.5 h-3.5 text-amber-400" /> AI Tự Viết Prompt
           </button>

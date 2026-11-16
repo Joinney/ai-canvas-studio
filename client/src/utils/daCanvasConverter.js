@@ -89,7 +89,7 @@ export const WINTER_FUR_RAW_CANVAS_JSON = {
     {
       id: 'node-1790489019333-12',
       kind: 'video',
-      title: '视频节点 (Video 480p - Winter Velvet & Luxe Fur)',
+      title: 'Video Node (Video 480p - Winter Velvet & Luxe Fur)',
       x: 3511.121830959454,
       y: 1554.891897986405,
       width: 139,
@@ -121,7 +121,7 @@ export const WINTER_FUR_RAW_CANVAS_JSON = {
     {
       id: 'node-1790489019333-13',
       kind: 'image',
-      title: '图片节点 #1 (Mẫu + Bộ Lông Thú 1)',
+      title: 'Image Node #1 (Mẫu + Bộ Lông Thú 1)',
       x: 2609.331087348419,
       y: 1020.3709709504951,
       width: 244,
@@ -147,7 +147,7 @@ export const WINTER_FUR_RAW_CANVAS_JSON = {
     {
       id: 'node-1790489019333-14',
       kind: 'image',
-      title: '图片节点 #2 (Mẫu + Bộ Lông Thú 2)',
+      title: 'Image Node #2 (Mẫu + Bộ Lông Thú 2)',
       x: 2649.3833844655946,
       y: 1392.379200777217,
       width: 244,
@@ -173,7 +173,7 @@ export const WINTER_FUR_RAW_CANVAS_JSON = {
     {
       id: 'node-1790489019333-15',
       kind: 'image',
-      title: '图片节点 #3 (Mẫu + Bộ Lông Thú 3)',
+      title: 'Image Node #3 (Mẫu + Bộ Lông Thú 3)',
       x: 2654.081334471934,
       y: 1812.5203527100493,
       width: 244,
@@ -199,7 +199,7 @@ export const WINTER_FUR_RAW_CANVAS_JSON = {
     {
       id: 'node-1790489019333-16',
       kind: 'image',
-      title: '图片节点 #4 (Mẫu + Bộ Lông Thú 4)',
+      title: 'Image Node #4 (Mẫu + Bộ Lông Thú 4)',
       x: 2629.4752902978234,
       y: 2200.531314878567,
       width: 244,
@@ -315,7 +315,7 @@ export const WINTER_FUR_RAW_CANVAS_JSON = {
       width: 293.5357023912284,
       height: 141.82132152105584,
       targetType: 'free',
-      title: '便签 • Cột 1 (Mẫu)',
+      title: 'Note • Cột 1 (Mẫu)',
       html: '<p>生成模特三视图，也可以自己上传模特后生成相应的三视图</p><p><i>(Tạo ảnh người mẫu 3 góc độ hoặc tự tải ảnh mẫu lên)</i></p>',
       style: {
         theme: 'yellow',
@@ -333,7 +333,7 @@ export const WINTER_FUR_RAW_CANVAS_JSON = {
       width: 298.3839255978071,
       height: 111.11590787939086,
       targetType: 'free',
-      title: '便签 • Cột 1 (Trang phục)',
+      title: 'Note • Cột 1 (Trang phục)',
       html: '<p>上传服装，可以多套，实例只展示四套</p><p><i>(Tải lên nhiều bộ trang phục, ví dụ này gồm 4 bộ lông thú)</i></p>',
       style: {
         theme: 'yellow',
@@ -351,7 +351,7 @@ export const WINTER_FUR_RAW_CANVAS_JSON = {
       width: 257.98206554298474,
       height: 127.2766519013198,
       targetType: 'free',
-      title: '便签 • Cột 2 (Thay đồ 3 góc độ)',
+      title: 'Note • Cột 2 (Thay đồ 3 góc độ)',
       html: '<p>生成模特穿上目标穿搭后的三视图，防止视频穿帮，减少抽卡概率</p><p><i>(Tạo ảnh mẫu mặc trang phục ở 3 góc độ để giữ đồng nhất nhân vật khi tạo video)</i></p>',
       style: {
         theme: 'yellow',
@@ -369,7 +369,7 @@ export const WINTER_FUR_RAW_CANVAS_JSON = {
       width: 300,
       height: 200,
       targetType: 'free',
-      title: '便签 • Cột 3 (Video 480p)',
+      title: 'Note • Cột 3 (Video 480p)',
       html: '<p>更换模特及穿搭后，记得检查视频提示词。</p><p>用视频2.5生成，其他模型抽卡概率较大。</p><p>用480p就可以，想要高清，生成出来后去视频转高清应用去转高清，性价比较高。</p>',
       style: {
         theme: 'yellow',
@@ -387,7 +387,7 @@ export const WINTER_FUR_RAW_CANVAS_JSON = {
       width: 258.2364894294364,
       height: 133.98670909814143,
       targetType: 'free',
-      title: '便签 • Cột 4 (Video HD + Nhạc)',
+      title: 'Note • Cột 4 (Video HD + Nhạc)',
       html: '<p>这个是转高清后的效果。</p><p>手动在剪映里增加了一个背景音乐</p><p><i>(Kết quả sau khi nâng nét HD 1080x1920 và ghép nhạc nền)</i></p>',
       style: {
         theme: 'yellow',
@@ -513,7 +513,7 @@ export function convertDaAiCanvasToProject(rawJson, options = {}) {
     y: normY(s.y),
     width: Math.round(Number(s.width) || 280),
     height: Math.round(Number(s.height) || 140),
-    title: s.title || '便签 (Ghi chú)',
+    title: s.title || 'Note (Ghi chú)',
     html: s.html || ''
   }));
 
@@ -556,7 +556,7 @@ export const MIRROR_SELFIE_RAW_CANVAS_JSON = {
     {
       id: 'node-1782911678311-0',
       kind: 'image',
-      title: '图片节点 (Ảnh Mẫu Gốc #1)',
+      title: 'Image Node (Ảnh Mẫu Gốc #1)',
       x: -6.500000000000075,
       y: 217.08333333333331,
       width: 139,
@@ -580,7 +580,7 @@ export const MIRROR_SELFIE_RAW_CANVAS_JSON = {
     {
       id: 'node-1782911678311-1',
       kind: 'image',
-      title: '图片节点 (Thử Đồ 1 - Phố Hàn 2K)',
+      title: 'Image Node (Thử Đồ 1 - Phố Hàn 2K)',
       x: 433.58333333333326,
       y: 329.0833333333333,
       width: 139,
@@ -604,7 +604,7 @@ export const MIRROR_SELFIE_RAW_CANVAS_JSON = {
     {
       id: 'node-1782911678311-2',
       kind: 'image',
-      title: '图片节点 (Trang Phục 1 - Váy Hoa & Cardigan)',
+      title: 'Image Node (Trang Phục 1 - Váy Hoa & Cardigan)',
       x: -39.41666666666674,
       y: 532.0833333333333,
       width: 177,
@@ -620,7 +620,7 @@ export const MIRROR_SELFIE_RAW_CANVAS_JSON = {
     {
       id: 'node-1782911678311-3',
       kind: 'video',
-      title: '视频节点 (Video 1 - Đối Gương Phố Hàn 7s)',
+      title: 'Video Node (Video 1 - Đối Gương Phố Hàn 7s)',
       x: 856.8333333333333,
       y: 329.0833333333333,
       width: 139,
@@ -647,7 +647,7 @@ export const MIRROR_SELFIE_RAW_CANVAS_JSON = {
     {
       id: 'node-1782911678311-4',
       kind: 'image',
-      title: '图片节点 (Ảnh Mẫu Gốc #2)',
+      title: 'Image Node (Ảnh Mẫu Gốc #2)',
       x: -39.83333333333326,
       y: -455.0833333333334,
       width: 139,
@@ -671,7 +671,7 @@ export const MIRROR_SELFIE_RAW_CANVAS_JSON = {
     {
       id: 'node-1782911678311-5',
       kind: 'image',
-      title: '图片节点 (Trang Phục 2 - Đầm Ôm Body & Khăn)',
+      title: 'Image Node (Trang Phục 2 - Đầm Ôm Body & Khăn)',
       x: -58.08333333333326,
       y: -135.41666666666683,
       width: 184,
@@ -687,7 +687,7 @@ export const MIRROR_SELFIE_RAW_CANVAS_JSON = {
     {
       id: 'node-1782911678311-6',
       kind: 'image',
-      title: '图片节点 (Thử Đồ 2 - Phim 35mm 2K)',
+      title: 'Image Node (Thử Đồ 2 - Phim 35mm 2K)',
       x: 432.0931372549021,
       y: -301.92156862745105,
       width: 139,
@@ -711,7 +711,7 @@ export const MIRROR_SELFIE_RAW_CANVAS_JSON = {
     {
       id: 'node-1782911678311-7',
       kind: 'video',
-      title: '视频节点 (Video 2 - Đối Gương Phim 35mm 7s)',
+      title: 'Video Node (Video 2 - Đối Gương Phim 35mm 7s)',
       x: 839.3872549019609,
       y: -303.3921568627452,
       width: 139,
@@ -776,7 +776,7 @@ export const MIRROR_SELFIE_RAW_CANVAS_JSON = {
       width: 440,
       height: 140,
       targetType: 'free',
-      title: '便签 • Giới Thiệu Dự Án (Mirror Selfie Lookbook)',
+      title: 'Note • Giới Thiệu Dự Án (Mirror Selfie Lookbook)',
       html: '<p><b>Lookbook Thay Đồ 2K & Video Đối Gương 7 Giây</b></p><p>Gồm 2 nhánh thời trang độc lập: từ 1 ảnh Mẫu nữ ban đầu kết hợp 2 bộ trang phục khác nhau để tạo ảnh thay đồ chuẩn 2K 9:16 và render 2 video chuyển động tự nhiên 7 giây.</p>',
       style: { theme: 'yellow', opacity: 0.98, radius: 16 }
     },
@@ -787,7 +787,7 @@ export const MIRROR_SELFIE_RAW_CANVAS_JSON = {
       width: 360,
       height: 140,
       targetType: 'free',
-      title: '便签 • Nhánh 1: 35mm Retro Film (Đầm Ôm Body)',
+      title: 'Note • Nhánh 1: 35mm Retro Film (Đầm Ôm Body)',
       html: '<p><b>Nhánh Phim 35mm:</b> Mẫu mặc đầm ôm body đen + khăn quàng → Render Video 7s đối gương với hạt phim 35mm, ánh nắng xiên tự nhiên, cử chỉ vuốt tóc và chỉnh váy chân thực.</p>',
       style: { theme: 'yellow', opacity: 0.98, radius: 16 }
     },
@@ -798,7 +798,7 @@ export const MIRROR_SELFIE_RAW_CANVAS_JSON = {
       width: 360,
       height: 140,
       targetType: 'free',
-      title: '便签 • Nhánh 2: Korean Street Casual (Váy Hoa & Cardigan)',
+      title: 'Note • Nhánh 2: Korean Street Casual (Váy Hoa & Cardigan)',
       html: '<p><b>Nhánh Phố Hàn:</b> Mẫu mặc váy hoa kèm cardigan dệt kim → Render Video 7s nâng điện thoại tự sướng đối gương, xoay nhẹ người chỉnh quai áo, phản chiếu toàn thân sắc nét.</p>',
       style: { theme: 'yellow', opacity: 0.98, radius: 16 }
     }
