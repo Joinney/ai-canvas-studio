@@ -96,5 +96,5 @@
   window.addEventListener('message', handleBridgeMessage);
 
   window.dispatchEvent(new CustomEvent('AI_CANVAS_EXTENSION_READY'));
-  window.postMessage({ source: 'AI_CANVAS_EXTENSION', type: 'BRIDGE_READY', version: '5.2.1' }, '*');
+  window.postMessage({ source: 'AI_CANVAS_EXTENSION', type: 'BRIDGE_READY', version: '5.2.2' }, '*');
 })();

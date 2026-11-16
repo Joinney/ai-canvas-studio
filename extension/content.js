@@ -1236,6 +1236,42 @@ function isValidGeneratedMedia(el, src, promptEl = null, inputFingerprints = [],
   return true;
 }
 
+function dismissAnyOpenModal() {
+  try {
+    const escDown = new KeyboardEvent('keydown', { key: 'Escape', code: 'Escape', keyCode: 27, which: 27, bubbles: true });
+    const escUp = new KeyboardEvent('keyup', { key: 'Escape', code: 'Escape', keyCode: 27, which: 27, bubbles: true });
+    document.dispatchEvent(escDown);
+    document.dispatchEvent(escUp);
+    if (document.body) {
+      document.body.dispatchEvent(escDown);
+      document.body.dispatchEvent(escUp);
+    }
+  } catch (e) {}
+
+  // Tìm nút đóng của modal (nút tròn màu xanh có ✕ ở góc trên modal)
+  const closeButtons = queryAllDeep(document).filter((el) => {
+    const r = el.getBoundingClientRect();
+    if (r.width < 12 || r.width > 65 || r.height < 12 || r.height > 65) return false;
+    if (r.top > window.innerHeight * 0.45) return false; // Nằm ở nửa trên màn hình
+    const tag = (el.tagName || '').toLowerCase();
+    const isClickable = tag === 'button' || el.getAttribute?.('role') === 'button' || !!el.onclick;
+    if (!isClickable) return false;
+
+    const label = ((el.getAttribute?.('aria-label') || '') + ' ' + (el.title || '') + ' ' + (el.innerText || '')).toLowerCase();
+    if (/close|đóng|dismiss/i.test(label) || label.trim() === '✕' || label.trim() === '×' || label.trim() === 'x') {
+      return true;
+    }
+    const hasSvg = !!el.querySelector?.('svg');
+    return hasSvg && r.left > window.innerWidth * 0.4;
+  });
+
+  for (const btn of closeButtons) {
+    try {
+      btn.click();
+    } catch (e) {}
+  }
+}
+
 function recordAllCurrentMediaUrls(existingSet) {
   if (!existingSet) return;
   const getMediaUrl = (el) => el.currentSrc || el.src || el.querySelector?.('source')?.src;
@@ -1324,6 +1360,7 @@ function captureNewMediaOutput(
       if (isResolved || isChecking) return;
       isChecking = true;
       try {
+        if (isMuse) dismissAnyOpenModal();
         checkAutoApproveButtons();
 
         // 1. Kiểm tra thời gian tối thiểu kể từ khi bấm Gửi
