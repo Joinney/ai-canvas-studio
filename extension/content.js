@@ -345,6 +345,7 @@ function findMuseSubmitTarget(promptEl) {
     if (/attach|đính kèm|upload|file|thêm/i.test(label)) return false;
     if (/setting|tune|tùy chọn|cài đặt|slider|parameter/i.test(label)) return false;
     if (/remove|xóa|delete|close|dismiss/i.test(label) || label.trim() === '✕' || label.trim() === '×') return false;
+    if (/\b(stop|dừng|cancel)\b/i.test(label) || label.includes('⏹') || label.includes('■')) return false;
 
     const tag = (el.tagName || '').toLowerCase();
     const role = (el.getAttribute?.('role') || '').toLowerCase();
@@ -1144,51 +1145,66 @@ async function fillPromptAndSubmit(rawPromptText, mode = 'IMAGE') {
 
   const currentTarget = findFlowSubmitTarget(promptEl) || targetInfo;
   if (currentTarget && currentTarget.el && !currentTarget.el.disabled) {
-    updateBridgeBadgeText(`v5.7: Bấm nút Gửi (${isMuse ? '↑ Muse AI' : '➔ Flow'})...`, '#e11d48');
-    
-    // 1. Hiển thị marker vị trí bấm trên màn hình
-    showClickMarker(currentTarget.x, currentTarget.y);
+    const btnLabel = (
+      (currentTarget.el.getAttribute?.('aria-label') || '') +
+      ' ' +
+      (currentTarget.el.title || '') +
+      ' ' +
+      (currentTarget.el.textContent || '')
+    ).toLowerCase();
 
-    // 2. Click DOM cơ bản (fallback)
-    try {
-      currentTarget.el.focus?.();
-      if (typeof currentTarget.el.click === 'function') {
-        currentTarget.el.click();
-      }
-    } catch (e) {}
+    if (/\b(stop|dừng|cancel)\b/i.test(btnLabel) || btnLabel.includes('⏹') || btnLabel.includes('■')) {
+      console.warn('[AI Canvas] Bỏ qua click vì nút đang ở trạng thái Stop/Dừng.');
+    } else {
+      updateBridgeBadgeText(`v5.8: Bấm nút Gửi (${isMuse ? '↑ Muse AI' : '➔ Flow'})...`, '#e11d48');
+      showClickMarker(currentTarget.x, currentTarget.y);
 
-    // 3. GỬI NATIVE HARDWARE CLICK (isTrusted: true) QUA CHROME DEBUGGER
-    // Chế độ clickOnly: true CHỈ CLICK CHUỘT NATIVE VÀO ĐÚNG TÂM NÚT GỬI, TUYỆT ĐỐI KHÔNG GỬI PHÍM ENTER ĐỂ TRÁNH LẶP PROMPT
-    await new Promise((resolve) => {
-      try {
-        chrome.runtime.sendMessage(
-          {
-            type: 'NATIVE_CLICK_AND_ENTER',
-            x: currentTarget.x,
-            y: currentTarget.y,
-            clickOnly: true
-          },
-          (res) => {
-            console.log('[AI Canvas] Kết quả Native Click nút Gửi:', res);
-            resolve(res);
-          }
-        );
-      } catch (err) {
-        console.warn('[AI Canvas] Lỗi khi gửi Native Click:', err);
-        resolve();
+      // CHỈ GỬI DUY NHẤT 1 LẦN NATIVE HARDWARE CLICK (isTrusted: true), KHÔNG gọi el.click() trước đó
+      // để tránh tình trạng nút Send vừa bấm xong biến thành nút Stop và bị click tiếp lần 2 làm dừng AI!
+      const nativeRes = await new Promise((resolve) => {
+        try {
+          chrome.runtime.sendMessage(
+            {
+              type: 'NATIVE_CLICK_AND_ENTER',
+              x: currentTarget.x,
+              y: currentTarget.y,
+              clickOnly: true
+            },
+            (res) => resolve(res)
+          );
+        } catch (err) {
+          resolve({ ok: false });
+        }
+      });
+
+      // Chỉ fallback sang DOM click nếu Chrome Debugger không khả dụng
+      if (!nativeRes || nativeRes.ok === false) {
+        triggerDOMClickAt(currentTarget);
       }
-    });
+    }
   }
 
   // Chờ 1.2s để giao diện phản hồi lệnh gửi
   await new Promise((r) => setTimeout(r, 1200));
 
-  // 4. KIỂM TRA DỰ PHÒNG: Nếu sau 1.2s ô nhập văn bản vẫn còn nguyên nội dung và nút gửi vẫn còn sáng
-  // thì gửi 1 phím Enter duy nhất vào ô nhập bằng CDP để kích hoạt Submit
+  // 4. KIỂM TRA DỰ PHÒNG AN TOÀN:
+  // Chỉ gửi Enter nếu: (a) ô nhập vẫn còn nguyên text, (b) nút Stop CHƯA xuất hiện, và (c) bong bóng prompt CHƯA xuất hiện trong chat
   const checkPromptStillFull = findFlowPromptElement();
   const currentText = (checkPromptStillFull?.innerText || checkPromptStillFull?.value || '').trim();
-  if (currentText.length > 10) {
-    console.log('[AI Canvas] Ô prompt vẫn còn văn bản sau khi click, kích hoạt Enter dự phòng qua CDP...');
+  const alreadySubmittedInChat = isMuse && Boolean(findLastUserPromptRect(promptText, checkPromptStillFull));
+  const stopBtnActive = (() => {
+    if (!checkPromptStillFull) return false;
+    const pr = checkPromptStillFull.getBoundingClientRect();
+    return Array.from(document.querySelectorAll('button, [role="button"]')).some((el) => {
+      const r = el.getBoundingClientRect();
+      if (r.left < pr.left || r.right > pr.right + 100 || r.top < pr.top - 40 || r.bottom > pr.bottom + 120) return false;
+      const lbl = ((el.getAttribute?.('aria-label') || '') + ' ' + (el.title || '') + ' ' + (el.textContent || '')).toLowerCase();
+      return /\b(stop|dừng|cancel)\b/i.test(lbl) || lbl.includes('⏹') || lbl.includes('■');
+    });
+  })();
+
+  if (currentText.length > 10 && !alreadySubmittedInChat && !stopBtnActive) {
+    console.log('[AI Canvas] Ô prompt vẫn còn văn bản và AI chưa chạy, kích hoạt Enter dự phòng qua CDP...');
     const pr = checkPromptStillFull.getBoundingClientRect();
     await new Promise((resolve) => {
       try {
@@ -1208,7 +1224,7 @@ async function fillPromptAndSubmit(rawPromptText, mode = 'IMAGE') {
     await new Promise((r) => setTimeout(r, 800));
   }
 
-  updateBridgeBadgeText(`🚀 v5.7: Đã gửi lệnh! Đang đợi kết quả từ ${isMuse ? 'Muse AI' : 'Google Flow'}...`, '#7c3aed');
+  updateBridgeBadgeText(`🚀 v5.8: Đã gửi lệnh! Đang đợi kết quả từ ${isMuse ? 'Muse AI' : 'Google Flow'}...`, '#7c3aed');
 }
 
 function scrollFlowGalleryToTop() {
