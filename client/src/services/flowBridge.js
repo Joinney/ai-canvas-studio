@@ -298,7 +298,7 @@ export function sanitizePromptForGoogleFlow(rawPrompt = '', mode = 'IMAGE', imag
  * Gửi 1 tác vụ Node sang Chrome Extension Worker Pool (background.js -> content.js trên Google Flow).
  * Có cơ chế ACK 1.2s: Nếu Kênh 1 (window.postMessage) chưa F5, lập tức đẩy qua Kênh Backend Relay (0ms trễ, không bao giờ treo "Đang chờ")!
  */
-export async function executeGoogleFlowNode(rawPayload, timeoutMs = 240000) {
+export async function executeGoogleFlowNode(rawPayload, timeoutMs = 600000) {
   const safeImages = await ensureBase64MediaList(rawPayload?.images || []);
   const safePrompt = sanitizePromptForGoogleFlow(rawPayload?.prompt, rawPayload?.mode || 'IMAGE', safeImages.length);
   const payload = {

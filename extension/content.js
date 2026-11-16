@@ -784,7 +784,7 @@ function computeImageFingerprintFromBase64(b64) {
   });
 }
 
-function isFingerprintMatch(fp1, fp2, threshold = 22) {
+function isFingerprintMatch(fp1, fp2, threshold = 3.0) {
   if (!fp1 || !fp2 || fp1.length !== fp2.length) return false;
   let diffSum = 0;
   for (let i = 0; i < fp1.length; i++) {
@@ -1309,7 +1309,7 @@ function isValidGeneratedMedia(el, src, promptEl = null, inputFingerprints = [],
     if (!el.complete) return false;
     const nw = el.naturalWidth || 0;
     const nh = el.naturalHeight || 0;
-    const minNatural = isMuse ? (mode === 'VIDEO' ? 80 : 160) : 480;
+    const minNatural = isMuse ? (mode === 'VIDEO' ? 80 : 120) : 480;
     if (nw < minNatural || nh < minNatural) return false;
   }
 
@@ -1426,7 +1426,7 @@ function captureNewMediaOutput(
   inputFingerprints = [],
   initialFailCount = 0,
   mode = 'IMAGE',
-  timeoutMs = 120000,
+  timeoutMs = 300000,
   submitTimestamp = Date.now(),
   sentPromptText = ''
 ) {
@@ -1440,9 +1440,8 @@ function captureNewMediaOutput(
     let isResolved = false;
     let lastApproveClickAt = 0;
     const isMuse = window.location.hostname.includes('muse.ai');
-    // BẮT BUỘC: Video trên Muse AI cần tối thiểu 20s để sinh (không bao giờ xong trong 8s)
-    // Ảnh trên Muse AI cần tối thiểu 8s để sinh
-    const MIN_WAIT_MS = isMuse ? (mode === 'VIDEO' ? 20000 : 8000) : (mode === 'VIDEO' ? 15000 : 5000);
+    // Chờ tối thiểu hợp lý để không bắt nhầm lúc vừa bấm gửi, nhưng bắt cực nhanh ngay khi AI trả kết quả
+    const MIN_WAIT_MS = isMuse ? (mode === 'VIDEO' ? 10000 : 3000) : (mode === 'VIDEO' ? 12000 : 4000);
 
     let scheduleTimer = null;
     const cleanup = () => {
@@ -1721,7 +1720,7 @@ function captureNewMediaOutput(
       scheduleTimer = setTimeout(() => {
         scheduleTimer = null;
         checkMedia();
-      }, 700);
+      }, 350);
     };
 
     const observer = new MutationObserver((mutations) => {
@@ -1741,7 +1740,7 @@ function captureNewMediaOutput(
       attributes: true,
       attributeFilter: ['src']
     });
-    const pollInterval = setInterval(checkMedia, 1000);
+    const pollInterval = setInterval(checkMedia, 600);
   });
 }
 
@@ -1788,7 +1787,7 @@ window.__AI_CANVAS_RUN_FLOW_TASK__ = async function (payload = {}) {
     const submitTimestamp = Date.now();
     await fillPromptAndSubmit(prompt, mode);
 
-    const timeoutMs = mode === 'VIDEO' ? 240000 : 120000;
+    const timeoutMs = mode === 'VIDEO' ? 600000 : 300000;
     const output = await captureNewMediaOutput(
       existingUrls,
       inputFingerprints,
