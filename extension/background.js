@@ -624,6 +624,84 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     return true;
   }
 
+  // Mở 2 cửa sổ song song (Trái: Web Canvas Tool, Phải: Muse AI) để cả 2 cùng hiển thị đồng thời
+  if (message.type === 'OPEN_SPLIT_WINDOWS') {
+    (async () => {
+      try {
+        const canvasUrl = message.canvasUrl || 'http://localhost:5174/';
+        const currentWin = await chrome.windows.getLastFocused();
+        const totalW = currentWin?.width || 1440;
+        const totalH = currentWin?.height || 900;
+        const leftX = currentWin?.left || 0;
+        const topY = currentWin?.top || 0;
+        const leftW = Math.round(totalW * 0.54);
+        const rightW = totalW - leftW;
+
+        // Tìm tab Tool và tab Muse AI
+        const canvasTabs = await chrome.tabs.query({ url: ['http://localhost/*', 'http://127.0.0.1/*'] });
+        const museTabs = await queryFlowTabs();
+
+        let leftWinId = currentWin?.id;
+        if (canvasTabs.length > 0) {
+          const cTab = canvasTabs[0];
+          leftWinId = cTab.windowId;
+          await chrome.windows.update(leftWinId, {
+            state: 'normal',
+            left: leftX,
+            top: topY,
+            width: leftW,
+            height: totalH
+          });
+          await chrome.tabs.update(cTab.id, { active: true });
+        } else {
+          const wLeft = await chrome.windows.create({
+            url: canvasUrl,
+            left: leftX,
+            top: topY,
+            width: leftW,
+            height: totalH
+          });
+          leftWinId = wLeft.id;
+        }
+
+        if (museTabs.length > 0) {
+          const mTab = museTabs[0];
+          if (mTab.windowId === leftWinId) {
+            await chrome.windows.create({
+              tabId: mTab.id,
+              left: leftX + leftW,
+              top: topY,
+              width: rightW,
+              height: totalH
+            });
+          } else {
+            await chrome.windows.update(mTab.windowId, {
+              state: 'normal',
+              left: leftX + leftW,
+              top: topY,
+              width: rightW,
+              height: totalH
+            });
+            await chrome.tabs.update(mTab.id, { active: true });
+          }
+        } else {
+          await chrome.windows.create({
+            url: FLOW_DEFAULT_URL,
+            left: leftX + leftW,
+            top: topY,
+            width: rightW,
+            height: totalH
+          });
+        }
+
+        sendResponse({ success: true });
+      } catch (err) {
+        sendResponse({ success: false, error: err.message });
+      }
+    })();
+    return true;
+  }
+
   if (message.type === 'PING_FLOW_TAB') {
     (async () => {
       try {

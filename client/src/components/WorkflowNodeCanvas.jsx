@@ -1612,6 +1612,23 @@ export default function WorkflowNodeCanvas({ project, onSaveProject }) {
               <div className="flex items-center gap-1.5">
                 <button
                   onClick={() =>
+                    window.postMessage(
+                      {
+                        source: 'AI_CANVAS_WEB',
+                        type: 'OPEN_SPLIT_WINDOWS',
+                        payload: { canvasUrl: window.location.href },
+                        jobId: 'split-' + Date.now()
+                      },
+                      '*'
+                    )
+                  }
+                  className="px-2 py-0.5 rounded-md bg-emerald-500/20 hover:bg-emerald-500/35 text-emerald-300 text-[11px] font-semibold transition cursor-pointer"
+                  title="Mở 2 cửa sổ song song (Trái: Tool, Phải: Muse AI)"
+                >
+                  🪟 Chia đôi
+                </button>
+                <button
+                  onClick={() =>
                     window.postMessage({ source: 'AI_CANVAS_WEB', type: 'FOCUS_FLOW_TAB', jobId: 'focus-' + Date.now() }, '*')
                   }
                   className="px-2 py-0.5 rounded-md bg-sky-500/20 hover:bg-sky-500/35 text-sky-300 text-[11px] font-semibold transition cursor-pointer"

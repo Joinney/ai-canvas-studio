@@ -86,6 +86,90 @@ function appendBridgeLog(text, bg = '') {
   } catch (e) {}
 }
 
+window.__AI_CANVAS_EMBED_OPEN__ = window.__AI_CANVAS_EMBED_OPEN__ || false;
+window.__AI_CANVAS_EMBED_WIDTH__ = window.__AI_CANVAS_EMBED_WIDTH__ || 54;
+
+function applyMuseEmbeddedLayout() {
+  const dock = document.getElementById('ai-canvas-muse-tool-dock');
+  const badge = document.getElementById('ai-canvas-flow-badge');
+  const panel = document.getElementById('ai-canvas-flow-log-panel');
+  const toggleBtn = document.getElementById('ai-canvas-flow-embed-btn');
+  const w = window.__AI_CANVAS_EMBED_WIDTH__ || 54;
+
+  if (window.__AI_CANVAS_EMBED_OPEN__) {
+    if (dock) {
+      dock.style.display = 'flex';
+      dock.style.width = `${w}vw`;
+    }
+    document.documentElement.style.marginLeft = `${w}vw`;
+    document.documentElement.style.width = `${100 - w}vw`;
+    document.documentElement.style.overflowX = 'hidden';
+    if (badge) badge.style.left = `calc(${w}vw + 14px)`;
+    if (panel) panel.style.left = `calc(${w}vw + 14px)`;
+    if (toggleBtn) toggleBtn.textContent = '✕ Đóng Tool';
+  } else {
+    if (dock) dock.style.display = 'none';
+    document.documentElement.style.marginLeft = '';
+    document.documentElement.style.width = '';
+    document.documentElement.style.overflowX = '';
+    if (badge) badge.style.left = '18px';
+    if (panel) panel.style.left = '18px';
+    if (toggleBtn) toggleBtn.textContent = '🧩 Mở Tool';
+  }
+}
+
+function toggleMuseEmbeddedTool(forceOpen = null) {
+  window.__AI_CANVAS_EMBED_OPEN__ = forceOpen !== null ? Boolean(forceOpen) : !window.__AI_CANVAS_EMBED_OPEN__;
+
+  let dock = document.getElementById('ai-canvas-muse-tool-dock');
+  if (window.__AI_CANVAS_EMBED_OPEN__ && !dock) {
+    dock = document.createElement('div');
+    dock.id = 'ai-canvas-muse-tool-dock';
+    dock.style.cssText =
+      'position:fixed;top:0;left:0;height:100vh;width:54vw;z-index:2147483646;background:#0f172a;border-right:2px solid rgba(56,189,248,0.45);box-shadow:8px 0 32px rgba(0,0,0,0.45);display:flex;flex-direction:column;font-family:system-ui,-apple-system,sans-serif;';
+    dock.innerHTML = `
+      <div style="height:38px;background:linear-gradient(90deg,#0f172a,#1e293b);color:#f8fafc;display:flex;align-items:center;justify-content:space-between;padding:0 12px;border-bottom:1px solid rgba(255,255,255,0.12);font-size:12px;font-weight:700;flex-shrink:0;">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span style="width:8px;height:8px;border-radius:50%;background:#10b981;box-shadow:0 0 8px #10b981;"></span>
+          <span>🎨 AI Canvas Studio • Chạy chung trang Muse AI</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <button id="ai-canvas-embed-w50" style="background:rgba(255,255,255,0.12);border:none;color:#e2e8f0;padding:3px 8px;border-radius:6px;font-size:11px;cursor:pointer;">50/50</button>
+          <button id="ai-canvas-embed-w62" style="background:rgba(255,255,255,0.12);border:none;color:#e2e8f0;padding:3px 8px;border-radius:6px;font-size:11px;cursor:pointer;">62/38</button>
+          <button id="ai-canvas-embed-split" style="background:rgba(14,165,233,0.28);border:1px solid rgba(56,189,248,0.45);color:#bae6fd;padding:3px 8px;border-radius:6px;font-size:11px;cursor:pointer;" title="Tách thành 2 cửa sổ song song">🪟 Tách 2 cửa sổ</button>
+          <button id="ai-canvas-embed-close" style="background:rgba(239,68,68,0.25);border:none;color:#fecaca;padding:3px 8px;border-radius:6px;font-size:11px;cursor:pointer;">✕ Đóng</button>
+        </div>
+      </div>
+      <iframe id="ai-canvas-muse-tool-iframe" src="http://localhost:5174/" style="width:100%;height:calc(100% - 38px);border:none;background:#f8fafc;" allow="clipboard-read; clipboard-write"></iframe>
+    `;
+    (document.body || document.documentElement).appendChild(dock);
+
+    dock.querySelector('#ai-canvas-embed-w50')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      window.__AI_CANVAS_EMBED_WIDTH__ = 50;
+      applyMuseEmbeddedLayout();
+    });
+    dock.querySelector('#ai-canvas-embed-w62')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      window.__AI_CANVAS_EMBED_WIDTH__ = 62;
+      applyMuseEmbeddedLayout();
+    });
+    dock.querySelector('#ai-canvas-embed-split')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      toggleMuseEmbeddedTool(false);
+      try {
+        chrome.runtime.sendMessage({ type: 'OPEN_SPLIT_WINDOWS', canvasUrl: 'http://localhost:5174/' });
+      } catch (err) {}
+    });
+    dock.querySelector('#ai-canvas-embed-close')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      toggleMuseEmbeddedTool(false);
+    });
+  }
+
+  applyMuseEmbeddedLayout();
+}
+
 function mountConnectionBadge() {
   const isMuse = window.location.hostname.includes('muse.ai');
   let badge = document.getElementById('ai-canvas-flow-badge');
@@ -94,8 +178,12 @@ function mountConnectionBadge() {
     badge.id = 'ai-canvas-flow-badge';
     badge.title = 'Nhấn để mở / thu gọn Nhật ký hoạt động';
     badge.style.cssText =
-      'position:fixed;bottom:18px;left:18px;z-index:2147483647;background:rgba(15,23,42,0.92);backdrop-filter:blur(10px);color:#fff;border:1px solid rgba(16,185,129,0.5);padding:8px 14px;border-radius:999px;font-family:system-ui,-apple-system,sans-serif;font-size:12px;font-weight:600;box-shadow:0 6px 20px rgba(0,0,0,0.45);display:flex;align-items:center;gap:8px;pointer-events:auto;cursor:pointer;user-select:none;transition:all 0.25s ease;';
-    badge.innerHTML = `<span style="width:10px;height:10px;border-radius:50%;background:#10b981;box-shadow:0 0 10px #10b981;display:inline-block;flex-shrink:0;"></span><span id="ai-canvas-flow-badge-text">AI Canvas Bridge v6.0: Đã kết nối (${isMuse ? 'Muse AI' : 'Flow'})</span><span id="ai-canvas-flow-log-count" style="background:rgba(255,255,255,0.18);padding:1px 6px;border-radius:999px;font-size:10px;">0</span><span id="ai-canvas-flow-badge-arrow" style="font-size:10px;opacity:0.85;">▲</span>`;
+      'position:fixed;bottom:18px;left:18px;z-index:2147483647;background:rgba(15,23,42,0.92);backdrop-filter:blur(10px);color:#fff;border:1px solid rgba(16,185,129,0.5);padding:6px 12px;border-radius:999px;font-family:system-ui,-apple-system,sans-serif;font-size:12px;font-weight:600;box-shadow:0 6px 20px rgba(0,0,0,0.45);display:flex;align-items:center;gap:8px;pointer-events:auto;cursor:pointer;user-select:none;transition:all 0.25s ease;';
+    badge.innerHTML = `<span style="width:10px;height:10px;border-radius:50%;background:#10b981;box-shadow:0 0 10px #10b981;display:inline-block;flex-shrink:0;"></span><span id="ai-canvas-flow-badge-text">AI Canvas Bridge v6.0: Đã kết nối (${isMuse ? 'Muse AI' : 'Flow'})</span><span id="ai-canvas-flow-log-count" style="background:rgba(255,255,255,0.18);padding:1px 6px;border-radius:999px;font-size:10px;">0</span><button id="ai-canvas-flow-embed-btn" style="background:rgba(14,165,233,0.35);border:1px solid rgba(56,189,248,0.5);color:#e0f2fe;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:700;cursor:pointer;">🧩 Mở Tool</button><span id="ai-canvas-flow-badge-arrow" style="font-size:10px;opacity:0.85;">▲</span>`;
+    badge.querySelector('#ai-canvas-flow-embed-btn')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      toggleMuseEmbeddedTool();
+    });
     badge.addEventListener('click', (e) => {
       e.stopPropagation();
       window.__AI_CANVAS_LOG_OPEN__ = !window.__AI_CANVAS_LOG_OPEN__;
@@ -1945,7 +2033,12 @@ function captureNewMediaOutput(
       const hasExternalMutation = mutations.some((m) => {
         const t = m.target;
         if (!t || !t.closest) return true;
-        return !t.closest('#ai-canvas-flow-badge') && !t.closest('#ai-canvas-flow-log-panel') && !t.closest('#ai-canvas-click-marker');
+        return (
+          !t.closest('#ai-canvas-flow-badge') &&
+          !t.closest('#ai-canvas-flow-log-panel') &&
+          !t.closest('#ai-canvas-muse-tool-dock') &&
+          !t.closest('#ai-canvas-click-marker')
+        );
       });
       if (hasExternalMutation) {
         scheduleCheckMedia();

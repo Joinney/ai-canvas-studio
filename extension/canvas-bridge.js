@@ -31,7 +31,8 @@
       type !== 'GET_POOL_STATUS' &&
       type !== 'PING_FLOW_TAB' &&
       type !== 'RESET_FLOW_WORKERS' &&
-      type !== 'FOCUS_FLOW_TAB'
+      type !== 'FOCUS_FLOW_TAB' &&
+      type !== 'OPEN_SPLIT_WINDOWS'
     ) {
       return;
     }

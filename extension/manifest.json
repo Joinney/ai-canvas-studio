@@ -41,6 +41,7 @@
         "http://127.0.0.1/*"
       ],
       "js": ["canvas-bridge.js"],
+      "all_frames": true,
       "run_at": "document_start"
     }
   ]
