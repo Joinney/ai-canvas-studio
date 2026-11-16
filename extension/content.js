@@ -137,16 +137,17 @@ function applyMuseEmbeddedLayout() {
 
 async function sendNativeCdpWithDockPassThrough(message) {
   const dock = document.getElementById('ai-canvas-muse-tool-dock');
-  const needTempHide = Boolean(
+  const needPassThrough = Boolean(
     dock &&
       window.__AI_CANVAS_EMBED_OPEN__ &&
       (window.__AI_CANVAS_EMBED_WIDTH__ >= 95 ||
         (typeof message.x === 'number' && message.x <= (window.innerWidth * window.__AI_CANVAS_EMBED_WIDTH__) / 100))
   );
-  if (needTempHide && dock) {
-    dock.style.visibility = 'hidden';
+  // Chỉ tắt pointer-events (giữ nguyên visibility: visible) để chuột phần cứng đi xuyên qua xuống Muse AI
+  // mà KHÔNG làm chớp tắt hay lộ trang Muse AI khi người dùng đang ẩn Muse!
+  if (needPassThrough && dock) {
     dock.style.pointerEvents = 'none';
-    await new Promise((r) => setTimeout(r, 40));
+    await new Promise((r) => setTimeout(r, 25));
   }
   try {
     return await new Promise((resolve) => {
@@ -157,8 +158,7 @@ async function sendNativeCdpWithDockPassThrough(message) {
       }
     });
   } finally {
-    if (needTempHide && dock) {
-      dock.style.visibility = 'visible';
+    if (needPassThrough && dock) {
       dock.style.pointerEvents = 'auto';
     }
   }
@@ -961,16 +961,11 @@ async function pasteSingleFileIntoPrompt(file, useNativeFocus = false) {
   if (useNativeFocus) {
     const pr = promptEl.getBoundingClientRect();
     try {
-      await new Promise((resolve) => {
-        chrome.runtime.sendMessage(
-          {
-            type: 'NATIVE_CLICK_AND_ENTER',
-            x: pr.left + pr.width * 0.5,
-            y: pr.top + pr.height * 0.5,
-            clickOnly: true
-          },
-          () => resolve()
-        );
+      await sendNativeCdpWithDockPassThrough({
+        type: 'NATIVE_CLICK_AND_ENTER',
+        x: pr.left + pr.width * 0.5,
+        y: pr.top + pr.height * 0.5,
+        clickOnly: true
       });
     } catch (e) {}
   }
