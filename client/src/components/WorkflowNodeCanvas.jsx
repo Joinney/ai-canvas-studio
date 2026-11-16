@@ -543,11 +543,10 @@ export default function WorkflowNodeCanvas({ project, onSaveProject }) {
     isCancelledRef.current = false;
     resetFlowWorkers();
     setIsRunningAll(true);
-    setStatusBanner('🚀 Bắt đầu chạy tuần tự Workflow: Ảnh Thử Đồ (Cột 2) → Tạo Video (Cột 3)...');
+    setStatusBanner('🚀 Bắt đầu chạy Workflow theo đúng sơ đồ dây nối (DAG)...');
 
     try {
-      // 1. Bảo toàn fallbackUrl chuẩn của từng Node và làm sạch trạng thái Cột 2, Cột 3, Cột 4
-      // để người dùng thấy rõ tiến trình chạy tuần tự từng bước từ trên xuống dưới, từ trái sang phải
+      // 1. Chuẩn bị danh sách Node: giữ nguyên fallbackUrl, reset status các node cần sinh
       const preparedNodes = nodes.map((n) => {
         const savedFallback = n.data?.fallbackUrl || n.data?.resultUrl || '';
         if (n.type === 'IMAGE_INPUT') {
@@ -572,24 +571,35 @@ export default function WorkflowNodeCanvas({ project, onSaveProject }) {
       const runtimeOutputs = {};
       const usedOutputsSet = new Set();
 
-      // Nạp toàn bộ 5 ảnh gốc Cột 1 (Model + 4 bộ đồ lông thú)
-      const col1Nodes = preparedNodes
-        .filter((n) => n.type === 'IMAGE_INPUT')
-        .sort((a, b) => a.y - b.y);
-
-      for (const n of col1Nodes) {
-        if (n.data.imageUrl) {
+      // Nạp toàn bộ các node nguồn (IMAGE_INPUT) vào runtimeOutputs
+      for (const n of preparedNodes) {
+        if (n.type === 'IMAGE_INPUT' && n.data?.imageUrl) {
           runtimeOutputs[n.id] = n.data.imageUrl;
           usedOutputsSet.add(n.data.imageUrl);
         }
       }
 
-      // Hàm lấy danh sách ảnh/video đầu vào cho 1 Node theo đúng thứ tự:
+      // 2. Thuật toán Sắp xếp Tô-pô (Topological Sort / DAG) theo đúng từng dây nối (edges):
+      // Một Node CHỈ ĐƯỢC CHẠY khi TẤT CẢ các Node nguồn trỏ dây vào nó đã chạy xong và có kết quả!
+      const adjList = {};
+      const executableNodes = preparedNodes.filter((n) => n.type !== 'IMAGE_INPUT');
+
+      for (const n of preparedNodes) {
+        adjList[n.id] = [];
+      }
+
+      for (const edge of edges) {
+        if (adjList[edge.source]) {
+          adjList[edge.source].push(edge.target);
+        }
+      }
+
+      // Hàm lấy danh sách ảnh/video đầu vào cho 1 Node theo đúng dây nối:
       // Ảnh 1 luôn là Ảnh Mẫu (Image 1), Ảnh 2 luôn là Ảnh Trang Phục (Image 2)
       const getInputsForNode = (targetId) => {
         const targetNode = preparedNodes.find((pn) => pn.id === targetId);
-        const sourceEdges = edges.filter((e) => e.target === targetId);
-        const sourceNodeObjs = sourceEdges
+        const incomingEdges = edges.filter((e) => e.target === targetId);
+        const sourceNodeObjs = incomingEdges
           .map((e) => preparedNodes.find((pn) => pn.id === e.source))
           .filter(Boolean);
 
@@ -603,7 +613,9 @@ export default function WorkflowNodeCanvas({ project, onSaveProject }) {
           const modelNodes = sourceNodeObjs.filter(isModelNode);
           const outfitNodes = sourceNodeObjs.filter((n) => !isModelNode(n));
           const sortedObjs = [...modelNodes, ...outfitNodes];
-          return sortedObjs.map((sn) => runtimeOutputs[sn.id] || sn.data?.resultUrl || sn.data?.fallbackUrl).filter(Boolean);
+          return sortedObjs
+            .map((sn) => runtimeOutputs[sn.id] || sn.data?.resultUrl || sn.data?.fallbackUrl)
+            .filter(Boolean);
         }
 
         return sourceNodeObjs
@@ -611,76 +623,75 @@ export default function WorkflowNodeCanvas({ project, onSaveProject }) {
           .filter(Boolean);
       };
 
-      // 2. Chạy tuần tự Cột 2: #1 -> #2 -> #3 -> #4 (sắp xếp theo trục Y từ trên xuống)
-      const col2Nodes = preparedNodes
-        .filter((n) => n.type === 'FLOW_IMAGE_GEN')
-        .sort((a, b) => a.y - b.y);
-
-      for (let i = 0; i < col2Nodes.length; i++) {
-        if (isCancelledRef.current) break;
-        const n = col2Nodes[i];
-        const inputs = getInputsForNode(n.id);
-        setSelectedNodeId(n.id);
-        setStatusBanner(`🎨 [Cột 2 — Nhánh ${i + 1}/${col2Nodes.length}] Đang ghép Người mẫu + Trang phục tại "${n.data.title}" (${inputs.length} ảnh đầu vào)...`);
-        updateNodeData(n.id, { status: 'running', error: null });
-
-        const outUrl = await runNodeWithSmartFallback(n, inputs, usedOutputsSet);
-        if (isCancelledRef.current) break;
-        runtimeOutputs[n.id] = outUrl;
-        if (outUrl) usedOutputsSet.add(outUrl);
-        updateNodeData(n.id, { resultUrl: outUrl, status: 'done', error: null });
-      }
-
-      // 3. Chạy Cột 3: Tạo Video 480p từ 4 ảnh kết quả của Cột 2 (#1, #2, #3, #4)
-      if (!isCancelledRef.current) {
-        const col3Nodes = preparedNodes
-          .filter((n) => n.type === 'FLOW_VIDEO_GEN')
-          .sort((a, b) => a.y - b.y);
-
-        for (let i = 0; i < col3Nodes.length; i++) {
-          if (isCancelledRef.current) break;
-          const n = col3Nodes[i];
-          const inputs = getInputsForNode(n.id);
-          setSelectedNodeId(n.id);
-          setStatusBanner(`🎬 [Cột 3 — Tạo Video] Đang tổng hợp ${inputs.length} khung hình Cột 2 thành Video 9:16 tại "${n.data.title}"...`);
-          updateNodeData(n.id, { status: 'running', error: null });
-
-          const outUrl = await runNodeWithSmartFallback(n, inputs, usedOutputsSet);
-          if (isCancelledRef.current) break;
-          runtimeOutputs[n.id] = outUrl;
-          if (outUrl) usedOutputsSet.add(outUrl);
-          updateNodeData(n.id, { resultUrl: outUrl, status: 'done', error: null });
+      // Hàng đợi các Node đã sẵn sàng (đã có đủ toàn bộ đầu vào từ các node trước đó)
+      const executionQueue = [];
+      for (const n of executableNodes) {
+        // Kiểm tra xem tất cả các node nguồn trỏ vào n đã hoàn tất chưa
+        const incomingEdges = edges.filter((e) => e.target === n.id);
+        const allSourcesDone = incomingEdges.every((e) => Boolean(runtimeOutputs[e.source]));
+        if (allSourcesDone) {
+          executionQueue.push(n.id);
         }
       }
 
-      // 4. Chạy Cột 4: Nâng nét HD 1080×1920 & Ghép nhạc nền từ Video Cột 3
-      if (!isCancelledRef.current) {
-        const col4Nodes = preparedNodes
-          .filter((n) => n.type === 'FFMPEG_POST')
-          .sort((a, b) => a.y - b.y);
+      // Sắp xếp queue ban đầu theo trục Y từ trên xuống để chạy theo từng nhánh tự nhiên
+      executionQueue.sort((a, b) => {
+        const na = preparedNodes.find((n) => n.id === a);
+        const nb = preparedNodes.find((n) => n.id === b);
+        return (na?.y || 0) - (nb?.y || 0);
+      });
 
-        for (let i = 0; i < col4Nodes.length; i++) {
-          if (isCancelledRef.current) break;
-          const n = col4Nodes[i];
-          const inputs = getInputsForNode(n.id);
-          setSelectedNodeId(n.id);
-          setStatusBanner(`✨ [Cột 4 — Hậu kỳ HD] Đang nâng nét 1080×1920 & ghép nhạc nền tại "${n.data.title}"...`);
-          updateNodeData(n.id, { status: 'running', error: null });
+      const executedSet = new Set();
+      let stepIndex = 1;
+      const totalSteps = executableNodes.length;
 
-          const outUrl = await runNodeWithSmartFallback(n, inputs, usedOutputsSet);
-          if (isCancelledRef.current) break;
-          runtimeOutputs[n.id] = outUrl;
-          if (outUrl) usedOutputsSet.add(outUrl);
-          updateNodeData(n.id, { resultUrl: outUrl, status: 'done', error: null });
+      while (executionQueue.length > 0) {
+        if (isCancelledRef.current) break;
+
+        const currentId = executionQueue.shift();
+        if (executedSet.has(currentId)) continue;
+
+        const node = preparedNodes.find((n) => n.id === currentId);
+        if (!node) continue;
+
+        const inputs = getInputsForNode(node.id);
+        setSelectedNodeId(node.id);
+        setStatusBanner(
+          `⚡ [Bước ${stepIndex}/${totalSteps}] Đang xử lý theo dây nối: "${node.data.title}" (${inputs.length} dữ liệu đầu vào)...`
+        );
+        updateNodeData(node.id, { status: 'running', error: null });
+
+        // Chạy node và chờ có kết quả thực sự
+        const outUrl = await runNodeWithSmartFallback(node, inputs, usedOutputsSet);
+        if (isCancelledRef.current) break;
+
+        runtimeOutputs[node.id] = outUrl;
+        if (outUrl) usedOutputsSet.add(outUrl);
+        updateNodeData(node.id, { resultUrl: outUrl, status: 'done', error: null });
+        executedSet.add(node.id);
+        stepIndex++;
+
+        // Sau khi node này chạy xong, mở khóa cho các Node đích tiếp theo nối từ nó
+        const outgoingTargets = adjList[node.id] || [];
+        for (const targetId of outgoingTargets) {
+          if (executedSet.has(targetId) || executionQueue.includes(targetId)) continue;
+
+          // Kiểm tra xem TẤT CẢ các node nguồn của targetId đã chạy xong chưa
+          const targetInEdges = edges.filter((e) => e.target === targetId);
+          const allPrereqsDone = targetInEdges.every((e) => Boolean(runtimeOutputs[e.source]));
+
+          if (allPrereqsDone) {
+            executionQueue.push(targetId);
+          }
         }
       }
 
       if (isCancelledRef.current) {
-        setStatusBanner('⏹️ Đã dừng Workflow theo yêu cầu người dùng.');
+        setStatusBanner('⏹️ Đã dừng Workflow theo yêu cầu.');
         return;
       }
 
-      setStatusBanner(`🎉 Hoàn tất toàn bộ Workflow: đã chạy tuần tự ${col2Nodes.length} ảnh thử đồ và ${col3Nodes.length} video theo đúng trình tự!`);
+      setStatusBanner(`🎉 Hoàn tất thành công ${executedSet.size}/${totalSteps} Nodes theo đúng 100% sơ đồ dây nối!`);
       setTimeout(() => setStatusBanner(''), 6000);
     } catch (err) {
       if (isCancelledRef.current) {
