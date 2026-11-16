@@ -102,9 +102,23 @@ export default function WorkflowNodeCanvas({ project, onSaveProject }) {
     isCancelledRef.current = true;
     resetFlowWorkers();
     setIsRunningAll(false);
-    setStatusBanner('⏹️ Đã dừng toàn bộ tiến trình workflow!');
+    setSelectedNodeId(null);
+    setStatusBanner('⏹️ Đã dừng toàn bộ tiến trình và đưa các Node về trạng thái ban đầu!');
     setNodes((prev) =>
-      prev.map((n) => (n.data?.status === 'running' ? { ...n, data: { ...n.data, status: 'idle' } } : n))
+      prev.map((n) => {
+        if (n.type === 'IMAGE_INPUT') {
+          return { ...n, data: { ...n.data, status: 'done', error: null } };
+        }
+        return {
+          ...n,
+          data: {
+            ...n.data,
+            status: 'idle',
+            error: null,
+            resultUrl: ''
+          }
+        };
+      })
     );
   };
 
@@ -765,6 +779,9 @@ export default function WorkflowNodeCanvas({ project, onSaveProject }) {
             await new Promise((r) => setTimeout(r, 1000));
           }
         } catch (nodeErr) {
+          if (isCancelledRef.current) {
+            break;
+          }
           updateNodeData(node.id, { status: 'error', error: nodeErr.message });
           throw nodeErr;
         }

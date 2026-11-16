@@ -560,10 +560,32 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   }
 
   if (message.type === 'RESET_FLOW_WORKERS') {
-    taskQueue = [];
+    while (taskQueue.length > 0) {
+      const pending = taskQueue.shift();
+      try {
+        pending.sendResponse({
+          success: false,
+          ok: false,
+          cancelled: true,
+          error: 'Đã dừng tiến trình theo yêu cầu người dùng.'
+        });
+      } catch (e) {}
+    }
     workerTabs.forEach((w) => {
       w.busy = false;
-      chrome.tabs.sendMessage(w.tabId, { type: 'CANCEL_ACTIVE_FLOW_TASK' }).catch(() => {});
+    });
+    queryFlowTabs().then((tabs) => {
+      for (const t of tabs) {
+        if (t.id) {
+          chrome.tabs.sendMessage(t.id, { type: 'CANCEL_ACTIVE_FLOW_TASK' }).catch(() => {});
+        }
+      }
+    });
+    broadcastLogToCanvasTabs({
+      time: new Date().toLocaleTimeString('vi-VN', { hour12: false }),
+      source: 'Bridge',
+      text: '⏹️ Đã dừng toàn bộ tác vụ đang chạy trên Muse AI!',
+      level: 'warn'
     });
     sendResponse({ ok: true });
     return false;

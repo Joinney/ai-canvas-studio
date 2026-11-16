@@ -1218,6 +1218,9 @@ async function waitForAttachmentsReady(expectedCount, maxWaitMs = 25000) {
   let stableReadyCycles = 0;
 
   while (Date.now() - startTime < maxWaitMs) {
+    if (window.__AI_CANVAS_TASK_ABORTED__) {
+      throw new Error('Đã dừng bởi người dùng.');
+    }
     const promptEl = findFlowPromptElement();
     const chipCount = countAttachedChips(promptEl);
     const isUploading = isAnyAttachmentUploading(promptEl);
@@ -1755,6 +1758,25 @@ function findLastUserPromptRect(sentPromptText, promptEl) {
   return candidates[0].getBoundingClientRect();
 }
 
+function getAssistantTextBelowPrompt(userPromptRect, promptEl) {
+  if (!userPromptRect) return '';
+  const blocks = Array.from(document.querySelectorAll('div, p')).filter((el) => {
+    if (promptEl && (el === promptEl || promptEl.contains(el) || el.contains(promptEl))) return false;
+    if (el.closest?.('#ai-canvas-flow-badge, #ai-canvas-flow-log-panel, #ai-canvas-muse-tool-dock, header, nav, aside')) {
+      return false;
+    }
+    const r = el.getBoundingClientRect();
+    if (r.width < 60 || r.height < 16) return false;
+    if (r.top < userPromptRect.bottom - 5) return false;
+    // Chỉ lấy thẻ lá / đoạn văn bản thực sự, tránh gom cả thẻ cha lớn
+    if (el.querySelector?.('div, p')) return false;
+    const txt = (el.textContent || '').trim();
+    return txt.length > 0;
+  });
+
+  return blocks.map((b) => (b.textContent || '').trim()).join(' ').trim();
+}
+
 function captureNewMediaOutput(
   existingSet,
   inputFingerprints = [],
@@ -1835,6 +1857,7 @@ function captureNewMediaOutput(
     let hasAutoConfirmedMuse = false;
     let lastModalDismissAt = 0;
     let lastWakeupPulseAt = 0;
+    let textOnlySince = null;
 
     const pulseTabWakeup = async () => {
       try {
@@ -2100,6 +2123,40 @@ function captureNewMediaOutput(
           return;
         }
 
+        // Kiểm tra nếu Muse AI đã trả lời xong nhưng CHỈ TRẢ VỀ CHỮ (từ chối tạo hoặc hỏi lại, không có ảnh/video)
+        if (isMuse && userPromptRect && !isMuseBusy) {
+          const assistantText = getAssistantTextBelowPrompt(userPromptRect, promptEl);
+          if (assistantText.length > 12) {
+            const isExplicitRefusal =
+              /không tạo được|không thể tạo|không thể thực hiện|từ chối|bạn muốn mình làm theo hướng nào|cannot generate|cannot create|unable to generate|unable to create|failed to generate/i.test(
+                assistantText
+              );
+
+            if (isExplicitRefusal) {
+              const snippet = assistantText.slice(0, 150);
+              cleanup();
+              const errMsg = `Muse AI từ chối / chỉ trả về chữ (không tạo được ${mode === 'VIDEO' ? 'Video' : 'Ảnh'}): "${snippet}"`;
+              updateBridgeBadgeText(`❌ ${errMsg}`, '#dc2626');
+              reject(new Error(errMsg));
+              return;
+            }
+
+            if (elapsed > 6000) {
+              if (!textOnlySince) textOnlySince = now;
+              if (now - textOnlySince >= 2500) {
+                const snippet = assistantText.slice(0, 150);
+                cleanup();
+                const errMsg = `Muse AI chỉ trả về chữ, không xuất ${mode === 'VIDEO' ? 'Video' : 'Ảnh'}: "${snippet}"`;
+                updateBridgeBadgeText(`❌ ${errMsg}`, '#dc2626');
+                reject(new Error(errMsg));
+                return;
+              }
+            }
+          } else {
+            textOnlySince = null;
+          }
+        }
+
         const currentFailCount = (bodyText.match(/Rất tiếc, không tạo được/g) || []).length;
         if (currentFailCount > initialFailCount) {
           await new Promise((r) => setTimeout(r, 4000));
@@ -2160,6 +2217,7 @@ function captureNewMediaOutput(
 }
 
 window.__AI_CANVAS_FLOW_TASK_RUNNING__ = window.__AI_CANVAS_FLOW_TASK_RUNNING__ || false;
+window.__AI_CANVAS_TASK_ABORTED__ = window.__AI_CANVAS_TASK_ABORTED__ || false;
 
 window.__AI_CANVAS_RUN_FLOW_TASK__ = async function (payload = {}) {
   if (window.__AI_CANVAS_FLOW_TASK_RUNNING__) {
@@ -2167,6 +2225,7 @@ window.__AI_CANVAS_RUN_FLOW_TASK__ = async function (payload = {}) {
     return { ok: false, error: 'Đang có tác vụ khác đang chạy trên tab này.' };
   }
   window.__AI_CANVAS_FLOW_TASK_RUNNING__ = true;
+  window.__AI_CANVAS_TASK_ABORTED__ = false;
 
   try {
     const { mode = 'IMAGE', images = [], prompt = '' } = payload;
@@ -2244,11 +2303,41 @@ window.__AI_CANVAS_MESSAGE_DISPATCHER__ = (message, sender, sendResponse) => {
   }
 
   if (message.type === 'CANCEL_ACTIVE_FLOW_TASK') {
+    window.__AI_CANVAS_TASK_ABORTED__ = true;
+    window.__AI_CANVAS_FLOW_TASK_RUNNING__ = false;
     if (typeof window.__AI_CANVAS_CANCEL_CURRENT_TASK__ === 'function') {
       try {
         window.__AI_CANVAS_CANCEL_CURRENT_TASK__();
       } catch (e) {}
     }
+
+    // Nếu Muse AI đang chạy dở (có nút Stop ■), bấm dừng luôn và dọn sạch ô nhập về trạng thái ban đầu
+    (async () => {
+      try {
+        const promptEl = findFlowPromptElement();
+        if (promptEl) {
+          const pr = promptEl.getBoundingClientRect();
+          const stopBtn = Array.from(document.querySelectorAll('button, [role="button"]')).find((b) => {
+            const r = b.getBoundingClientRect();
+            if (r.left < pr.left || r.right > pr.right + 120 || r.top < pr.top - 40 || r.bottom > pr.bottom + 120) return false;
+            const lbl = ((b.getAttribute?.('aria-label') || '') + ' ' + (b.title || '') + ' ' + (b.textContent || '')).toLowerCase();
+            return /\b(stop|dừng|cancel)\b/i.test(lbl) || lbl.includes('⏹') || lbl.includes('■');
+          });
+          if (stopBtn) {
+            const sr = stopBtn.getBoundingClientRect();
+            await sendNativeCdpWithDockPassThrough({
+              type: 'NATIVE_CLICK_AND_ENTER',
+              x: sr.left + sr.width / 2,
+              y: sr.top + sr.height / 2,
+              clickOnly: true
+            });
+          }
+          await clearPreviousPromptAttachments(promptEl);
+        }
+      } catch (e) {}
+      updateBridgeBadgeText('⏹️ Đã dừng toàn bộ tiến trình! Sẵn sàng chạy lại.', 'rgba(15,23,42,0.92)');
+    })();
+
     sendResponse({ ok: true });
     return false;
   }
