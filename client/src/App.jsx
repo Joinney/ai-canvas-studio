@@ -332,11 +332,20 @@ export default function App() {
         }
 
         if (!map.has(WINTER_FUR_PROJECT.id)) {
-          map.set(WINTER_FUR_PROJECT.id, WINTER_FUR_PROJECT);
+          map.set(WINTER_FUR_PROJECT.id, cloneProjectSafe(WINTER_FUR_PROJECT));
           fetch('http://localhost:5001/api/ai/projects', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(WINTER_FUR_PROJECT)
+          }).catch(() => {});
+        }
+
+        if (!map.has(BEAUTY_MIST_PROJECT.id)) {
+          map.set(BEAUTY_MIST_PROJECT.id, cloneProjectSafe(BEAUTY_MIST_PROJECT));
+          fetch('http://localhost:5001/api/ai/projects', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(BEAUTY_MIST_PROJECT)
           }).catch(() => {});
         }
 
