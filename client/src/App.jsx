@@ -26,7 +26,8 @@ import {
   AUTUMN_OUTFIT_PROJECT,
   BLUSH_LIVESTREAM_PROJECT,
   ECOM_TRYON_OUTFIT_PROJECT,
-  MAHJONG_SILHOUETTE_VFX_PROJECT
+  MAHJONG_SILHOUETTE_VFX_PROJECT,
+  MIDDLE_AGED_FASHION_TVC_PROJECT
 } from './utils/daCanvasConverter';
 
 const cloneProjectSafe = (proj) => {
@@ -95,6 +96,7 @@ export default function App() {
     if (projId === BLUSH_LIVESTREAM_PROJECT.id) return BLUSH_LIVESTREAM_PROJECT;
     if (projId === ECOM_TRYON_OUTFIT_PROJECT.id) return ECOM_TRYON_OUTFIT_PROJECT;
     if (projId === MAHJONG_SILHOUETTE_VFX_PROJECT.id) return cloneProjectSafe(MAHJONG_SILHOUETTE_VFX_PROJECT);
+    if (projId === MIDDLE_AGED_FASHION_TVC_PROJECT.id) return cloneProjectSafe(MIDDLE_AGED_FASHION_TVC_PROJECT);
     return null;
   });
   const [isDarkMode, setIsDarkMode] = useState(false);
@@ -147,6 +149,9 @@ export default function App() {
               }
             } catch (e) {}
           }
+          if (!map.has(MIDDLE_AGED_FASHION_TVC_PROJECT.id)) {
+            map.set(MIDDLE_AGED_FASHION_TVC_PROJECT.id, cloneProjectSafe(MIDDLE_AGED_FASHION_TVC_PROJECT));
+          }
           const merged = Array.from(map.values());
           localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
           return merged;
@@ -159,6 +164,7 @@ export default function App() {
         cloneProjectSafe(BLUSH_LIVESTREAM_PROJECT),
         cloneProjectSafe(ECOM_TRYON_OUTFIT_PROJECT),
         cloneProjectSafe(MAHJONG_SILHOUETTE_VFX_PROJECT),
+        cloneProjectSafe(MIDDLE_AGED_FASHION_TVC_PROJECT),
         cloneProjectSafe(WINTER_FUR_PROJECT)
       ];
       localStorage.setItem(STORAGE_KEY, JSON.stringify(initial));
@@ -171,6 +177,7 @@ export default function App() {
         cloneProjectSafe(BLUSH_LIVESTREAM_PROJECT),
         cloneProjectSafe(ECOM_TRYON_OUTFIT_PROJECT),
         cloneProjectSafe(MAHJONG_SILHOUETTE_VFX_PROJECT),
+        cloneProjectSafe(MIDDLE_AGED_FASHION_TVC_PROJECT),
         cloneProjectSafe(WINTER_FUR_PROJECT)
       ];
     }
@@ -440,6 +447,15 @@ export default function App() {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(MAHJONG_SILHOUETTE_VFX_PROJECT)
+          }).catch(() => {});
+        }
+
+        if (!map.has(MIDDLE_AGED_FASHION_TVC_PROJECT.id)) {
+          map.set(MIDDLE_AGED_FASHION_TVC_PROJECT.id, cloneProjectSafe(MIDDLE_AGED_FASHION_TVC_PROJECT));
+          fetch('http://localhost:5001/api/ai/projects', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(MIDDLE_AGED_FASHION_TVC_PROJECT)
           }).catch(() => {});
         }
 

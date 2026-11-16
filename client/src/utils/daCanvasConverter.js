@@ -1695,3 +1695,246 @@ export const MAHJONG_SILHOUETTE_VFX_PROJECT = convertDaAiCanvasToProject(MAHJONG
   previewVideo: 'https://cdn.quantv.com/canvas/featured/1792750983193_lu769j9eu5e.mp4',
   previewImage: 'https://cdn.quantv.com/canvas/featured/1792750983193_gv7hat8lhsv.png'
 });
+
+const MIDDLE_AGED_FASHION_TVC_RAW_CANVAS_JSON = {
+  __canvas: 'da-ai-canvas',
+  version: 2,
+  nodes: [
+    {
+      id: 'node-1789366823140-1',
+      kind: 'image',
+      title: 'Input Image (Model 3-Angle Sheet 16:9)',
+      x: 626,
+      y: 237.609375,
+      width: 244,
+      height: 158,
+      meta: {
+        dimensions: '1670 x 941',
+        content: 'Model character turnaround sheet',
+        imageTone: 'soft',
+        settings: {
+          modelId: 'cmotfqnds0000gwg7q4dtt5u3',
+          params: {
+            ratio: '16:9',
+            resolution: '1K'
+          }
+        },
+        prompt:
+          '35mm film photography effect, soft natural studio lighting, high contrast, rich saturation, ultra-detailed realistic human face with fine pores and natural skin texture, 40-year-old East Asian woman with gentle round face and soft curly hair wearing loungewear on a pure white background. Split into left 1/3 close-up portrait and right 2/3 full-body 3-angle sheet (front, side, back views).',
+        promptHidden: false,
+        generationStatus: 'completed',
+        mediaUrl: 'https://cdn.quantv.com/canvas/featured/1789435139237_6rz774zu6wl.png',
+        objectFit: 'contain'
+      }
+    },
+    {
+      id: 'node-1789367517962-2',
+      kind: 'image',
+      title: 'Input Image (Autumn Tea House Scene)',
+      x: 631.5824669990193,
+      y: 446.17958437193545,
+      width: 171,
+      height: 262,
+      meta: {
+        mediaUrl: 'https://cdn.quantv.com/canvas/featured/1789435139238_2tkp9rrur6n.png',
+        objectFit: 'contain',
+        imageTone: 'soft',
+        dimensions: '823 x 1185',
+        settings: {
+          modelId: 'cmroohfag2msfrykqadspaznz'
+        }
+      }
+    },
+    {
+      id: 'node-1789367713665-3',
+      kind: 'image',
+      title: 'Input Image (Original Outfit)',
+      x: 654.1771916251225,
+      y: 762.0410272433804,
+      width: 154,
+      height: 262,
+      meta: {
+        mediaUrl: 'https://cdn.quantv.com/canvas/featured/1789435139239_t0ezfp2bpks.png',
+        objectFit: 'contain',
+        imageTone: 'soft',
+        dimensions: '685 x 1092'
+      }
+    },
+    {
+      id: 'node-1789377906942-10',
+      kind: 'image',
+      title: 'Image Node (Outfit Detail View 9:16)',
+      x: 1043.409810079426,
+      y: 757.9445460715804,
+      width: 139,
+      height: 262,
+      meta: {
+        dimensions: '941 x 1672',
+        content: 'E-commerce outfit detail display',
+        imageTone: 'soft',
+        settings: {
+          modelId: 'cmotfqnds0000gwg7q4dtt5u3',
+          params: {
+            ratio: '9:16',
+            resolution: '1K'
+          }
+        },
+        prompt:
+          'Display this outfit from @Image 1 in a clean 9:16 e-commerce product detail layout, faithfully preserving every fabric texture, butterfly embroidery, and garment detail.',
+        promptHidden: false,
+        generationStatus: 'completed',
+        mediaUrl: 'https://cdn.quantv.com/canvas/featured/1789435139290_emv01rxxhj.png',
+        objectFit: 'contain'
+      }
+    },
+    {
+      id: 'node-1789378799606-19',
+      kind: 'image',
+      title: 'Image Node (Model Try-On 9:16)',
+      x: 1313.179297076635,
+      y: 184.1866480490948,
+      width: 139,
+      height: 262,
+      meta: {
+        dimensions: '942 x 1670',
+        content: 'Model wearing target outfit',
+        imageTone: 'soft',
+        settings: {
+          modelId: 'cmotfqnds0000gwg7q4dtt5u3',
+          params: {
+            ratio: '9:16',
+            resolution: '1K'
+          }
+        },
+        prompt:
+          'Keep the subject from @Image 1 wearing the complete outfit from @Image 2, preserving the model facial features and all garment details unchanged, displayed on a pure white studio background.',
+        promptHidden: false,
+        generationStatus: 'completed',
+        mediaUrl: 'https://cdn.quantv.com/canvas/featured/1789435139304_yloekj2hikd.png',
+        objectFit: 'contain'
+      }
+    },
+    {
+      id: 'node-1789371335058-5',
+      kind: 'video',
+      title: 'Video Node (10s Neo-Chinese TVC Ad 9:16)',
+      x: 1948.6177597119033,
+      y: 586.5503515943191,
+      width: 139,
+      height: 262,
+      meta: {
+        dimensions: '720 x 1280',
+        content: '10s Neo-Chinese fashion TVC',
+        imageTone: 'soft',
+        settings: {
+          modelId: 'cmt6sesgp42l0u3d02qsbdist',
+          params: {
+            ratio: '9:16',
+            duration: '10',
+            resolution: '720p',
+            prompt_extend: '1',
+            audio: '1'
+          }
+        },
+        prompt:
+          'Cinematic 4K TVC fashion commercial, 10 seconds, 9:16 vertical, Eastern aesthetics. @Image 1 is the main model wearing the Neo-Chinese outfit, @Image 2 is the autumn traditional tea house courtyard environment reference, and @Image 3 shows the close-up outfit details. An elegant 40-year-old woman (from @Image 1) in a champagne-beige Neo-Chinese butterfly embroidered vest and jacquard wide-leg trouser set (details from @Image 3), carrying a small silver handbag, strolls gracefully through an autumn tea house courtyard with golden leaves, red walls, and yellow tea lanterns (@Image 2). 0-3s: Smooth slow tracking shot as warm sunlight filters through tree shadows onto the fabric. 3-6s: Slow-motion macro close-up highlighting the 3D gold-thread butterfly embroidery, pearl frog buttons, and silky drape. 6-10s: Medium-wide orbit as she pauses, turns gracefully toward the camera with a warm confident smile, wide-leg trousers flowing softly against blurred autumn foliage and red walls.',
+        promptHidden: false,
+        generationStatus: 'completed',
+        mediaStatus: 'ready',
+        mediaProgress: 100,
+        objectFit: 'contain',
+        mediaUrl: 'https://cdn.quantv.com/canvas/featured/1789435139239_8lr4r8hr0jn.mp4',
+        originalMediaUrl: 'https://cdn.quantv.com/canvas/featured/1789435139239_8lr4r8hr0jn.mp4',
+        mediaStage: 'completed'
+      }
+    }
+  ],
+  edges: [
+    { id: 'edge-1789377906942-11', from: 'node-1789367713665-3', to: 'node-1789377906942-10' },
+    { id: 'edge-1789378799606-20', from: 'node-1789366823140-1', to: 'node-1789378799606-19' },
+    { id: 'edge-1789378801962-21', from: 'node-1789377906942-10', to: 'node-1789378799606-19' },
+    { id: 'edge-1789379104946-22', from: 'node-1789378799606-19', to: 'node-1789371335058-5', order: 0 },
+    { id: 'edge-1789371336696-7', from: 'node-1789367517962-2', to: 'node-1789371335058-5', order: 1 },
+    { id: 'edge-1789378585722-18', from: 'node-1789377906942-10', to: 'node-1789371335058-5', order: 2 }
+  ],
+  stickers: [
+    {
+      id: 'sticker-1789379944804-23',
+      x: 625.5894646428465,
+      y: 69.89369195145969,
+      width: 245,
+      height: 125,
+      targetType: 'free',
+      title: 'Note • Step 1 (Inputs)',
+      html: '<p>Upload the <b>Model Portrait/Sheet</b>, <b>Environment Scene</b>, and <b>Target Outfit</b> images.</p>',
+      style: { theme: 'yellow', opacity: 0.98, radius: 16 }
+    },
+    {
+      id: 'sticker-1789379975893-24',
+      x: 1199.5893545020606,
+      y: 818.4113630505299,
+      width: 220,
+      height: 120,
+      targetType: 'free',
+      title: 'Note • Outfit Details',
+      html: '<p>Generate an e-commerce garment detail view so the AI preserves textures and embroidery accurately.</p>',
+      style: { theme: 'yellow', opacity: 0.98, radius: 16 }
+    },
+    {
+      id: 'sticker-1789380010052-25',
+      x: 1469.546547357463,
+      y: 234.86753202976112,
+      width: 220,
+      height: 120,
+      targetType: 'free',
+      title: 'Note • Virtual Try-On',
+      html: '<p>Dress the model in the target outfit first to keep facial identity and clothing consistent before video generation.</p>',
+      style: { theme: 'yellow', opacity: 0.98, radius: 16 }
+    },
+    {
+      id: 'node-1789368195725-1',
+      x: 843.5963980271426,
+      y: 1161.2367026616453,
+      width: 300,
+      height: 220,
+      targetType: 'free',
+      title: 'Storyboard • 10s TVC Script',
+      html: '<p><b>0-3s Wide Entrance:</b> Strolling calmly in front of an autumn traditional tea house with golden leaves and warm lanterns.</p><p><b>3-6s Macro Detail:</b> Slow-motion close-up of 3D gold butterfly embroidery, pearl buttons, and silk drape.</p><p><b>6-10s Hero Freeze:</b> Graceful turn toward camera with a confident warm smile.</p>',
+      style: { theme: 'yellow', opacity: 0.98, radius: 16 }
+    },
+    {
+      id: 'node-1789378261078-12',
+      x: 1400.426278499704,
+      y: 1160.5815460943263,
+      width: 320,
+      height: 220,
+      targetType: 'free',
+      title: 'Prompt Note • Master TVC Direction',
+      html: '<p><b>Model + Scene + Outfit:</b> @Image 1 (Model Try-On) + @Image 2 (Tea House Courtyard) + @Image 3 (Outfit Detail) are merged directly into the 10s 9:16 TVC Video Node.</p>',
+      style: { theme: 'yellow', opacity: 0.98, radius: 16 }
+    },
+    {
+      id: 'sticker-1789380084325-27',
+      x: 1885.3896979680576,
+      y: 443.4708174180266,
+      width: 260,
+      height: 110,
+      targetType: 'free',
+      title: 'Note • Model Tip',
+      html: '<p>Wan 3.0 / Veo 720p preserves mature facial features and fabric detail naturally without an overly synthetic AI look.</p>',
+      style: { theme: 'yellow', opacity: 0.98, radius: 16 }
+    }
+  ]
+};
+
+export const MIDDLE_AGED_FASHION_TVC_PROJECT = convertDaAiCanvasToProject(MIDDLE_AGED_FASHION_TVC_RAW_CANVAS_JSON, {
+  id: 'proj-middle-aged-fashion-tvc',
+  category: 'video',
+  name: 'Neo-Chinese Mature Fashion TVC — 10s Lookbook (9:16)',
+  description:
+    'Template thời trang trung niên đa dụng: 1 Ảnh Mẫu 3 góc + Bối cảnh Trà quán mùa thu + Trang phục gốc → Tách chi tiết 9:16 → Try-On → Video TVC 10s (9:16).',
+  badge: 'Dự Án Thực Tế (TVC 10s)',
+  techTag: 'DA-V2',
+  previewVideo: 'https://cdn.quantv.com/canvas/featured/1789435139239_8lr4r8hr0jn.mp4',
+  previewImage: 'https://cdn.quantv.com/canvas/featured/1789435139304_yloekj2hikd.png'
+});
