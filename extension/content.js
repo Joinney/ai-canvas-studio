@@ -155,7 +155,7 @@ function applyMuseEmbeddedLayout() {
         panel.style.left = `calc(${w}vw + 14px)`;
         panel.style.display = window.__AI_CANVAS_LOG_OPEN__ ? 'flex' : 'none';
       }
-      if (hideMuseBtn) hideMuseBtn.textContent = '👁️ Ẩn Muse (100%)';
+      if (hideMuseBtn) hideMuseBtn.textContent = '👁️ Ẩn Muse (Chạy ngầm)';
       if (resizer) resizer.style.right = '-5px';
     }
     if (toggleBtn) toggleBtn.textContent = '✕ Đóng Tool';
@@ -223,7 +223,7 @@ function toggleMuseEmbeddedTool(forceOpen = null) {
         <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;">
           <button id="ai-canvas-embed-w50" style="background:rgba(255,255,255,0.12);border:none;color:#e2e8f0;padding:4px 8px;border-radius:6px;font-size:11px;cursor:pointer;">50/50</button>
           <button id="ai-canvas-embed-w68" style="background:rgba(255,255,255,0.12);border:none;color:#e2e8f0;padding:4px 8px;border-radius:6px;font-size:11px;cursor:pointer;">68/32</button>
-          <button id="ai-canvas-embed-hide-muse" style="background:rgba(16,185,129,0.28);border:1px solid rgba(16,185,129,0.5);color:#a7f3d0;padding:4px 9px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;">👁️ Ẩn Muse (100%)</button>
+          <button id="ai-canvas-embed-hide-muse" style="background:rgba(16,185,129,0.28);border:1px solid rgba(16,185,129,0.5);color:#a7f3d0;padding:4px 9px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;">👁️ Ẩn Muse (Chạy ngầm)</button>
           <button id="ai-canvas-embed-split" style="background:rgba(14,165,233,0.28);border:1px solid rgba(56,189,248,0.45);color:#bae6fd;padding:4px 8px;border-radius:6px;font-size:11px;cursor:pointer;" title="Tách thành 2 cửa sổ song song">🪟 Tách 2 cửa sổ</button>
           <button id="ai-canvas-embed-close" style="background:rgba(239,68,68,0.25);border:none;color:#fecaca;padding:4px 8px;border-radius:6px;font-size:11px;cursor:pointer;">✕ Đóng</button>
         </div>
