@@ -58,6 +58,10 @@ const NODE_TYPES_META = {
   }
 };
 
+const isVideoMedia = (url) =>
+  typeof url === 'string' &&
+  (url.startsWith('data:video/') || /\.(mp4|webm|mov|mkv)(\?|$)/i.test(url));
+
 export default function WorkflowNodeCanvas({ project, onSaveProject }) {
   const [nodes, setNodes] = useState(() => project?.nodes || []);
   const [edges, setEdges] = useState(() => project?.edges || []);
@@ -659,20 +663,28 @@ export default function WorkflowNodeCanvas({ project, onSaveProject }) {
         );
         updateNodeData(node.id, { status: 'running', error: null });
 
-        // Chạy node và CHỜ 100% CÓ KẾT QUẢ TRẢ VỀ
-        const outUrl = await runNodeWithSmartFallback(node, inputs, usedOutputsSet);
-        if (isCancelledRef.current) break;
+        try {
+          // Chạy node và CHỜ 100% CÓ KẾT QUẢ TRẢ VỀ
+          const outUrl = await runNodeWithSmartFallback(node, inputs, usedOutputsSet);
+          if (isCancelledRef.current) break;
 
-        runtimeOutputs[node.id] = outUrl;
-        if (outUrl) usedOutputsSet.add(outUrl);
-        updateNodeData(node.id, { resultUrl: outUrl, status: 'done', error: null });
-        executedSet.add(node.id);
-        stepIndex++;
+          node.data.resultUrl = outUrl;
+          node.data.status = 'done';
+          node.data.error = null;
+          runtimeOutputs[node.id] = outUrl;
+          if (outUrl) usedOutputsSet.add(outUrl);
+          updateNodeData(node.id, { resultUrl: outUrl, status: 'done', error: null });
+          executedSet.add(node.id);
+          stepIndex++;
 
-        setStatusBanner(
-          `✅ [Bước ${stepIndex - 1}/${totalSteps}] Hoàn tất "${node.data.title}"! Đã nạp kết quả vào bàn vẽ.`
-        );
-        await new Promise((r) => setTimeout(r, 1200));
+          setStatusBanner(
+            `✅ [Bước ${stepIndex - 1}/${totalSteps}] Hoàn tất "${node.data.title}"! Đã nhận kết quả vào bàn vẽ.`
+          );
+          await new Promise((r) => setTimeout(r, 1200));
+        } catch (nodeErr) {
+          updateNodeData(node.id, { status: 'error', error: nodeErr.message });
+          throw nodeErr;
+        }
 
         // QUY TẮC NHÁNH CÂY (DFS): Ngay sau khi Node này hoàn thành, nếu dây nối của nó sinh ra
         // Node tiếp theo (và Node đó đã đủ toàn bộ đầu vào), ĐẨY NGAY VÀO ĐẦU HÀNG ĐỢI (unshift)
@@ -1287,7 +1299,7 @@ export default function WorkflowNodeCanvas({ project, onSaveProject }) {
                             style={{ '--r': '20px' }}
                           >
                             <div className="circle-overlay" />
-                            {node.type === 'FLOW_VIDEO_GEN' ? (
+                            {isVideoMedia(node.data.resultUrl) ? (
                               <video
                                 src={node.data.resultUrl}
                                 controls
@@ -1297,11 +1309,18 @@ export default function WorkflowNodeCanvas({ project, onSaveProject }) {
                                 className="max-h-full max-w-full rounded-xl"
                               />
                             ) : (
-                              <img
-                                src={node.data.resultUrl}
-                                alt="result"
-                                className="max-h-full max-w-full object-contain rounded-xl"
-                              />
+                              <div className="relative max-h-full max-w-full flex items-center justify-center">
+                                <img
+                                  src={node.data.resultUrl}
+                                  alt="result"
+                                  className="max-h-full max-w-full object-contain rounded-xl"
+                                />
+                                {node.type === 'FLOW_VIDEO_GEN' && (
+                                  <div className="absolute bottom-1.5 left-1.5 bg-sky-950/85 backdrop-blur-xs text-sky-200 text-[10px] font-black px-2 py-0.5 rounded-md flex items-center gap-1 border border-sky-400/30">
+                                    🎬 Video Poster
+                                  </div>
+                                )}
+                              </div>
                             )}
                             {node.data.status === 'running' && (
                               <div className="absolute inset-0 bg-slate-900/55 backdrop-blur-xs flex flex-col items-center justify-center gap-1.5 text-white font-extrabold text-xs z-20 rounded-2xl">
@@ -1311,10 +1330,10 @@ export default function WorkflowNodeCanvas({ project, onSaveProject }) {
                             )}
                             <a
                               href={node.data.resultUrl}
-                              download={`flow-${node.id}.${node.type === 'FLOW_VIDEO_GEN' ? 'mp4' : 'png'}`}
+                              download={`flow-${node.id}.${isVideoMedia(node.data.resultUrl) ? 'mp4' : 'png'}`}
                               className="box absolute top-2 right-2 w-7 h-7 flex items-center justify-center text-sky-700 z-10"
                               style={{ '--r': '50%', width: '28px', height: '28px' }}
-                              title="Tải xuống"
+                              title={isVideoMedia(node.data.resultUrl) ? 'Tải Video MP4' : 'Tải Ảnh'}
                             >
                               <div className="circle-overlay" />
                               <Download className="w-3.5 h-3.5" />
@@ -1362,19 +1381,27 @@ export default function WorkflowNodeCanvas({ project, onSaveProject }) {
                             style={{ '--r': '20px' }}
                           >
                             <div className="circle-overlay" />
-                            <video
-                              src={node.data.resultUrl}
-                              controls
-                              loop
-                              autoPlay
-                              className="max-h-full max-w-full rounded-xl"
-                            />
+                            {isVideoMedia(node.data.resultUrl) ? (
+                              <video
+                                src={node.data.resultUrl}
+                                controls
+                                loop
+                                autoPlay
+                                className="max-h-full max-w-full rounded-xl"
+                              />
+                            ) : (
+                              <img
+                                src={node.data.resultUrl}
+                                alt="result"
+                                className="max-h-full max-w-full object-contain rounded-xl"
+                              />
+                            )}
                             <a
                               href={node.data.resultUrl}
-                              download={`final-hd-${Date.now()}.mp4`}
+                              download={`final-hd-${Date.now()}.${isVideoMedia(node.data.resultUrl) ? 'mp4' : 'png'}`}
                               className="box absolute top-2 right-2 w-7 h-7 flex items-center justify-center text-emerald-700"
                               style={{ '--r': '50%', width: '28px', height: '28px' }}
-                              title="Tải Video HD"
+                              title={isVideoMedia(node.data.resultUrl) ? 'Tải Video HD MP4' : 'Tải Ảnh'}
                             >
                               <div className="circle-overlay" />
                               <Download className="w-3.5 h-3.5" />

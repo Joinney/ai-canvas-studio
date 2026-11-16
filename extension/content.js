@@ -1515,12 +1515,28 @@ function captureNewMediaOutput(
             }
           }
 
+          // Ở mode VIDEO: Ưu tiên tìm link video .mp4 thực sự từ thẻ video hoặc link tải lân cận nếu có
+          let finalMediaSrc = src;
+          if (mode === 'VIDEO') {
+            const cardParent = el.closest?.('div, article, section, [class*="message"], [class*="card"]');
+            if (cardParent) {
+              const videoTag = cardParent.querySelector?.('video, source');
+              const mp4Link = cardParent.querySelector?.('a[href*=".mp4"], a[download*=".mp4"], a[href*="video"]');
+              if (videoTag && (videoTag.currentSrc || videoTag.src)) {
+                finalMediaSrc = videoTag.currentSrc || videoTag.src;
+              } else if (mp4Link && (mp4Link.href || mp4Link.getAttribute('href'))) {
+                finalMediaSrc = mp4Link.href || mp4Link.getAttribute('href');
+              }
+            }
+          }
+
           existingSet.add(src);
+          existingSet.add(finalMediaSrc);
           cleanup();
 
           updateBridgeBadgeText(`✅ v5.3: Bắt được kết quả ${mode === 'VIDEO' ? 'Video' : 'Ảnh'} từ ${isMuse ? 'Muse AI' : 'Google Flow'}! Đang đồng bộ về bàn vẽ...`, '#10b981');
-          const base64Data = await convertFlowUrlToBase64(src, el);
-          resolve({ rawUrl: src, base64Data });
+          const base64Data = await convertFlowUrlToBase64(finalMediaSrc, el);
+          resolve({ rawUrl: finalMediaSrc, base64Data: base64Data || finalMediaSrc });
           return;
         }
 
