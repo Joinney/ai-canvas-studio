@@ -14,19 +14,21 @@ var DEFAULT_SELECTORS = {
 };
 
 function mountConnectionBadge() {
+  const isMuse = window.location.hostname.includes('muse.ai');
   let badge = document.getElementById('ai-canvas-flow-badge');
   if (!badge) {
     badge = document.createElement('div');
     badge.id = 'ai-canvas-flow-badge';
-    document.body.appendChild(badge);
+    (document.body || document.documentElement).appendChild(badge);
   }
   badge.style.cssText =
-    'position:fixed;bottom:16px;left:16px;z-index:999999;background:rgba(16,185,129,0.95);color:#fff;padding:8px 14px;border-radius:999px;font-family:sans-serif;font-size:12px;font-weight:600;box-shadow:0 4px 15px rgba(0,0,0,0.35);display:flex;align-items:center;gap:8px;pointer-events:none;transition:all 0.3s ease;';
-  badge.innerHTML =
-    '<span style="width:8px;height:8px;border-radius:50%;background:#fff;display:inline-block;"></span><span id="ai-canvas-flow-badge-text">AI Canvas Bridge v5.0: Đã kết nối (Muse AI / Flow)</span>';
+    'position:fixed;bottom:18px;left:18px;z-index:2147483647;background:rgba(15,23,42,0.92);backdrop-filter:blur(8px);color:#fff;border:1px solid rgba(16,185,129,0.5);padding:8px 16px;border-radius:999px;font-family:system-ui,-apple-system,sans-serif;font-size:12px;font-weight:600;box-shadow:0 6px 20px rgba(0,0,0,0.5);display:flex;align-items:center;gap:8px;pointer-events:none;transition:all 0.3s ease;';
+  if (!badge.querySelector('#ai-canvas-flow-badge-text')) {
+    badge.innerHTML = `<span style="width:10px;height:10px;border-radius:50%;background:#10b981;box-shadow:0 0 10px #10b981;display:inline-block;animation:pulse 2s infinite;"></span><span id="ai-canvas-flow-badge-text">AI Canvas Bridge v5.2: Đã kết nối (${isMuse ? 'Muse AI' : 'Flow'})</span>`;
+  }
 }
 
-function updateBridgeBadgeText(text, bg = 'rgba(16,185,129,0.95)') {
+function updateBridgeBadgeText(text, bg = 'rgba(15,23,42,0.92)') {
   mountConnectionBadge();
   const badge = document.getElementById('ai-canvas-flow-badge');
   const txt = document.getElementById('ai-canvas-flow-badge-text');
@@ -1407,13 +1409,17 @@ function captureNewMediaOutput(
 
         scrollFlowGalleryToTop();
         const promptEl = findFlowPromptElement();
+        // Luôn quét cả thẻ VIDEO lẫn IMG (vì trên Muse AI video hoàn tất thường đi kèm thumbnail poster hoặc player)
         const allNodes = queryAllDeep(document).filter((el) => {
-          if (mode === 'VIDEO') return el.tagName === 'VIDEO';
           return el.tagName === 'IMG' || el.tagName === 'VIDEO';
         });
 
-        // Sắp xếp các node: Ưu tiên ảnh ở khu vực kết quả (Gallery/Canvas) và có diện tích lớn
+        // Ưu tiên thẻ VIDEO trước nếu mode === 'VIDEO', sau đó đến IMG
         allNodes.sort((a, b) => {
+          if (mode === 'VIDEO') {
+            if (a.tagName === 'VIDEO' && b.tagName !== 'VIDEO') return -1;
+            if (b.tagName === 'VIDEO' && a.tagName !== 'VIDEO') return 1;
+          }
           const ra = a.getBoundingClientRect();
           const rb = b.getBoundingClientRect();
           const areaA = ra.width * ra.height;
@@ -1570,6 +1576,7 @@ window.__AI_CANVAS_MESSAGE_DISPATCHER__ = (message, sender, sendResponse) => {
 
   window.__AI_CANVAS_HEARTBEAT_TIMER__ = setInterval(() => {
     try {
+      mountConnectionBadge();
       if (chrome && chrome.runtime && chrome.runtime.id) {
         chrome.runtime.sendMessage({
           type: 'FLOW_TAB_HEARTBEAT',
@@ -1578,7 +1585,7 @@ window.__AI_CANVAS_MESSAGE_DISPATCHER__ = (message, sender, sendResponse) => {
         });
       }
     } catch (e) {}
-  }, 2000);
+  }, 1500);
 
   const listenerKey = '__AI_CANVAS_LISTENER_BOUND_' + (chrome?.runtime?.id || 'default');
   if (!window[listenerKey]) {
