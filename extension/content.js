@@ -178,17 +178,22 @@ function applyMuseEmbeddedLayout() {
 
 async function sendNativeCdpWithDockPassThrough(message) {
   const dock = document.getElementById('ai-canvas-muse-tool-dock');
+  const iframeEl = document.getElementById('ai-canvas-muse-tool-iframe');
   const needPassThrough = Boolean(
     dock &&
       window.__AI_CANVAS_EMBED_OPEN__ &&
       (window.__AI_CANVAS_EMBED_WIDTH__ >= 95 ||
         (typeof message.x === 'number' && message.x <= (window.innerWidth * window.__AI_CANVAS_EMBED_WIDTH__) / 100))
   );
-  // Chỉ tắt pointer-events (giữ nguyên visibility: visible) để chuột phần cứng đi xuyên qua xuống Muse AI
-  // mà KHÔNG làm chớp tắt hay lộ trang Muse AI khi người dùng đang ẩn Muse!
+  // Tắt pointer-events trên cả dock lẫn iframe OOPIF (giữ nguyên visibility: visible)
+  // để chuột phần cứng đi xuyên qua xuống Muse AI mà KHÔNG làm lộ trang Muse AI!
   if (needPassThrough && dock) {
     dock.style.pointerEvents = 'none';
-    await new Promise((r) => setTimeout(r, 25));
+    if (iframeEl) {
+      iframeEl.style.pointerEvents = 'none';
+      try { iframeEl.blur(); } catch (e) {}
+    }
+    await new Promise((r) => setTimeout(r, 35));
   }
   try {
     return await new Promise((resolve) => {
@@ -201,6 +206,7 @@ async function sendNativeCdpWithDockPassThrough(message) {
   } finally {
     if (needPassThrough && dock) {
       dock.style.pointerEvents = 'auto';
+      if (iframeEl) iframeEl.style.pointerEvents = 'auto';
     }
   }
 }
@@ -1330,6 +1336,16 @@ function ensureFlowCanvasView() {
 
 async function typePromptTextIntoElement(promptEl, promptText) {
   if (!promptEl) return;
+  if (!document.hasFocus()) {
+    const pr = promptEl.getBoundingClientRect();
+    await sendNativeCdpWithDockPassThrough({
+      type: 'NATIVE_CLICK_AND_ENTER',
+      x: pr.left + pr.width * 0.5,
+      y: pr.top + pr.height * 0.5,
+      clickOnly: true
+    });
+    await new Promise((r) => setTimeout(r, 80));
+  }
   promptEl.focus();
 
   if (promptEl.tagName === 'TEXTAREA' || promptEl.tagName === 'INPUT') {
