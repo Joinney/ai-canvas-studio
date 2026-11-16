@@ -464,6 +464,11 @@ export default function WorkflowNodeCanvas({ project, onSaveProject }) {
           `Muse AI / Google Flow không trả về video cho "${node.data.title}". Hãy kiểm tra lại tab tạo Video!`
         );
       }
+      if (inputMediaList.includes(out) || usedOutputsSet.has(out)) {
+        throw new Error(
+          `Kết quả nhận về bị trùng với ảnh đầu vào hoặc output cũ cho "${node.data.title}". Muse AI chưa hoàn tất sinh Video mới!`
+        );
+      }
       return out;
     }
 

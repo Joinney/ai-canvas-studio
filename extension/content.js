@@ -1368,6 +1368,9 @@ function recordAllCurrentMediaUrls(existingSet) {
     .forEach((el) => {
       const u = getMediaUrl(el);
       if (u) existingSet.add(u);
+      try {
+        el.setAttribute('data-ai-canvas-pre-existing', 'true');
+      } catch (e) {}
     });
 }
 
@@ -1389,7 +1392,9 @@ function captureNewMediaOutput(
     let isResolved = false;
     let lastApproveClickAt = 0;
     const isMuse = window.location.hostname.includes('muse.ai');
-    const MIN_WAIT_MS = isMuse ? (mode === 'VIDEO' ? 8000 : 3500) : (mode === 'VIDEO' ? 12000 : 5000);
+    // BẮT BUỘC: Video trên Muse AI cần tối thiểu 20s để sinh (không bao giờ xong trong 8s)
+    // Ảnh trên Muse AI cần tối thiểu 8s để sinh
+    const MIN_WAIT_MS = isMuse ? (mode === 'VIDEO' ? 20000 : 8000) : (mode === 'VIDEO' ? 15000 : 5000);
 
     const cleanup = () => {
       isResolved = true;
@@ -1507,7 +1512,7 @@ function captureNewMediaOutput(
           }
         }
 
-        // 2. Phát hiện trạng thái đang sinh (Progress bar, spinner, Generating...)
+        // 2. Phát hiện trạng thái Muse AI đang sinh (Progress bar, spinner, Generating, Thinking, hoặc nút Stop)
         const progressEls = queryAllDeep(document).filter((el) => {
           const r = el.getBoundingClientRect();
           if (r.width < 10 || r.height < 2) return false;
@@ -1524,9 +1529,29 @@ function captureNewMediaOutput(
           );
         });
 
-        if (progressEls.length > 0) {
+        // Kiểm tra xem Muse AI có nút Dừng (Stop / Cancel) hoặc chữ Thinking/Generating không
+        const isMuseBusy = isMuse && (() => {
+          const bodyTxt = (document.body.innerText || '').toLowerCase();
+          const hasStopBtn = queryAllDeep(document).some((el) => {
+            const r = el.getBoundingClientRect();
+            if (r.top < window.innerHeight * 0.5) return false;
+            const lbl = ((el.getAttribute?.('aria-label') || '') + ' ' + (el.title || '') + ' ' + (el.innerText || '')).toLowerCase();
+            return /stop|dừng|cancel/i.test(lbl) || lbl.includes('⏹');
+          });
+          if (hasStopBtn) return true;
+
+          return (
+            bodyTxt.includes('thinking...') ||
+            bodyTxt.includes('đang suy nghĩ') ||
+            bodyTxt.includes('generating...') ||
+            bodyTxt.includes('rendering...') ||
+            bodyTxt.includes('executing media')
+          );
+        })();
+
+        if (progressEls.length > 0 || isMuseBusy) {
           updateBridgeBadgeText(
-            `⚡ ${isMuse ? 'Muse AI' : 'Google Flow'} đang sinh ${mode === 'VIDEO' ? 'Video' : 'Ảnh'}... (${Math.round(elapsed / 1000)}s)`,
+            `⚡ ${isMuse ? 'Muse AI' : 'Google Flow'} đang thực thi sinh ${mode === 'VIDEO' ? 'Video' : 'Ảnh'}... (${Math.round(elapsed / 1000)}s)`,
             '#f59e0b'
           );
           return; // Đang chạy, chưa xong!
@@ -1554,11 +1579,20 @@ function captureNewMediaOutput(
         });
 
         for (const el of allNodes) {
+          // BẮT BUỘC: Bỏ qua mọi phần tử đã tồn tại trên trang từ trước khi gửi prompt!
+          if (el.getAttribute?.('data-ai-canvas-pre-existing') === 'true') continue;
+
           const src = el.currentSrc || el.src || el.querySelector?.('source')?.src;
           if (!src || existingSet.has(src)) continue;
 
-          // Lọc: Phải nằm trong Chat Feed / Gallery chính, không nằm trong toolbar
+          // Lọc: Phải nằm trong Chat Feed / Gallery chính, không nằm trong toolbar hay sidebar
           if (!isValidGeneratedMedia(el, src, promptEl, inputFingerprints, null, mode)) continue;
+
+          // Nếu ở mode VIDEO: Bắt buộc đã trôi qua ít nhất 18s
+          if (mode === 'VIDEO' && elapsed < 18000) {
+            updateBridgeBadgeText(`⏳ Đang đợi Muse AI render xong Video 9:16... (${Math.round(elapsed / 1000)}s / 20s)`, '#3b82f6');
+            return;
+          }
 
           // Chỉ so khớp fingerprint loại trừ ảnh đầu vào khi ở mode IMAGE
           // (Khi ở mode VIDEO: poster video tạo ra bắt buộc phải giống người mẫu trong ảnh đầu vào, không được loại trừ!)
@@ -1592,7 +1626,7 @@ function captureNewMediaOutput(
           existingSet.add(finalMediaSrc);
           cleanup();
 
-          updateBridgeBadgeText(`✅ v5.3: Bắt được kết quả ${mode === 'VIDEO' ? 'Video' : 'Ảnh'} từ ${isMuse ? 'Muse AI' : 'Google Flow'}! Đang đồng bộ về bàn vẽ...`, '#10b981');
+          updateBridgeBadgeText(`✅ v5.4: Bắt được kết quả ${mode === 'VIDEO' ? 'Video' : 'Ảnh'} từ ${isMuse ? 'Muse AI' : 'Google Flow'}! Đang đồng bộ về bàn vẽ...`, '#10b981');
           const base64Data = await convertFlowUrlToBase64(finalMediaSrc, el);
           resolve({ rawUrl: finalMediaSrc, base64Data: base64Data || finalMediaSrc });
           return;
