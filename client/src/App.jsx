@@ -126,8 +126,16 @@ export default function App() {
           if (!map.has(ECOM_TRYON_OUTFIT_PROJECT.id)) {
             map.set(ECOM_TRYON_OUTFIT_PROJECT.id, cloneProjectSafe(ECOM_TRYON_OUTFIT_PROJECT));
           }
-          if (!map.has(MAHJONG_SILHOUETTE_VFX_PROJECT.id)) {
+          const existingMahjong = map.get(MAHJONG_SILHOUETTE_VFX_PROJECT.id);
+          if (!existingMahjong || !existingMahjong.workflowNodes?.some((n) => n.id === 'node-1792750922750-0')) {
             map.set(MAHJONG_SILHOUETTE_VFX_PROJECT.id, cloneProjectSafe(MAHJONG_SILHOUETTE_VFX_PROJECT));
+            try {
+              const savedStateKey = `ai_canvas_workflow_state_${MAHJONG_SILHOUETTE_VFX_PROJECT.id}`;
+              const savedStateRaw = localStorage.getItem(savedStateKey);
+              if (savedStateRaw && !savedStateRaw.includes('node-1792750922750-0')) {
+                localStorage.removeItem(savedStateKey);
+              }
+            } catch (e) {}
           }
           const merged = Array.from(map.values());
           localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
@@ -410,7 +418,8 @@ export default function App() {
           }).catch(() => {});
         }
 
-        if (!map.has(MAHJONG_SILHOUETTE_VFX_PROJECT.id)) {
+        const existingMahjongBackend = map.get(MAHJONG_SILHOUETTE_VFX_PROJECT.id);
+        if (!existingMahjongBackend || !existingMahjongBackend.workflowNodes?.some((n) => n.id === 'node-1792750922750-0')) {
           map.set(MAHJONG_SILHOUETTE_VFX_PROJECT.id, cloneProjectSafe(MAHJONG_SILHOUETTE_VFX_PROJECT));
           fetch('http://localhost:5001/api/ai/projects', {
             method: 'POST',

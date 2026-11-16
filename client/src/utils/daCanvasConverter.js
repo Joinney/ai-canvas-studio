@@ -1587,9 +1587,27 @@ const MAHJONG_SILHOUETTE_VFX_RAW_CANVAS_JSON = {
       }
     },
     {
+      id: 'node-1792750922750-0',
+      kind: 'image',
+      title: 'Input Image (Model Portrait)',
+      x: 365,
+      y: 635,
+      width: 244,
+      height: 156,
+      meta: {
+        mediaUrl: '/assets/mahjong-model-portrait.png',
+        objectFit: 'contain',
+        imageTone: 'soft',
+        dimensions: '600 x 960',
+        settings: {
+          modelId: 'cmroohfag2msfrykqadspaznz'
+        }
+      }
+    },
+    {
       id: 'node-1792750922750-4',
       kind: 'image',
-      title: 'Image Node (Replacement Model 16:9)',
+      title: 'Image Node (3-Angle Turnaround Sheet 16:9)',
       x: 1085.8230234185098,
       y: 607.803959959133,
       width: 244,
@@ -1599,6 +1617,8 @@ const MAHJONG_SILHOUETTE_VFX_RAW_CANVAS_JSON = {
         objectFit: 'contain',
         imageTone: 'soft',
         dimensions: '1672 x 940',
+        prompt:
+          'Maintain the exact facial features, hairstyle, body proportions, and outfit of the person in @Image 1. Create a realistic character turnaround sheet on a pure white background, shot on 35mm film, soft natural studio lighting, ultra-detailed, natural skin texture with visible pores, photorealistic, no cartoon or 3D render style. The layout is split into two main sections separated by a thin vertical line:\n\nLeft section (1/3 of the frame): A large, sharp upper-body close-up portrait of the subject facing forward.\n\nRight section (2/3 of the frame): At the top center is the header text "Hình ảnh minh họa". Below the header are three full-body standing poses from head to toe arranged horizontally: front view labeled "Mặt trước", side profile view labeled "Mặt bên", and back view labeled "Mặt sau".',
         settings: {
           modelId: 'cmroohfag2msfrykqadspaznz',
           params: {
@@ -1644,6 +1664,7 @@ const MAHJONG_SILHOUETTE_VFX_RAW_CANVAS_JSON = {
     }
   ],
   edges: [
+    { id: 'edge-1792750922750-0-4', from: 'node-1792750922750-0', to: 'node-1792750922750-4' },
     { id: 'edge-1792750922750-6', from: 'node-1792750922750-1', to: 'node-1792750922750-3' },
     { id: 'edge-1792750922750-8', from: 'node-1792750922750-3', to: 'node-1792750922750-5' },
     { id: 'edge-1792750922750-9', from: 'node-1792750922750-4', to: 'node-1792750922750-5' }
