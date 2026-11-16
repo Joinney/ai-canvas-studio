@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "AI Canvas Studio - Muse AI & Flow Automation Bridge",
-  "version": "5.2.0",
+  "version": "5.2.1",
   "description": "Cầu nối tự động hóa Multi-Tab giữa AI Canvas Studio và Muse AI (muse.ai) & Google Flow (Auto-Piping Base64, Multi-Tab Pool, Image/Video Mode Switch).",
   "permissions": [
     "tabs",

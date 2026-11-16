@@ -1457,7 +1457,6 @@ function captureNewMediaOutput(
           return;
         }
 
-        const bodyText = document.body.innerText || '';
         const currentFailCount = (bodyText.match(/Rất tiếc, không tạo được/g) || []).length;
         if (currentFailCount > initialFailCount) {
           await new Promise((r) => setTimeout(r, 4000));
