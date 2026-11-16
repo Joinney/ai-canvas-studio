@@ -310,22 +310,21 @@ function findMuseSubmitTarget(promptEl) {
     return false;
   };
 
-  // TUYỆT ĐỐI KHÔNG chọn phần tử nằm trong Sidebar phải (Muse task list) hoặc Sidebar trái
+  // TUYỆT ĐỐI KHÔNG chọn phần tử nằm trong Sidebar trái hoặc thẻ aside/nav/header
   const validElements = allElements.filter((el) => {
+    if (el.closest?.('aside, nav, header')) return false;
     const r = el.getBoundingClientRect();
     if (r.width < 14 || r.width > 90 || r.height < 14 || r.height > 90) return false;
 
-    // Loại trừ Sidebar phải (panel bên phải Muse AI bắt đầu từ khoảng 75-78% màn hình)
-    if (r.left > window.innerWidth * 0.76) return false;
     // Loại trừ Sidebar trái (dưới 65px)
     if (r.left < 65) return false;
 
-    // Phải nằm trong khu vực dock của promptEl (nửa dưới màn hình, gần ô nhập)
+    // Phải nằm trong khu vực dock của promptEl (tự co giãn theo khung nhập dù Sidebar phải đóng hay mở)
     const inPromptZone =
       r.top >= pr.top - 50 &&
       r.bottom <= Math.max(pr.bottom + 140, boxRect.bottom + 80) &&
       r.left >= pr.left + pr.width * 0.20 &&
-      r.right <= Math.max(pr.right + 100, boxRect.right + 60);
+      r.right <= Math.max(pr.right + 120, boxRect.right + 60);
 
     if (!inPromptZone) return false;
 
@@ -392,9 +391,10 @@ function findMuseSubmitTarget(promptEl) {
 
   // Fallback: Nếu không tìm thấy bằng tọa độ tương đối, tìm nút có svg mũi tên lên gần promptEl nhất
   const arrowButtons = allElements.filter((el) => {
+    if (el.closest?.('aside, nav, header')) return false;
     const r = el.getBoundingClientRect();
-    if (r.left > window.innerWidth * 0.76 || r.left < 65) return false;
-    if (r.top < pr.top - 50 || r.bottom > pr.bottom + 120) return false;
+    if (r.left < 65 || r.right > Math.max(pr.right + 120, boxRect.right + 60)) return false;
+    if (r.top < pr.top - 50 || r.bottom > Math.max(pr.bottom + 140, boxRect.bottom + 80)) return false;
     return !!el.querySelector?.('svg') || (el.tagName || '').toLowerCase() === 'button';
   });
 
@@ -1180,25 +1180,27 @@ async function fillPromptAndSubmit(rawPromptText, mode = 'IMAGE') {
   // Chờ 1.2s để giao diện phản hồi lệnh gửi
   await new Promise((r) => setTimeout(r, 1200));
 
-  // 4. KIỂM TRA DỰ PHÒNG AN TOÀN:
-  // Chỉ gửi Enter nếu: (a) ô nhập vẫn còn nguyên text, (b) nút Stop CHƯA xuất hiện, và (c) bong bóng prompt CHƯA xuất hiện trong chat
-  const checkPromptStillFull = findFlowPromptElement();
-  const currentText = (checkPromptStillFull?.innerText || checkPromptStillFull?.value || '').trim();
-  const alreadySubmittedInChat = isMuse && Boolean(findLastUserPromptRect(promptText, checkPromptStillFull));
-  const stopBtnActive = (() => {
-    if (!checkPromptStillFull) return false;
-    const pr = checkPromptStillFull.getBoundingClientRect();
-    return Array.from(document.querySelectorAll('button, [role="button"]')).some((el) => {
-      const r = el.getBoundingClientRect();
-      if (r.left < pr.left || r.right > pr.right + 100 || r.top < pr.top - 40 || r.bottom > pr.bottom + 120) return false;
-      const lbl = ((el.getAttribute?.('aria-label') || '') + ' ' + (el.title || '') + ' ' + (el.textContent || '')).toLowerCase();
+  const isStopBtnNowActive = (el) => {
+    if (!el) return false;
+    const pr = el.getBoundingClientRect();
+    return Array.from(document.querySelectorAll('button, [role="button"]')).some((b) => {
+      const r = b.getBoundingClientRect();
+      if (r.left < pr.left || r.right > pr.right + 120 || r.top < pr.top - 40 || r.bottom > pr.bottom + 120) return false;
+      const lbl = ((b.getAttribute?.('aria-label') || '') + ' ' + (b.title || '') + ' ' + (b.textContent || '')).toLowerCase();
       return /\b(stop|dừng|cancel)\b/i.test(lbl) || lbl.includes('⏹') || lbl.includes('■');
     });
-  })();
+  };
 
-  if (currentText.length > 10 && !alreadySubmittedInChat && !stopBtnActive) {
+  // 4. KIỂM TRA XÁC NHẬN ĐÃ GỬI THÀNH CÔNG:
+  // Chỉ kích hoạt Enter dự phòng nếu ô nhập vẫn còn nguyên text VÀ nút Stop CHƯA xuất hiện
+  // (Tuyệt đối không dùng lịch sử chat cũ để tránh nhầm ở luồng nhiều nhánh)
+  let checkPromptEl = findFlowPromptElement();
+  let currentText = (checkPromptEl?.innerText || checkPromptEl?.value || '').trim();
+  let stopBtnActive = isStopBtnNowActive(checkPromptEl);
+
+  if (currentText.length > 10 && !stopBtnActive) {
     console.log('[AI Canvas] Ô prompt vẫn còn văn bản và AI chưa chạy, kích hoạt Enter dự phòng qua CDP...');
-    const pr = checkPromptStillFull.getBoundingClientRect();
+    const pr = checkPromptEl.getBoundingClientRect();
     await new Promise((resolve) => {
       try {
         chrome.runtime.sendMessage(
@@ -1214,10 +1216,19 @@ async function fillPromptAndSubmit(rawPromptText, mode = 'IMAGE') {
         resolve();
       }
     });
-    await new Promise((r) => setTimeout(r, 800));
+    await new Promise((r) => setTimeout(r, 1200));
+    checkPromptEl = findFlowPromptElement();
+    currentText = (checkPromptEl?.innerText || checkPromptEl?.value || '').trim();
+    stopBtnActive = isStopBtnNowActive(checkPromptEl);
   }
 
-  updateBridgeBadgeText(`🚀 v5.8: Đã gửi lệnh! Đang đợi kết quả từ ${isMuse ? 'Muse AI' : 'Google Flow'}...`, '#7c3aed');
+  // 5. XÁC MINH CUỐI CÙNG: Nếu vẫn còn nguyên text trong ô nhập và nút Stop chưa bật => báo lỗi rõ ràng, KHÔNG chạy mù sang bước chờ kết quả
+  if (isMuse && currentText.length > 10 && !stopBtnActive) {
+    updateBridgeBadgeText('❌ Chưa gửi được lệnh lên Muse AI! Hãy kiểm tra nút Gửi.', '#dc2626');
+    throw new Error('Không thể xác nhận đã gửi câu lệnh lên Muse AI (ô nhập vẫn còn chữ). Vui lòng thử lại!');
+  }
+
+  updateBridgeBadgeText(`🚀 v5.9: Đã gửi lệnh thành công! Đang đợi kết quả từ ${isMuse ? 'Muse AI' : 'Google Flow'}...`, '#7c3aed');
 }
 
 function scrollFlowGalleryToTop() {
@@ -1423,7 +1434,7 @@ function findLastUserPromptRect(sentPromptText, promptEl) {
     const hasChildWithSnippet = Array.from(el.children || []).some((ch) => (ch.textContent || '').includes(snippet));
     if (hasChildWithSnippet) return false;
     const r = el.getBoundingClientRect();
-    if (r.width < 80 || r.height < 20 || r.left < 60 || r.left > window.innerWidth * 0.76) return false;
+    if (r.width < 80 || r.height < 20 || r.left < 60) return false;
     return true;
   });
 
