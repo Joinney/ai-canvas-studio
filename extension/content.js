@@ -26,8 +26,9 @@ function renderBridgeLogPanel() {
     countEl.textContent = String(logs.length);
   }
   if (!panel || !list) return;
-  panel.style.display = window.__AI_CANVAS_LOG_OPEN__ ? 'flex' : 'none';
-  if (!window.__AI_CANVAS_LOG_OPEN__) return;
+  const isFullHideMuse = Boolean(window.__AI_CANVAS_EMBED_OPEN__ && (window.__AI_CANVAS_EMBED_WIDTH__ || 54) >= 98);
+  panel.style.display = window.__AI_CANVAS_LOG_OPEN__ && !isFullHideMuse ? 'flex' : 'none';
+  if (!window.__AI_CANVAS_LOG_OPEN__ || isFullHideMuse) return;
 
   list.innerHTML = logs.length === 0
     ? '<div style="opacity:0.6;padding:12px;text-align:center;">Chưa có nhật ký hoạt động.</div>'
@@ -106,20 +107,26 @@ function applyMuseEmbeddedLayout() {
       dock.style.width = `${w}vw`;
     }
     if (isFullHideMuse) {
-      // Toàn màn hình Tool (Ẩn Muse phía sau nhưng vẫn giữ Muse AI 100vw bình thường không bị bóp méo)
+      // Toàn màn hình Tool (Ẩn Muse phía sau): ẩn luôn badge phụ của Muse để chỉ hiển thị 1 thanh Log duy nhất của Tool!
       document.documentElement.style.marginLeft = '';
       document.documentElement.style.width = '';
       document.documentElement.style.overflowX = '';
-      if (badge) badge.style.left = '18px';
-      if (panel) panel.style.left = '18px';
+      if (badge) badge.style.display = 'none';
+      if (panel) panel.style.display = 'none';
       if (hideMuseBtn) hideMuseBtn.textContent = '👁️ Hiện Muse';
       if (resizer) resizer.style.right = '0px';
     } else {
       document.documentElement.style.marginLeft = `${w}vw`;
       document.documentElement.style.width = `${100 - w}vw`;
       document.documentElement.style.overflowX = 'hidden';
-      if (badge) badge.style.left = `calc(${w}vw + 14px)`;
-      if (panel) panel.style.left = `calc(${w}vw + 14px)`;
+      if (badge) {
+        badge.style.display = 'flex';
+        badge.style.left = `calc(${w}vw + 14px)`;
+      }
+      if (panel) {
+        panel.style.left = `calc(${w}vw + 14px)`;
+        panel.style.display = window.__AI_CANVAS_LOG_OPEN__ ? 'flex' : 'none';
+      }
       if (hideMuseBtn) hideMuseBtn.textContent = '👁️ Ẩn Muse (100%)';
       if (resizer) resizer.style.right = '-5px';
     }
@@ -129,8 +136,14 @@ function applyMuseEmbeddedLayout() {
     document.documentElement.style.marginLeft = '';
     document.documentElement.style.width = '';
     document.documentElement.style.overflowX = '';
-    if (badge) badge.style.left = '18px';
-    if (panel) panel.style.left = '18px';
+    if (badge) {
+      badge.style.display = 'flex';
+      badge.style.left = '18px';
+    }
+    if (panel) {
+      panel.style.left = '18px';
+      panel.style.display = window.__AI_CANVAS_LOG_OPEN__ ? 'flex' : 'none';
+    }
     if (toggleBtn) toggleBtn.textContent = '🧩 Mở Tool';
   }
 }
