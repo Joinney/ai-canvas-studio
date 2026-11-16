@@ -19,12 +19,10 @@ function mountConnectionBadge() {
   if (!badge) {
     badge = document.createElement('div');
     badge.id = 'ai-canvas-flow-badge';
+    badge.style.cssText =
+      'position:fixed;bottom:18px;left:18px;z-index:2147483647;background:rgba(15,23,42,0.92);backdrop-filter:blur(8px);color:#fff;border:1px solid rgba(16,185,129,0.5);padding:8px 16px;border-radius:999px;font-family:system-ui,-apple-system,sans-serif;font-size:12px;font-weight:600;box-shadow:0 6px 20px rgba(0,0,0,0.5);display:flex;align-items:center;gap:8px;pointer-events:none;transition:all 0.3s ease;';
+    badge.innerHTML = `<span style="width:10px;height:10px;border-radius:50%;background:#10b981;box-shadow:0 0 10px #10b981;display:inline-block;animation:pulse 2s infinite;"></span><span id="ai-canvas-flow-badge-text">AI Canvas Bridge v5.7: Đã kết nối (${isMuse ? 'Muse AI' : 'Flow'})</span>`;
     (document.body || document.documentElement).appendChild(badge);
-  }
-  badge.style.cssText =
-    'position:fixed;bottom:18px;left:18px;z-index:2147483647;background:rgba(15,23,42,0.92);backdrop-filter:blur(8px);color:#fff;border:1px solid rgba(16,185,129,0.5);padding:8px 16px;border-radius:999px;font-family:system-ui,-apple-system,sans-serif;font-size:12px;font-weight:600;box-shadow:0 6px 20px rgba(0,0,0,0.5);display:flex;align-items:center;gap:8px;pointer-events:none;transition:all 0.3s ease;';
-  if (!badge.querySelector('#ai-canvas-flow-badge-text')) {
-    badge.innerHTML = `<span style="width:10px;height:10px;border-radius:50%;background:#10b981;box-shadow:0 0 10px #10b981;display:inline-block;animation:pulse 2s infinite;"></span><span id="ai-canvas-flow-badge-text">AI Canvas Bridge v5.2: Đã kết nối (${isMuse ? 'Muse AI' : 'Flow'})</span>`;
   }
 }
 
@@ -32,8 +30,13 @@ function updateBridgeBadgeText(text, bg = 'rgba(15,23,42,0.92)') {
   mountConnectionBadge();
   const badge = document.getElementById('ai-canvas-flow-badge');
   const txt = document.getElementById('ai-canvas-flow-badge-text');
-  if (badge) badge.style.background = bg;
-  if (txt) txt.textContent = text;
+  if (badge && badge.dataset.lastBg !== bg) {
+    badge.style.background = bg;
+    badge.dataset.lastBg = bg;
+  }
+  if (txt && txt.textContent !== text) {
+    txt.textContent = text;
+  }
 }
 
 function showClickMarker(x, y) {
@@ -1327,78 +1330,53 @@ function isValidGeneratedMedia(el, src, promptEl = null, inputFingerprints = [],
 }
 
 function dismissAnyOpenModal() {
-  try {
-    const escDown = new KeyboardEvent('keydown', { key: 'Escape', code: 'Escape', keyCode: 27, which: 27, bubbles: true });
-    const escUp = new KeyboardEvent('keyup', { key: 'Escape', code: 'Escape', keyCode: 27, which: 27, bubbles: true });
-    document.dispatchEvent(escDown);
-    document.dispatchEvent(escUp);
-    if (document.body) {
-      document.body.dispatchEvent(escDown);
-      document.body.dispatchEvent(escUp);
-    }
-  } catch (e) {}
+  // Chỉ quét các thẻ modal/dialog thực sự, tránh queryAllDeep toàn trang gây treo trình duyệt
+  const modalCandidates = Array.from(
+    document.querySelectorAll('[role="dialog"], [aria-modal="true"], [class*="modal"]')
+  );
+  if (modalCandidates.length === 0) return;
 
-  const allElements = queryAllDeep(document);
-
-  // 1. Quét tìm cụ thể các modal task / log chi tiết trên Muse AI ("Tạo video AI", "Tóm tắt", "Hoàn tất")
-  const taskModals = allElements.filter((el) => {
+  const taskModals = modalCandidates.filter((el) => {
     const r = el.getBoundingClientRect();
     if (r.width < 250 || r.height < 180) return false;
-    const txt = ((el.innerText || el.textContent || '')).slice(0, 800).toLowerCase();
-    const isModalType =
-      el.getAttribute?.('role') === 'dialog' ||
-      el.getAttribute?.('aria-modal') === 'true' ||
-      (el.className && String(el.className).toLowerCase().includes('modal')) ||
-      (r.left > window.innerWidth * 0.15 && r.right < window.innerWidth * 0.95 && r.top > 20);
-
-    return isModalType && (txt.includes('tạo video ai') || txt.includes('tóm tắt') || txt.includes('hoàn tất') || txt.includes('no video was actually created'));
+    const txt = (el.textContent || '').slice(0, 800).toLowerCase();
+    return (
+      txt.includes('tạo video ai') ||
+      txt.includes('tóm tắt') ||
+      txt.includes('hoàn tất') ||
+      txt.includes('no video was actually created')
+    );
   });
+
+  if (taskModals.length === 0) return;
+
+  try {
+    const escDown = new KeyboardEvent('keydown', { key: 'Escape', code: 'Escape', keyCode: 27, which: 27, bubbles: true });
+    document.dispatchEvent(escDown);
+  } catch (e) {}
 
   for (const modal of taskModals) {
     const mr = modal.getBoundingClientRect();
-    // Tìm nút tròn ✕ ở góc trên bên phải của modal
-    const closeCandidates = queryAllDeep(modal).filter((el) => {
+    const closeCandidates = Array.from(modal.querySelectorAll('button, [role="button"]')).filter((el) => {
       const r = el.getBoundingClientRect();
       if (r.width < 12 || r.width > 70 || r.height < 12 || r.height > 70) return false;
       const isTopRight = r.top >= mr.top - 15 && r.top <= mr.top + 100 && r.right >= mr.right - 100 && r.right <= mr.right + 25;
-      const label = ((el.getAttribute?.('aria-label') || '') + ' ' + (el.title || '') + ' ' + (el.innerText || '')).toLowerCase();
+      const label = ((el.getAttribute?.('aria-label') || '') + ' ' + (el.title || '') + ' ' + (el.textContent || '')).toLowerCase();
       const hasCloseTxt = /close|đóng|dismiss|x/i.test(label) || label.includes('✕') || label.includes('×');
-      const hasSvg = !!el.querySelector?.('svg') || (el.tagName || '').toLowerCase() === 'svg';
+      const hasSvg = !!el.querySelector?.('svg');
       return isTopRight && (hasCloseTxt || hasSvg);
     });
 
     for (const btn of closeCandidates) {
       try {
         btn.click();
-        const r = btn.getBoundingClientRect();
-        triggerDOMClickAt({ el: btn, x: r.left + r.width / 2, y: r.top + r.height / 2 });
       } catch (e) {}
     }
 
-    // Ẩn cưỡng bức modal để không bao giờ hiện đè lên giao diện
     try {
       modal.style.setProperty('display', 'none', 'important');
       modal.style.setProperty('opacity', '0', 'important');
       modal.style.setProperty('pointer-events', 'none', 'important');
-    } catch (e) {}
-  }
-
-  // 2. Quét chung mọi nút close/dismiss khác trên màn hình
-  const genericCloseButtons = allElements.filter((el) => {
-    const r = el.getBoundingClientRect();
-    if (r.width < 12 || r.width > 65 || r.height < 12 || r.height > 65) return false;
-    if (r.top > window.innerHeight * 0.45) return false; // Nằm ở nửa trên màn hình
-    const label = ((el.getAttribute?.('aria-label') || '') + ' ' + (el.title || '') + ' ' + (el.innerText || '')).toLowerCase();
-    if (/close|đóng|dismiss/i.test(label) || label.trim() === '✕' || label.trim() === '×' || label.trim() === 'x') {
-      return true;
-    }
-    const hasSvg = !!el.querySelector?.('svg');
-    return hasSvg && r.left > window.innerWidth * 0.4 && r.left < window.innerWidth * 0.78;
-  });
-
-  for (const btn of genericCloseButtons) {
-    try {
-      btn.click();
     } catch (e) {}
   }
 }
@@ -1439,9 +1417,11 @@ function captureNewMediaOutput(
     // Ảnh trên Muse AI cần tối thiểu 8s để sinh
     const MIN_WAIT_MS = isMuse ? (mode === 'VIDEO' ? 20000 : 8000) : (mode === 'VIDEO' ? 15000 : 5000);
 
+    let scheduleTimer = null;
     const cleanup = () => {
       isResolved = true;
       clearTimeout(timer);
+      clearTimeout(scheduleTimer);
       clearInterval(pollInterval);
       observer.disconnect();
       if (window.__AI_CANVAS_CANCEL_CURRENT_TASK__ === cancelTask) {
@@ -1464,15 +1444,17 @@ function captureNewMediaOutput(
     }, timeoutMs);
 
     const checkAutoApproveButtons = () => {
-      if (Date.now() - lastApproveClickAt < 2500) return;
-      const allClickable = queryAllDeep(document).filter((el) => {
-        const tag = (el.tagName || '').toLowerCase();
-        return tag === 'button' || el.getAttribute?.('role') === 'button' || tag.includes('button');
-      });
+      if (Date.now() - lastApproveClickAt < 3000) return;
+      const allClickable = isMuse
+        ? Array.from(document.querySelectorAll('button, [role="button"]'))
+        : queryAllDeep(document).filter((el) => {
+            const tag = (el.tagName || '').toLowerCase();
+            return tag === 'button' || el.getAttribute?.('role') === 'button' || tag.includes('button');
+          });
 
       const approveBtn =
-        allClickable.find((el) => /luôn phê duyệt|always approve/i.test((el.innerText || el.textContent || '').trim())) ||
-        allClickable.find((el) => /^(\s*✓?\s*)?(phê duyệt|approve|xác nhận|confirm)$/i.test((el.innerText || el.textContent || '').trim()));
+        allClickable.find((el) => /luôn phê duyệt|always approve/i.test((el.textContent || '').trim())) ||
+        allClickable.find((el) => /^(\s*✓?\s*)?(phê duyệt|approve|xác nhận|confirm)$/i.test((el.textContent || '').trim()));
 
       if (approveBtn) {
         const r = approveBtn.getBoundingClientRect();
@@ -1480,7 +1462,7 @@ function captureNewMediaOutput(
           lastApproveClickAt = Date.now();
           const cx = r.left + r.width / 2;
           const cy = r.top + r.height / 2;
-          updateBridgeBadgeText('⚡ v5.1: Tự động bấm "Phê duyệt"...', '#f59e0b');
+          updateBridgeBadgeText('⚡ v5.7: Tự động bấm "Phê duyệt"...', '#f59e0b');
           triggerDOMClickAt({ el: approveBtn, x: cx, y: cy });
           try {
             chrome.runtime.sendMessage({ type: 'NATIVE_CLICK_AND_ENTER', x: cx, y: cy, clickOnly: true });
@@ -1491,16 +1473,21 @@ function captureNewMediaOutput(
 
     let isChecking = false;
     let hasAutoConfirmedMuse = false;
+    let lastModalDismissAt = 0;
 
     const checkMedia = async () => {
       if (isResolved || isChecking) return;
       isChecking = true;
       try {
-        if (isMuse) dismissAnyOpenModal();
+        const now = Date.now();
+        if (isMuse && now - lastModalDismissAt >= 3000) {
+          lastModalDismissAt = now;
+          dismissAnyOpenModal();
+        }
         checkAutoApproveButtons();
 
         // 1. Kiểm tra thời gian tối thiểu kể từ khi bấm Gửi
-        const elapsed = Date.now() - submitTimestamp;
+        const elapsed = now - submitTimestamp;
         if (elapsed < MIN_WAIT_MS) {
           updateBridgeBadgeText(
             `⏳ ${isMuse ? 'Muse AI' : 'Google Flow'} đang xử lý... (${Math.max(1, Math.round((MIN_WAIT_MS - elapsed) / 1000))}s)`,
@@ -1510,7 +1497,7 @@ function captureNewMediaOutput(
         }
 
         // TỰ ĐỘNG THÚC ĐẨY (Auto-Nudge) NẾU MUSE AI DỪNG LẠI Ở BƯỚC "SẴN SÀNG":
-        const bodyText = (document.body.innerText || '') + ' ' + (document.body.textContent || '');
+        const bodyText = document.body.textContent || '';
         if (
           isMuse &&
           !hasAutoConfirmedMuse &&
@@ -1521,19 +1508,7 @@ function captureNewMediaOutput(
         ) {
           hasAutoConfirmedMuse = true;
           updateBridgeBadgeText('⚡ Phát hiện Muse AI chờ xác nhận -> Tự động xác nhận "Tạo video ngay"...', '#f59e0b');
-
-          // Đóng popup task log nếu có nút ✕
-          const modalCloseBtns = queryAllDeep(document).filter((el) => {
-            const r = el.getBoundingClientRect();
-            if (r.width < 14 || r.width > 55 || r.height < 14 || r.height > 55) return false;
-            if (r.top > window.innerHeight * 0.40) return false; // Nằm ở góc trên modal
-            const label = ((el.getAttribute?.('aria-label') || '') + ' ' + (el.innerText || '')).toLowerCase();
-            return /close|đóng|x/i.test(label) || label.includes('✕') || label.includes('×') || !!el.querySelector?.('svg');
-          });
-          if (modalCloseBtns.length > 0) {
-            try { modalCloseBtns[0].click(); } catch (e) {}
-            await new Promise((r) => setTimeout(r, 400));
-          }
+          dismissAnyOpenModal();
 
           const promptTarget = findFlowPromptElement();
           if (promptTarget) {
@@ -1542,48 +1517,53 @@ function captureNewMediaOutput(
             await new Promise((r) => setTimeout(r, 400));
             const btnTarget = findMuseSubmitTarget(promptTarget);
             if (btnTarget) {
-              triggerDOMClickAt(btnTarget);
+              chrome.runtime.sendMessage({
+                type: 'NATIVE_CLICK_AND_ENTER',
+                x: btnTarget.x,
+                y: btnTarget.y,
+                clickOnly: true
+              });
             }
           }
         }
 
         // 2. Phát hiện trạng thái Muse AI đang sinh (Progress bar, spinner, Generating, Thinking, hoặc nút Stop)
-        const progressEls = queryAllDeep(document).filter((el) => {
+        const progressCandidates = isMuse
+          ? Array.from(document.querySelectorAll('[role="progressbar"], [aria-busy="true"], .animate-spin, .loading-spinner, .progress-bar, [aria-label*="generating" i], [aria-label*="đang tạo" i]'))
+          : queryAllDeep(document).filter((el) => {
+              const role = el.getAttribute?.('role') || '';
+              const ariaBusy = el.getAttribute?.('aria-busy') === 'true';
+              const cls = (el.className || '').toString().toLowerCase();
+              return role === 'progressbar' || ariaBusy || cls.includes('animate-spin') || cls.includes('loading-spinner') || cls.includes('progress-bar');
+            });
+
+        const progressEls = progressCandidates.filter((el) => {
           const r = el.getBoundingClientRect();
           if (r.width < 8 || r.height < 2 || r.width > 900 || r.height > 900) return false;
           try {
             const st = window.getComputedStyle(el);
             if (st.display === 'none' || st.visibility === 'hidden' || st.opacity === '0') return false;
           } catch (e) {}
-
-          const role = el.getAttribute?.('role') || '';
-          const ariaBusy = el.getAttribute?.('aria-busy') === 'true';
-          const cls = (el.className || '').toString().toLowerCase();
-          const aria = (el.getAttribute?.('aria-label') || '').toLowerCase();
-
-          if (role === 'progressbar' || ariaBusy) return true;
-          if (aria.includes('đang tạo') || aria.includes('generating') || aria.includes('rendering')) return true;
-          if (cls.includes('animate-spin') || cls.includes('loading-spinner') || cls.includes('progress-bar')) return true;
-          return false;
+          return true;
         });
 
         // Kiểm tra xem Muse AI có nút Dừng (Stop / Cancel) hoặc chữ Thinking/Generating không
         const isMuseBusy = isMuse && (() => {
-          const bodyTxt = (document.body.innerText || '').toLowerCase();
-          const hasStopBtn = queryAllDeep(document).some((el) => {
+          const btns = document.querySelectorAll('button, [role="button"]');
+          for (const el of btns) {
             const r = el.getBoundingClientRect();
-            if (r.top < window.innerHeight * 0.5) return false;
-            const lbl = ((el.getAttribute?.('aria-label') || '') + ' ' + (el.title || '') + ' ' + (el.innerText || '')).toLowerCase();
-            return /stop|dừng|cancel/i.test(lbl) || lbl.includes('⏹');
-          });
-          if (hasStopBtn) return true;
+            if (r.top < window.innerHeight * 0.5 || r.width < 12 || r.height < 12) continue;
+            const lbl = ((el.getAttribute?.('aria-label') || '') + ' ' + (el.title || '') + ' ' + (el.textContent || '')).toLowerCase();
+            if (/stop|dừng|cancel/i.test(lbl) || lbl.includes('⏹')) return true;
+          }
 
+          const lowerBody = bodyText.toLowerCase();
           return (
-            bodyTxt.includes('thinking...') ||
-            bodyTxt.includes('đang suy nghĩ') ||
-            bodyTxt.includes('generating...') ||
-            bodyTxt.includes('rendering...') ||
-            bodyTxt.includes('executing media')
+            lowerBody.includes('thinking...') ||
+            lowerBody.includes('đang suy nghĩ') ||
+            lowerBody.includes('generating...') ||
+            lowerBody.includes('rendering...') ||
+            lowerBody.includes('executing media')
           );
         })();
 
@@ -1595,12 +1575,12 @@ function captureNewMediaOutput(
           return; // Đang chạy, chưa xong!
         }
 
-        scrollFlowGalleryToTop();
+        if (!isMuse) scrollFlowGalleryToTop();
         const promptEl = findFlowPromptElement();
         // Luôn quét cả thẻ VIDEO lẫn IMG (vì trên Muse AI video hoàn tất thường đi kèm thumbnail poster hoặc player)
-        const allNodes = queryAllDeep(document).filter((el) => {
-          return el.tagName === 'IMG' || el.tagName === 'VIDEO';
-        });
+        const allNodes = isMuse
+          ? Array.from(document.querySelectorAll('img, video'))
+          : queryAllDeep(document).filter((el) => el.tagName === 'IMG' || el.tagName === 'VIDEO');
 
         // Ưu tiên thẻ VIDEO trước nếu mode === 'VIDEO', sau đó đến IMG
         allNodes.sort((a, b) => {
@@ -1689,14 +1669,32 @@ function captureNewMediaOutput(
       }
     };
 
-    const observer = new MutationObserver(() => checkMedia());
+    const scheduleCheckMedia = () => {
+      if (isResolved || scheduleTimer) return;
+      scheduleTimer = setTimeout(() => {
+        scheduleTimer = null;
+        checkMedia();
+      }, 700);
+    };
+
+    const observer = new MutationObserver((mutations) => {
+      // Bỏ qua các thay đổi do chính badge hoặc marker của extension tạo ra để tránh lặp vô tận
+      const hasExternalMutation = mutations.some((m) => {
+        const t = m.target;
+        if (!t || !t.closest) return true;
+        return !t.closest('#ai-canvas-flow-badge') && !t.closest('#ai-canvas-click-marker');
+      });
+      if (hasExternalMutation) {
+        scheduleCheckMedia();
+      }
+    });
     observer.observe(document.body, {
       childList: true,
       subtree: true,
       attributes: true,
       attributeFilter: ['src']
     });
-    const pollInterval = setInterval(checkMedia, 600);
+    const pollInterval = setInterval(checkMedia, 1000);
   });
 }
 
