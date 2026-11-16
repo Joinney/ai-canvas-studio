@@ -16,6 +16,46 @@ let workerTabs = [];
 let taskQueue = [];
 let dynamicSelectors = null;
 let isPollingBackend = false;
+let lastProcessedJob = null;
+
+function enqueueUniqueJob(payload, sendResponse) {
+  if (!payload) return;
+
+  // 1. Kiểm tra nếu job trùng prompt & mode đã có trong taskQueue
+  const existingJob = taskQueue.find(
+    (j) => j.payload?.prompt === payload.prompt && j.payload?.mode === payload.mode
+  );
+  if (existingJob) {
+    console.warn('⚠️ [Background] Bỏ qua tác vụ trùng lặp trong hàng đợi:', payload.prompt?.slice(0, 40));
+    const oldSend = existingJob.sendResponse;
+    existingJob.sendResponse = (res) => {
+      try { if (typeof oldSend === 'function') oldSend(res); } catch (e) {}
+      try { if (typeof sendResponse === 'function') sendResponse(res); } catch (e) {}
+    };
+    return;
+  }
+
+  // 2. Kiểm tra nếu tác vụ vừa mới được đưa vào xử lý trong 8 giây qua
+  const now = Date.now();
+  if (
+    lastProcessedJob &&
+    lastProcessedJob.prompt === payload.prompt &&
+    lastProcessedJob.mode === payload.mode &&
+    now - lastProcessedJob.timestamp < 8000
+  ) {
+    console.warn('⚠️ [Background] Bỏ qua tác vụ trùng lặp vừa mới chạy gần đây:', payload.prompt?.slice(0, 40));
+    return;
+  }
+
+  lastProcessedJob = {
+    prompt: payload.prompt,
+    mode: payload.mode,
+    timestamp: now
+  };
+
+  taskQueue.push({ payload, sendResponse });
+  processQueue();
+}
 
 function isFlowTabUrl(url = '') {
   return Boolean(
@@ -325,17 +365,13 @@ async function pollBackendBridge() {
             }).catch(() => {});
           });
         } else if (type === 'QUEUE_FLOW_JOB' || type === 'EXECUTE_FLOW_NODE') {
-          taskQueue.push({
-            payload,
-            sendResponse: (jobRes) => {
-              fetch(`${BACKEND_BASE_API}/flow-bridge/result`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ jobId, response: jobRes })
-              }).catch(() => {});
-            }
+          enqueueUniqueJob(payload, (jobRes) => {
+            fetch(`${BACKEND_BASE_API}/flow-bridge/result`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ jobId, response: jobRes })
+            }).catch(() => {});
           });
-          processQueue();
         }
       }
     }
@@ -488,25 +524,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   }
 
   if (message.type === 'QUEUE_FLOW_JOB') {
-    // Chống trùng lặp tác vụ: nếu đã có job cùng prompt & mode trong hàng đợi thì gắn chung sendResponse
-    const existingJob = taskQueue.find(
-      (j) => j.payload?.prompt === message.payload?.prompt && j.payload?.mode === message.payload?.mode
-    );
-    if (existingJob) {
-      console.warn('⚠️ [Background] Bỏ qua job trùng lặp trong hàng đợi:', message.payload?.prompt?.slice(0, 40));
-      const oldSend = existingJob.sendResponse;
-      existingJob.sendResponse = (res) => {
-        try { oldSend(res); } catch (e) {}
-        try { sendResponse(res); } catch (e) {}
-      };
-      return true;
-    }
-
-    taskQueue.push({
-      payload: message.payload,
-      sendResponse
-    });
-    processQueue();
+    enqueueUniqueJob(message.payload, sendResponse);
     return true;
   }
 

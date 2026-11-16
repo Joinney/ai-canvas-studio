@@ -525,25 +525,24 @@ function triggerDOMClickAt(targetInfo) {
     buttons: 1
   };
 
-  const hitEl = document.elementFromPoint(x, y) || el;
-  const chain = [];
-  let curr = hitEl;
-  for (let i = 0; i < 6 && curr && curr !== document.body; i++) {
-    chain.push(curr);
-    curr = curr.parentElement || curr.getRootNode?.()?.host;
-  }
-  if (el && !chain.includes(el)) chain.push(el);
+  const hitEl = (x && y ? document.elementFromPoint(x, y) : null) || el;
+  // Tìm chính xác phần tử button hoặc phần tử clickable duy nhất:
+  const btn = (hitEl && hitEl.closest('button, [role="button"]')) || (el && el.closest('button, [role="button"]')) || hitEl || el;
+  if (!btn || btn.disabled) return;
 
-  for (const node of chain) {
+  try {
+    btn.dispatchEvent(new PointerEvent('pointerdown', opts));
+    btn.dispatchEvent(new MouseEvent('mousedown', opts));
+    btn.dispatchEvent(new PointerEvent('pointerup', opts));
+    btn.dispatchEvent(new MouseEvent('mouseup', opts));
+    btn.dispatchEvent(new MouseEvent('click', opts));
+    if (typeof btn.click === 'function') {
+      btn.click();
+    }
+  } catch (e) {
     try {
-      if (node.disabled) continue; // Không ép bấm vào nút đang bị disable do ảnh chưa tải xong!
-      node.dispatchEvent(new PointerEvent('pointerdown', opts));
-      node.dispatchEvent(new MouseEvent('mousedown', opts));
-      node.dispatchEvent(new PointerEvent('pointerup', opts));
-      node.dispatchEvent(new MouseEvent('mouseup', opts));
-      node.dispatchEvent(new MouseEvent('click', opts));
-      if (typeof node.click === 'function') node.click();
-    } catch (e) {}
+      if (typeof btn.click === 'function') btn.click();
+    } catch (err) {}
   }
 }
 
@@ -1118,35 +1117,13 @@ async function fillPromptAndSubmit(rawPromptText, mode = 'IMAGE') {
 
   const currentTarget = findFlowSubmitTarget(promptEl) || targetInfo;
   if (currentTarget && currentTarget.el && !currentTarget.el.disabled) {
-    updateBridgeBadgeText(`v5.1: Bấm nút Gửi (${isMuse ? '↑ Muse AI' : '➔ Flow'})...`, '#e11d48');
+    updateBridgeBadgeText(`v5.5: Bấm nút Gửi (${isMuse ? '↑ Muse AI' : '➔ Flow'})...`, '#e11d48');
+    // BẤM DUY NHẤT 1 LẦN VÀO NÚT SUBMIT (Tuyệt đối không gửi thêm CDP click hoặc Enter để tránh bị lặp prompt)
     triggerDOMClickAt(currentTarget);
-
-    await new Promise((resolve) => {
-      try {
-        chrome.runtime.sendMessage(
-          {
-            type: 'NATIVE_CLICK_AND_ENTER',
-            x: currentTarget.x,
-            y: currentTarget.y,
-            clickOnly: true
-          },
-          (res) => resolve(res)
-        );
-      } catch (e) {
-        resolve(null);
-      }
-    });
-
-    // Dispatch thêm sự kiện phím Enter trực tiếp vào promptEl (nếu textarea yêu cầu)
-    try {
-      promptEl.focus();
-      promptEl.dispatchEvent(new KeyboardEvent('keydown', { bubbles: true, cancelable: true, key: 'Enter', code: 'Enter', keyCode: 13, which: 13 }));
-      promptEl.dispatchEvent(new KeyboardEvent('keyup', { bubbles: true, cancelable: true, key: 'Enter', code: 'Enter', keyCode: 13, which: 13 }));
-    } catch (e) {}
   }
 
-  // Chờ 800ms để giao diện gửi đi và dọn sạch ô nhập trên Muse AI (không bao giờ bấm gửi lặp lại lần 2)
-  await new Promise((r) => setTimeout(r, 800));
+  // Chờ 600ms để giao diện gửi đi và dọn sạch ô nhập trên Muse AI (không bao giờ bấm gửi lặp lại lần 2)
+  await new Promise((r) => setTimeout(r, 600));
   if (isMuse) {
     try {
       const freshEl = findFlowPromptElement();
@@ -1495,14 +1472,6 @@ function captureNewMediaOutput(
             const btnTarget = findMuseSubmitTarget(promptTarget);
             if (btnTarget) {
               triggerDOMClickAt(btnTarget);
-              try {
-                chrome.runtime.sendMessage({
-                  type: 'NATIVE_CLICK_AND_ENTER',
-                  x: btnTarget.x,
-                  y: btnTarget.y,
-                  clickOnly: false
-                });
-              } catch (e) {}
             }
           }
         }
@@ -1657,56 +1626,68 @@ function captureNewMediaOutput(
   });
 }
 
+let isFlowTaskRunning = false;
+
 window.__AI_CANVAS_RUN_FLOW_TASK__ = async function (payload = {}) {
-  const { mode = 'IMAGE', images = [], prompt = '' } = payload;
-  const isMuse = window.location.hostname.includes('muse.ai');
-
-  // Đợi 1 giây để giao diện Muse AI ổn định trước khi nhận lượt mới
-  if (isMuse) {
-    dismissAnyOpenModal();
-    await new Promise((r) => setTimeout(r, 1000));
+  if (isFlowTaskRunning) {
+    console.warn('⚠️ [FlowContent] Đã có tác vụ đang chạy, bỏ qua lệnh chạy trùng lặp!');
+    return { ok: false, error: 'Đang có tác vụ khác đang chạy trên tab này.' };
   }
+  isFlowTaskRunning = true;
 
-  if (typeof window.__AI_CANVAS_CANCEL_CURRENT_TASK__ === 'function') {
-    try {
-      window.__AI_CANVAS_CANCEL_CURRENT_TASK__();
-    } catch (e) {}
-  }
+  try {
+    const { mode = 'IMAGE', images = [], prompt = '' } = payload;
+    const isMuse = window.location.hostname.includes('muse.ai');
 
-  scrollFlowGalleryToTop();
-  const initialFailCount = ((document.body.innerText || '').match(/Rất tiếc, không tạo được/g) || []).length;
+    // Đợi 1 giây để giao diện Muse AI ổn định trước khi nhận lượt mới
+    if (isMuse) {
+      dismissAnyOpenModal();
+      await new Promise((r) => setTimeout(r, 1000));
+    }
 
-  // Ghi nhận toàn bộ ảnh cũ trên trang TRƯỚC KHI BẤM GỬI
-  const existingUrls = new Set();
-  recordAllCurrentMediaUrls(existingUrls);
+    if (typeof window.__AI_CANVAS_CANCEL_CURRENT_TASK__ === 'function') {
+      try {
+        window.__AI_CANVAS_CANCEL_CURRENT_TASK__();
+      } catch (e) {}
+    }
 
-  let inputFingerprints = [];
-  if (images && images.length > 0) {
-    inputFingerprints = await uploadInputImages(images, mode);
-    // Ghi nhận toàn bộ chip đính kèm vừa xuất hiện vào danh sách ảnh cũ
+    scrollFlowGalleryToTop();
+    const initialFailCount = ((document.body.innerText || '').match(/Rất tiếc, không tạo được/g) || []).length;
+
+    // Ghi nhận toàn bộ ảnh cũ trên trang TRƯỚC KHI BẤM GỬI
+    const existingUrls = new Set();
     recordAllCurrentMediaUrls(existingUrls);
+
+    let inputFingerprints = [];
+    if (images && images.length > 0) {
+      inputFingerprints = await uploadInputImages(images, mode);
+      // Ghi nhận toàn bộ chip đính kèm vừa xuất hiện vào danh sách ảnh cũ
+      recordAllCurrentMediaUrls(existingUrls);
+    }
+
+    // Bấm gửi và ghi nhận thời điểm submit
+    const submitTimestamp = Date.now();
+    await fillPromptAndSubmit(prompt, mode);
+
+    const timeoutMs = mode === 'VIDEO' ? 240000 : 120000;
+    const output = await captureNewMediaOutput(
+      existingUrls,
+      inputFingerprints,
+      initialFailCount,
+      mode,
+      timeoutMs,
+      submitTimestamp
+    );
+    updateBridgeBadgeText(`✅ v5.5: Đã nhận kết quả thành công từ ${isMuse ? 'Muse AI' : 'Google Flow'}!`, 'rgba(16,185,129,0.95)');
+    return {
+      ok: true,
+      mode,
+      rawUrl: output.rawUrl,
+      base64: output.base64Data
+    };
+  } finally {
+    isFlowTaskRunning = false;
   }
-
-  // Bấm gửi và ghi nhận thời điểm submit
-  const submitTimestamp = Date.now();
-  await fillPromptAndSubmit(prompt, mode);
-
-  const timeoutMs = mode === 'VIDEO' ? 240000 : 120000;
-  const output = await captureNewMediaOutput(
-    existingUrls,
-    inputFingerprints,
-    initialFailCount,
-    mode,
-    timeoutMs,
-    submitTimestamp
-  );
-  updateBridgeBadgeText(`✅ v5.3: Đã nhận kết quả thành công từ ${isMuse ? 'Muse AI' : 'Google Flow'}!`, 'rgba(16,185,129,0.95)');
-  return {
-    ok: true,
-    mode,
-    rawUrl: output.rawUrl,
-    base64: output.base64Data
-  };
 };
 
 window.__AI_CANVAS_MESSAGE_DISPATCHER__ = (message, sender, sendResponse) => {
