@@ -296,6 +296,7 @@ async function processQueue() {
       const job = taskQueue.shift();
       const worker = await acquireAvailableFlowTab();
 
+      let wakeupTimer = null;
       try {
         if (!dynamicSelectors) await syncDynamicSelectors();
 
@@ -307,6 +308,22 @@ async function processQueue() {
           text: `⚙️ Đang gửi lệnh (${job.payload?.mode || 'IMAGE'}) sang tab Muse AI chạy ngầm...`,
           level: 'info'
         });
+
+        // Chống Chrome Intensive Wake Up Throttling (kẹp timer 60s ở tab nền):
+        // Service Worker không bị kẹp, nên cứ mỗi 15s đánh thức nhẹ tab nền 250ms nếu tab đó đang ẩn.
+        let isPulsing = false;
+        wakeupTimer = setInterval(async () => {
+          if (isPulsing || !worker?.tabId) return;
+          isPulsing = true;
+          try {
+            const tabInfo = await chrome.tabs.get(worker.tabId).catch(() => null);
+            if (tabInfo && !tabInfo.active) {
+              await withTemporaryTabFocus(worker.tabId, () => new Promise((r) => setTimeout(r, 250)));
+            }
+          } catch (e) {} finally {
+            isPulsing = false;
+          }
+        }, 15000);
 
         const response = await chrome.tabs.sendMessage(worker.tabId, {
           type: 'EXECUTE_FLOW_NODE',
@@ -329,6 +346,7 @@ async function processQueue() {
           error: err.message || 'Lỗi khi thực thi trên tab Google Flow / Muse AI'
         });
       } finally {
+        if (wakeupTimer) clearInterval(wakeupTimer);
         if (worker) worker.busy = false;
       }
     }

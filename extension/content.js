@@ -1971,7 +1971,7 @@ function captureNewMediaOutput(
               if (r.left < prBusy.left || r.right > prBusy.right + 100) continue;
               if (r.top < prBusy.top - 40 || r.bottom > prBusy.bottom + 120) continue;
               const lbl = ((el.getAttribute?.('aria-label') || '') + ' ' + (el.title || '') + ' ' + (el.textContent || '')).toLowerCase();
-              if (/\b(stop|dừng|cancel)\b/i.test(lbl) || lbl.includes('⏹')) return true;
+              if (/\b(stop|dừng)\b/i.test(lbl) || lbl.includes('⏹') || lbl.includes('■')) return true;
             }
           }
           return false;
@@ -1986,14 +1986,6 @@ function captureNewMediaOutput(
           const cls = (el.className || '').toString().toLowerCase();
           return role === 'progressbar' || ariaBusy || cls.includes('animate-spin') || cls.includes('loading-spinner') || cls.includes('progress-bar');
         });
-
-        if (isMuseBusy || flowProgressActive) {
-          updateBridgeBadgeText(
-            `⚡ ${isMuse ? 'Muse AI' : 'Google Flow'} đang thực thi sinh ${mode === 'VIDEO' ? 'Video' : 'Ảnh'}... (${Math.round(elapsed / 1000)}s)`,
-            '#f59e0b'
-          );
-          return; // Đang chạy, chưa xong!
-        }
 
         if (!isMuse) scrollFlowGalleryToTop();
         const promptRect = promptEl ? promptEl.getBoundingClientRect() : null;
@@ -2145,6 +2137,14 @@ function captureNewMediaOutput(
           }
           resolve({ rawUrl: finalMediaSrc, base64Data: base64Data || finalMediaSrc });
           return;
+        }
+
+        if (isMuseBusy || flowProgressActive) {
+          updateBridgeBadgeText(
+            `⚡ ${isMuse ? 'Muse AI' : 'Google Flow'} đang thực thi sinh ${mode === 'VIDEO' ? 'Video' : 'Ảnh'}... (${Math.round(elapsed / 1000)}s)`,
+            '#f59e0b'
+          );
+          return; // Đang chạy, chưa có kết quả hoàn chỉnh
         }
 
         // Kiểm tra nếu Muse AI đã trả lời xong nhưng CHỈ TRẢ VỀ CHỮ (từ chối tạo hoặc hỏi lại, không có ảnh/video)
