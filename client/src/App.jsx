@@ -342,7 +342,9 @@ export default function App() {
 
         const existingBeauty = map.get(BEAUTY_MIST_PROJECT.id);
         const beautyNeedsUpgrade = existingBeauty?.nodes?.some(
-          (n) => n.id === 'node-1783071172789' && n.type !== 'IMAGE_INPUT'
+          (n) =>
+            (n.id === 'node-1783071172789' && n.type !== 'IMAGE_INPUT') ||
+            (n.id === 'node-1783085862187' && !String(n.data?.prompt || '').includes('Vietnamese Voiceover'))
         );
         if (!existingBeauty || beautyNeedsUpgrade) {
           map.set(BEAUTY_MIST_PROJECT.id, cloneProjectSafe(BEAUTY_MIST_PROJECT));
