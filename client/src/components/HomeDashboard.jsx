@@ -17,7 +17,18 @@ import {
   Moon,
   Clock,
   Volume2,
-  VolumeX
+  VolumeX,
+  Grid,
+  Wand2,
+  BookOpen,
+  MessageSquare,
+  Flame,
+  ShieldCheck,
+  CheckCircle2,
+  ExternalLink,
+  ChevronRight,
+  Film,
+  Zap
 } from 'lucide-react';
 import { WINTER_FUR_PROJECT, MIRROR_SELFIE_PROJECT } from '../utils/daCanvasConverter';
 
@@ -49,8 +60,10 @@ export default function HomeDashboard({
   const [clockStr, setClockStr] = useState('');
   const [hoveredCardId, setHoveredCardId] = useState(null);
   const [unmutedCardId, setUnmutedCardId] = useState(null);
+  const [currentModule, setCurrentModule] = useState('dashboard'); // 'dashboard' | 'imageCreation' | 'apps' | 'canvas' | 'workflow' | 'my'
+  const [categoryFilter, setCategoryFilter] = useState('all'); // 'all' | 'video' | 'image' | 'my-projects' | 'featured'
 
-  // Hàm trích xuất Video & Ảnh đại diện từ bất kỳ Dự án / Mẫu nào
+  // Trích xuất Media đại diện từ bất kỳ Dự án / Mẫu nào
   const extractCardMedia = (item) => {
     const nodes = item?.nodes || [];
     const hdVideoNode = nodes.find((n) => n.type === 'FFMPEG_POST' && n.data?.resultUrl);
@@ -93,30 +106,13 @@ export default function HomeDashboard({
     return () => clearInterval(timer);
   }, []);
 
-  const filteredPresets = PRESET_TEMPLATES.filter((t) => {
-    const matchTab = activeTab === 'my-projects' ? true : t.category === activeTab;
-    const matchSearch =
-      !searchQuery.trim() ||
-      t.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      t.description.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchTab && matchSearch;
-  });
-
-  const filteredUserProjects = userProjects.filter((p) => {
-    const matchTab = activeTab === 'my-projects' ? true : p.category === activeTab;
-    const matchSearch =
-      !searchQuery.trim() ||
-      (p.name || '').toLowerCase().includes(searchQuery.toLowerCase());
-    return matchTab && matchSearch;
-  });
-
   const handleConfirmNewProject = (e) => {
     e.preventDefault();
     const title =
       newProjectTitle.trim() ||
-      (activeTab === 'video' ? 'Dự án Workflow Video mới' : 'Dự án Hình ảnh mới');
+      (newProjectMode === 'freeform' ? 'Bàn vẽ Vô cực mới' : 'Dự án Sơ đồ Node mới');
     onCreateBlankProject({
-      category: activeTab === 'image' ? 'image' : 'video',
+      category: categoryFilter === 'image' ? 'image' : 'video',
       name: title,
       workspaceMode: newProjectMode
     });
@@ -124,685 +120,827 @@ export default function HomeDashboard({
     setShowNewModal(false);
   };
 
+  // Lọc danh sách dự án & templates theo tìm kiếm và danh mục QuanTV
+  const allDisplayItems = [
+    ...PRESET_TEMPLATES.map((p) => ({ ...p, isPreset: true })),
+    ...userProjects.filter((up) => !PRESET_TEMPLATES.some((pt) => pt.id === up.id)).map((p) => ({ ...p, isPreset: false }))
+  ];
+
+  const filteredItems = allDisplayItems.filter((item) => {
+    const q = searchQuery.toLowerCase().trim();
+    const matchSearch =
+      !q ||
+      (item.name || '').toLowerCase().includes(q) ||
+      (item.description || '').toLowerCase().includes(q);
+
+    if (!matchSearch) return false;
+
+    if (categoryFilter === 'all') return true;
+    if (categoryFilter === 'my-projects') return !item.isPreset;
+    if (categoryFilter === 'featured') return item.isPreset;
+    if (categoryFilter === 'video') return item.category === 'video' || item.name.toLowerCase().includes('video');
+    if (categoryFilter === 'image') return item.category === 'image' || item.name.toLowerCase().includes('thử đồ');
+    return true;
+  });
+
   return (
-    <div className="w-screen h-screen overflow-y-auto px-6 py-5 select-none">
-      <div className="max-w-[1440px] mx-auto flex flex-col gap-6 pb-12">
-        {/* ================= 1. HEADER KÍNH QUANG HỌC (.box) ================= */}
-        <header className="box px-7 h-[62px] flex items-center justify-between" style={{ '--r': '28px' }}>
-          <div className="circle-overlay" />
-
-          {/* Vầng sáng góc trái Header */}
-          <div
-            className="absolute -left-4 top-1/2 -translate-y-1/2 w-14 h-14 rounded-full pointer-events-none"
-            style={{
-              background:
-                'radial-gradient(circle, rgba(14, 165, 233, 0.9) 0%, rgba(56, 189, 248, 0.35) 55%, transparent 80%)',
-              filter: 'blur(4px)'
-            }}
-          />
-
-          <div className="w-full flex items-center justify-between">
-            {/* Thương hiệu */}
-            <div className="flex items-center gap-3 font-extrabold text-lg tracking-tight">
-              <div className="box w-9 h-9 flex items-center justify-center" style={{ '--r': '50%' }}>
-                <div className="circle-overlay" />
-                <Workflow className="w-4 h-4 text-sky-600" />
+    <div className="flex h-screen w-screen overflow-hidden text-slate-800 dark:text-slate-100 select-none">
+      {/* ================= 1. SIDEBAR TRÁI (QUANTV AI LAYOUT + LIQUID GLASS) ================= */}
+      <aside className="w-64 shrink-0 h-full p-4 flex flex-col justify-between border-r border-white/20 dark:border-white/5 backdrop-blur-2xl z-30 overflow-y-auto">
+        <div className="flex flex-col gap-5">
+          {/* Logo & Tên ứng dụng */}
+          <div className="flex items-center gap-3 px-2 py-1">
+            <div
+              className="box w-11 h-11 flex items-center justify-center shrink-0 cursor-pointer shadow-lg shadow-sky-500/20"
+              style={{ '--r': '16px' }}
+              onClick={() => {
+                setCurrentModule('dashboard');
+                setCategoryFilter('all');
+              }}
+            >
+              <div className="circle-overlay" />
+              <div className="w-7 h-7 rounded-xl bg-gradient-to-br from-cyan-400 via-sky-500 to-indigo-600 flex items-center justify-center shadow-inner">
+                <Sparkles className="w-4 h-4 text-white" />
               </div>
-              <span>AI CANVAS STUDIO</span>
             </div>
-
-            {/* Thanh Nav Pill giữa Header */}
-            <div className="nav-links-box">
-              <button
-                onClick={() => setActiveTab('video')}
-                className={'nav-pill-item ' + (activeTab === 'video' ? 'active' : '')}
-              >
-                <Video className="w-3.5 h-3.5" /> Tạo Video
-              </button>
-              <button
-                onClick={() => setActiveTab('image')}
-                className={'nav-pill-item ' + (activeTab === 'image' ? 'active' : '')}
-              >
-                <ImageIcon className="w-3.5 h-3.5" /> Tạo Hình Ảnh
-              </button>
-              <button
-                onClick={() => setActiveTab('my-projects')}
-                className={'nav-pill-item ' + (activeTab === 'my-projects' ? 'active' : '')}
-              >
-                <FolderKanban className="w-3.5 h-3.5" /> Dự Án Của Tôi ({userProjects.length})
-              </button>
+            <div className="flex flex-col">
+              <span className="font-black text-sm tracking-tight leading-tight">AI CANVAS STUDIO</span>
+              <span className="text-[10px] font-extrabold uppercase tracking-widest text-sky-600 dark:text-sky-400">
+                聚合AI • 创意工坊
+              </span>
             </div>
+          </div>
 
-            {/* Cụm nút Kính tròn bên phải Header */}
-            <div className="flex items-center gap-3">
+          {/* Nút Tạo Mới Nổi Bật */}
+          <button
+            onClick={() => {
+              setNewProjectMode('workflow');
+              setShowNewModal(true);
+            }}
+            className="box box-hover w-full py-2.5 px-4 flex items-center justify-center gap-2 text-xs font-black text-white bg-gradient-to-r from-sky-500 via-blue-600 to-indigo-600 shadow-md shadow-sky-500/25 cursor-pointer"
+            style={{ '--r': '999px' }}
+          >
+            <div className="circle-overlay" />
+            <Plus className="w-4 h-4" />
+            <span>TẠO DỰ ÁN MỚI</span>
+          </button>
+
+          {/* Menu Nhóm 1: Khám Phá */}
+          <div className="flex flex-col gap-1">
+            <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 dark:text-slate-500 px-3">
+              Khám Phá
+            </span>
+
+            <button
+              onClick={() => {
+                setCurrentModule('dashboard');
+                setCategoryFilter('all');
+              }}
+              className={
+                'box box-hover w-full px-3.5 py-2.5 flex items-center gap-3 text-xs font-extrabold cursor-pointer transition ' +
+                (currentModule === 'dashboard' ? 'active-pill ring-1 ring-sky-500/50' : 'opacity-80')
+              }
+              style={{ '--r': '14px' }}
+            >
+              <div className="circle-overlay" />
+              <Grid className="w-4 h-4 text-sky-500" />
+              <span>首页 • Trang Chủ</span>
+            </button>
+          </div>
+
+          {/* Menu Nhóm 2: Sáng Tạo Chính (Creative Studio) */}
+          <div className="flex flex-col gap-1">
+            <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 dark:text-slate-500 px-3">
+              Công Cụ Sáng Tạo
+            </span>
+
+            <button
+              onClick={() => {
+                setCurrentModule('imageCreation');
+                setCategoryFilter('image');
+              }}
+              className={
+                'box box-hover w-full px-3.5 py-2.5 flex items-center gap-3 text-xs font-extrabold cursor-pointer transition ' +
+                (currentModule === 'imageCreation' ? 'active-pill ring-1 ring-sky-500/50' : 'opacity-80')
+              }
+              style={{ '--r': '14px' }}
+            >
+              <div className="circle-overlay" />
+              <ImageIcon className="w-4 h-4 text-teal-500" />
+              <span>图片制作 • Thử Đồ 2K</span>
+            </button>
+
+            <button
+              onClick={() => {
+                setCurrentModule('apps');
+                setCategoryFilter('video');
+              }}
+              className={
+                'box box-hover w-full px-3.5 py-2.5 flex items-center gap-3 text-xs font-extrabold cursor-pointer transition ' +
+                (currentModule === 'apps' ? 'active-pill ring-1 ring-sky-500/50' : 'opacity-80')
+              }
+              style={{ '--r': '14px' }}
+            >
+              <div className="circle-overlay" />
+              <Video className="w-4 h-4 text-indigo-500" />
+              <span>视频制作 • Video 9:16</span>
+            </button>
+
+            <button
+              onClick={() => {
+                onCreateBlankProject({
+                  category: 'image',
+                  name: 'Bàn vẽ Vô cực (Canvas Inpaint)',
+                  workspaceMode: 'freeform'
+                });
+              }}
+              className="box box-hover w-full px-3.5 py-2.5 flex items-center gap-3 text-xs font-extrabold cursor-pointer opacity-80"
+              style={{ '--r': '14px' }}
+            >
+              <div className="circle-overlay" />
+              <Layers className="w-4 h-4 text-cyan-500" />
+              <span>无限画布 • Bàn Vẽ Vô Cực</span>
+            </button>
+
+            <button
+              onClick={() => {
+                setCurrentModule('workflow');
+                setCategoryFilter('featured');
+              }}
+              className={
+                'box box-hover w-full px-3.5 py-2.5 flex items-center gap-3 text-xs font-extrabold cursor-pointer transition ' +
+                (currentModule === 'workflow' ? 'active-pill ring-1 ring-sky-500/50' : 'opacity-80')
+              }
+              style={{ '--r': '14px' }}
+            >
+              <div className="circle-overlay" />
+              <Workflow className="w-4 h-4 text-amber-500" />
+              <span>节点工作流 • Sơ Đồ DAG</span>
+            </button>
+          </div>
+
+          {/* Menu Nhóm 3: Dự Án & Quản Lý */}
+          <div className="flex flex-col gap-1">
+            <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 dark:text-slate-500 px-3">
+              Kho Cá Nhân
+            </span>
+
+            <button
+              onClick={() => {
+                setCurrentModule('my');
+                setCategoryFilter('my-projects');
+              }}
+              className={
+                'box box-hover w-full px-3.5 py-2.5 flex items-center justify-between text-xs font-extrabold cursor-pointer transition ' +
+                (categoryFilter === 'my-projects' ? 'active-pill ring-1 ring-sky-500/50' : 'opacity-80')
+              }
+              style={{ '--r': '14px' }}
+            >
+              <div className="circle-overlay" />
+              <div className="flex items-center gap-3">
+                <FolderKanban className="w-4 h-4 text-blue-500" />
+                <span>我的作品 • Dự Án Của Tôi</span>
+              </div>
+              <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-sky-500/10 text-sky-600 dark:text-sky-400">
+                {userProjects.length}
+              </span>
+            </button>
+
+            <button
+              onClick={onOpenApiConfig}
+              className="box box-hover w-full px-3.5 py-2.5 flex items-center gap-3 text-xs font-extrabold cursor-pointer opacity-80"
+              style={{ '--r': '14px' }}
+            >
+              <div className="circle-overlay" />
+              <Settings className="w-4 h-4 text-slate-500" />
+              <span>Cấu Hình API Key</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Khối Thông Tin Trạng Thái Dưới Cùng Của Sidebar */}
+        <div className="flex flex-col gap-3 pt-4 border-t border-white/20 dark:border-white/5">
+          {/* Trạng thái Muse AI & Flow Bridge */}
+          <div className="box p-3 flex flex-col gap-2" style={{ '--r': '16px' }}>
+            <div className="circle-overlay" />
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2 text-[11px] font-black">
+                <span
+                  className={
+                    'w-2 h-2 rounded-full ' +
+                    (flowStatus.connected ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500')
+                  }
+                />
+                <span>MUSE AI BRIDGE</span>
+              </div>
               <button
-                onClick={onOpenApiConfig}
-                title="Cấu hình API Key"
-                className="box box-hover w-9 h-9 flex items-center justify-center cursor-pointer"
+                onClick={onCheckFlow}
+                className="box box-hover w-6 h-6 flex items-center justify-center cursor-pointer"
                 style={{ '--r': '50%' }}
+                title="Kiểm tra lại kết nối"
               >
                 <div className="circle-overlay" />
-                <Settings className="w-4 h-4 text-sky-600" />
-              </button>
-
-              <button
-                onClick={onToggleTheme}
-                title="Đổi giao diện Sáng / Tối Kính Quang Học"
-                className="box box-hover w-9 h-9 flex items-center justify-center cursor-pointer"
-                style={{ '--r': '50%' }}
-              >
-                <div className="circle-overlay" />
-                {isDarkMode ? (
-                  <Sun className="w-4 h-4 text-amber-400" />
-                ) : (
-                  <Moon className="w-4 h-4 text-sky-600" />
-                )}
+                <RefreshCw className="w-3 h-3 text-sky-600" />
               </button>
             </div>
+            <span className="text-[10px] font-bold opacity-75">
+              {flowStatus.connected
+                ? `🟢 Sẵn sàng (${flowStatus.openFlowTabs || 1} tab mở)`
+                : '🟠 Chưa phát hiện tab Muse AI'}
+            </span>
+          </div>
+
+          {/* User Profile & Theme Toggle Card */}
+          <div className="box p-3 flex items-center justify-between" style={{ '--r': '16px' }}>
+            <div className="circle-overlay" />
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-sky-400 to-indigo-600 flex items-center justify-center text-white text-xs font-black shadow-sm">
+                AI
+              </div>
+              <div className="flex flex-col">
+                <span className="text-xs font-black leading-tight">Pro Creator</span>
+                <span className="text-[10px] font-bold text-amber-500 flex items-center gap-1">
+                  ⚡ 2,500 Điểm
+                </span>
+              </div>
+            </div>
+
+            <button
+              onClick={onToggleTheme}
+              className="box box-hover w-8 h-8 flex items-center justify-center cursor-pointer"
+              style={{ '--r': '50%' }}
+              title="Đổi giao diện Sáng / Tối"
+            >
+              <div className="circle-overlay" />
+              {isDarkMode ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-slate-600" />}
+            </button>
+          </div>
+        </div>
+      </aside>
+
+      {/* ================= 2. PHẦN NỘI DUNG CHÍNH (MAIN DASHBOARD VIEW) ================= */}
+      <main className="flex-1 h-full overflow-y-auto flex flex-col relative">
+        {/* Top Header Bar Cố Định Trong View */}
+        <header className="sticky top-0 z-20 px-8 py-3.5 backdrop-blur-xl border-b border-white/20 dark:border-white/5 flex items-center justify-between gap-6">
+          {/* Thanh tìm kiếm trung tâm */}
+          <div className="box flex-1 max-w-lg px-3.5 py-2 flex items-center gap-2.5" style={{ '--r': '999px' }}>
+            <div className="circle-overlay" />
+            <Search className="w-4 h-4 text-slate-400" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="搜索应用、工作流、创意模板 (Tìm kiếm ứng dụng, quy trình tạo ảnh, video)..."
+              className="w-full bg-transparent text-xs font-semibold focus:outline-none"
+            />
+          </div>
+
+          {/* Cụm công cụ bên phải */}
+          <div className="flex items-center gap-4">
+            {/* Đồng hồ số thực tế */}
+            <div className="hidden md:flex items-center gap-2 text-xs font-black opacity-75">
+              <Clock className="w-3.5 h-3.5 text-sky-500" />
+              <span>{clockStr}</span>
+            </div>
+
+            {/* Nút Test Ping Muse AI */}
+            <button
+              onClick={onPingFlow}
+              className="box box-hover px-3.5 py-1.5 text-xs font-extrabold flex items-center gap-1.5 cursor-pointer"
+              style={{ '--r': '999px', width: 'auto' }}
+            >
+              <div className="circle-overlay" />
+              <Zap className="w-3.5 h-3.5 text-amber-500" />
+              <span>Test Ping Muse AI</span>
+            </button>
+
+            {/* Nút Hướng Dẫn Sử Dụng QuanTV */}
+            <a
+              href="https://ai17.quantv.com/dashboard"
+              target="_blank"
+              rel="noreferrer"
+              className="box box-hover px-3.5 py-1.5 text-xs font-extrabold flex items-center gap-1.5 cursor-pointer"
+              style={{ '--r': '999px', width: 'auto' }}
+            >
+              <div className="circle-overlay" />
+              <BookOpen className="w-3.5 h-3.5 text-sky-600" />
+              <span>QuanTV Dashboard</span>
+              <ExternalLink className="w-3 h-3 opacity-60" />
+            </a>
           </div>
         </header>
 
-        {/* ================= 2. BỐ CỤC 2 CỘT: SIDEBAR KÍNH + MAIN KÍNH ================= */}
-        <div className="grid grid-cols-1 lg:grid-cols-[330px_1fr] gap-6 items-start">
-          {/* CỘT SIDEBAR TRÁI (KÍNH LẤY KÍNH) */}
-          <aside className="flex flex-col gap-6">
-            {/* Thẻ Profile & Điều hướng Sidebar (.box lớn chứa các .box con) */}
-            <div className="box p-6 flex flex-col gap-5" style={{ '--r': '28px' }}>
-              <div className="circle-overlay" />
+        {/* Nội dung trang Dashboard cuộn */}
+        <div className="p-8 flex flex-col gap-8 max-w-7xl mx-auto w-full">
+          {/* ================= A. HERO BANNER QUANTV (LIQUID GLASS) ================= */}
+          <div
+            className="box relative p-8 flex flex-col gap-5 overflow-hidden shadow-2xl border border-white/40 dark:border-white/10"
+            style={{
+              '--r': '32px',
+              background: isDarkMode
+                ? 'linear-gradient(135deg, rgba(14, 165, 233, 0.15) 0%, rgba(99, 102, 241, 0.12) 50%, rgba(15, 23, 42, 0.85) 100%)'
+                : 'linear-gradient(135deg, rgba(224, 242, 254, 0.85) 0%, rgba(238, 242, 255, 0.75) 50%, rgba(255, 255, 255, 0.9) 100%)'
+            }}
+          >
+            <div className="circle-overlay" />
 
-              {/* Avatar Kính Tròn */}
-              <div className="flex flex-col items-center text-center gap-2">
-                <div className="box w-24 h-24 flex items-center justify-center" style={{ '--r': '50%' }}>
-                  <div className="circle-overlay" />
-                  <Sparkles className="w-10 h-10 text-sky-600" />
-                </div>
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-[11px] font-black px-3 py-1 rounded-full bg-sky-500/20 text-sky-600 dark:text-sky-300 border border-sky-500/30 flex items-center gap-1.5">
+                <Sparkles className="w-3.5 h-3.5" /> 聚合AI • ĐỘT PHÁ TỰ ĐỘNG HÓA WORKFLOW
+              </span>
+              <span className="text-[11px] font-extrabold px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-600 dark:text-emerald-300 border border-emerald-500/30">
+                Veo 2 & Muse AI Auto-Piping
+              </span>
+            </div>
 
-                <h2 className="font-black text-xl tracking-tight mt-1">AI WORKFLOW HUB</h2>
-                <span className="text-[11px] font-bold uppercase tracking-widest opacity-60">
-                  OPTICAL GLASS • GOOGLE FLOW
-                </span>
+            <div className="flex flex-col gap-2 max-w-2xl">
+              <h1 className="text-3xl font-black tracking-tight leading-tight">
+                AI Canvas Studio — Lookbook &amp; Video Runway 7s 9:16
+              </h1>
+              <p className="text-xs font-bold leading-relaxed opacity-80">
+                Quy trình nối dây đa nhánh tự động hóa từ Ảnh Người Mẫu gốc, Thử đồ 2K đến Video Chuyển động Tự nhiên trên
+                Muse AI &amp; Google Flow. Thực thi tuần tự từng bước, đảm bảo an toàn dữ liệu và đồng bộ tức thì.
+              </p>
+            </div>
 
-                <div className="flex flex-wrap justify-center gap-1.5 mt-1">
-                  <span className="text-[11px] font-bold px-3 py-0.5 rounded-full bg-black/5 border border-black/10">
-                    Veo 2 Video
-                  </span>
-                  <span className="text-[11px] font-bold px-3 py-0.5 rounded-full bg-black/5 border border-black/10">
-                    Imagen 3
-                  </span>
-                  <span className="text-[11px] font-bold px-3 py-0.5 rounded-full bg-black/5 border border-black/10">
-                    Multi-Tab
-                  </span>
-                </div>
-              </div>
+            <div className="flex flex-wrap items-center gap-3 pt-2">
+              <button
+                onClick={() => onOpenProject(MIRROR_SELFIE_PROJECT)}
+                className="box box-hover px-5 py-2.5 text-xs font-black text-white bg-gradient-to-r from-sky-500 to-indigo-600 flex items-center gap-2 shadow-lg shadow-sky-500/30 cursor-pointer"
+                style={{ '--r': '999px', width: 'auto' }}
+              >
+                <div className="circle-overlay" />
+                <Play className="w-4 h-4 fill-current" />
+                <span>CHẠY NGAY WORKFLOW ĐỐI GƯƠNG 7S</span>
+              </button>
 
-              {/* Nút Kính + Tạo Dự Án Mới */}
               <button
                 onClick={() => {
-                  setNewProjectMode('workflow');
-                  setShowNewModal(true);
+                  onCreateBlankProject({
+                    category: 'image',
+                    name: 'Bàn vẽ Vô cực (Canvas Inpaint)',
+                    workspaceMode: 'freeform'
+                  });
                 }}
-                className="box box-hover w-full h-11 flex items-center justify-center gap-2 text-xs font-black text-sky-700 cursor-pointer"
-                style={{ '--r': '999px' }}
+                className="box box-hover px-5 py-2.5 text-xs font-extrabold flex items-center gap-2 cursor-pointer"
+                style={{ '--r': '999px', width: 'auto' }}
               >
                 <div className="circle-overlay" />
-                <Plus className="w-4 h-4" />
-                <span>+ TẠO DỰ ÁN WORKFLOW MỚI</span>
+                <Layers className="w-4 h-4 text-cyan-600" />
+                <span>Mở Bàn Vẽ Vô Cực</span>
               </button>
+            </div>
+          </div>
 
-              {/* Các Tab Sidebar bằng .box (Kính lồng Kính) */}
-              <div className="flex flex-col gap-2.5">
-                <button
-                  onClick={() => setActiveTab('video')}
-                  className={
-                    'box box-hover w-full px-4 py-3 flex items-center justify-between text-xs font-extrabold cursor-pointer ' +
-                    (activeTab === 'video' ? 'ring-2 ring-sky-500/60' : '')
-                  }
-                  style={{ '--r': '18px' }}
-                >
-                  <div className="circle-overlay" />
-                  <div className="flex items-center gap-2.5">
-                    <Video className="w-4 h-4 text-sky-600" />
-                    <span>Tạo Video (AI Video)</span>
-                  </div>
-                  <span className="text-[10px] font-black opacity-70">
-                    {PRESET_TEMPLATES.filter((t) => t.category === 'video').length} mẫu
-                  </span>
-                </button>
-
-                <button
-                  onClick={() => setActiveTab('image')}
-                  className={
-                    'box box-hover w-full px-4 py-3 flex items-center justify-between text-xs font-extrabold cursor-pointer ' +
-                    (activeTab === 'image' ? 'ring-2 ring-sky-500/60' : '')
-                  }
-                  style={{ '--r': '18px' }}
-                >
-                  <div className="circle-overlay" />
-                  <div className="flex items-center gap-2.5">
-                    <ImageIcon className="w-4 h-4 text-teal-600" />
-                    <span>Tạo Hình Ảnh (AI Image)</span>
-                  </div>
-                  <span className="text-[10px] font-black opacity-70">
-                    {PRESET_TEMPLATES.filter((t) => t.category === 'image').length} mẫu
-                  </span>
-                </button>
-
-                <button
-                  onClick={() => setActiveTab('my-projects')}
-                  className={
-                    'box box-hover w-full px-4 py-3 flex items-center justify-between text-xs font-extrabold cursor-pointer ' +
-                    (activeTab === 'my-projects' ? 'ring-2 ring-sky-500/60' : '')
-                  }
-                  style={{ '--r': '18px' }}
-                >
-                  <div className="circle-overlay" />
-                  <div className="flex items-center gap-2.5">
-                    <FolderKanban className="w-4 h-4 text-indigo-600" />
-                    <span>Dự Án Của Tôi</span>
-                  </div>
-                  <span className="text-[10px] font-black opacity-70">
-                    {userProjects.length}
-                  </span>
-                </button>
+          {/* ================= B. KHỐI CÔNG CỤ NHANH QUANTV (4 FEATURE CARDS) ================= */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {/* Card 1: Thử Đồ AI */}
+            <div
+              onClick={() => {
+                setCategoryFilter('image');
+                onOpenProject(MIRROR_SELFIE_PROJECT);
+              }}
+              className="box box-hover p-5 flex flex-col justify-between gap-4 cursor-pointer group"
+              style={{ '--r': '24px' }}
+            >
+              <div className="circle-overlay" />
+              <div className="flex items-center justify-between">
+                <div className="w-10 h-10 rounded-2xl bg-teal-500/15 flex items-center justify-center text-teal-600 dark:text-teal-400">
+                  <ImageIcon className="w-5 h-5" />
+                </div>
+                <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-teal-500/10 text-teal-600 dark:text-teal-400">
+                  2K Try-On
+                </span>
+              </div>
+              <div className="flex flex-col gap-1">
+                <h3 className="text-sm font-black group-hover:text-teal-600 transition">
+                  图片制作 • Thử Đồ 2K
+                </h3>
+                <p className="text-[11px] font-bold opacity-70 leading-relaxed">
+                  Ghép người mẫu &amp; trang phục giữ nguyên dáng đứng đối gương và bối cảnh phòng thực tế.
+                </p>
+              </div>
+              <div className="flex items-center gap-1 text-[11px] font-black text-teal-600">
+                <span>Dùng ngay</span>
+                <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition" />
               </div>
             </div>
 
-            {/* Khối Kính Trạng Thái Muse AI & Flow Bridge (.box chứa .box) */}
-            <div className="box p-5 flex flex-col gap-3.5" style={{ '--r': '28px' }}>
+            {/* Card 2: Tạo Video 9:16 */}
+            <div
+              onClick={() => {
+                setCategoryFilter('video');
+                onOpenProject(MIRROR_SELFIE_PROJECT);
+              }}
+              className="box box-hover p-5 flex flex-col justify-between gap-4 cursor-pointer group"
+              style={{ '--r': '24px' }}
+            >
               <div className="circle-overlay" />
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2 text-xs font-black">
-                  <span
-                    className={
-                      'w-2.5 h-2.5 rounded-full ' +
-                      (flowStatus.connected ? 'bg-emerald-500' : 'bg-amber-500')
-                    }
-                  />
-                  <span>MUSE AI & FLOW BRIDGE</span>
+                <div className="w-10 h-10 rounded-2xl bg-indigo-500/15 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
+                  <Video className="w-5 h-5" />
                 </div>
-                <button
-                  onClick={onCheckFlow}
-                  className="box box-hover w-8 h-8 flex items-center justify-center cursor-pointer"
-                  style={{ '--r': '50%' }}
-                >
-                  <div className="circle-overlay" />
-                  <RefreshCw className="w-3.5 h-3.5" />
-                </button>
-              </div>
-
-              <div className="box p-3.5 text-xs font-bold leading-relaxed" style={{ '--r': '18px' }}>
-                <div className="circle-overlay" />
-                <span>
-                  {flowStatus.connected
-                    ? `🟢 Đã kết nối (${flowStatus.openFlowTabs || 1} tab Muse AI / Flow sẵn sàng)`
-                    : '🟠 Chưa phát hiện tab Muse AI / Flow'}
+                <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-600 dark:text-indigo-400">
+                  9:16 Runway
                 </span>
               </div>
+              <div className="flex flex-col gap-1">
+                <h3 className="text-sm font-black group-hover:text-indigo-600 transition">
+                  视频制作 • Video 9:16
+                </h3>
+                <p className="text-[11px] font-bold opacity-70 leading-relaxed">
+                  Sinh video chuyển động tự nhiên 7s mượt mà từ ảnh người mẫu đã thử đồ trên Muse AI.
+                </p>
+              </div>
+              <div className="flex items-center gap-1 text-[11px] font-black text-indigo-600">
+                <span>Dùng ngay</span>
+                <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition" />
+              </div>
+            </div>
 
-              {pingMessage && (
-                <div className="text-[11px] font-bold text-emerald-700 px-2">
-                  {pingMessage}
+            {/* Card 3: Bàn Vẽ Vô Cực */}
+            <div
+              onClick={() => {
+                onCreateBlankProject({
+                  category: 'image',
+                  name: 'Bàn vẽ Vô cực (Inpaint)',
+                  workspaceMode: 'freeform'
+                });
+              }}
+              className="box box-hover p-5 flex flex-col justify-between gap-4 cursor-pointer group"
+              style={{ '--r': '24px' }}
+            >
+              <div className="circle-overlay" />
+              <div className="flex items-center justify-between">
+                <div className="w-10 h-10 rounded-2xl bg-cyan-500/15 flex items-center justify-center text-cyan-600 dark:text-cyan-400">
+                  <Layers className="w-5 h-5" />
                 </div>
-              )}
+                <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-600 dark:text-cyan-400">
+                  Inpaint &amp; Mask
+                </span>
+              </div>
+              <div className="flex flex-col gap-1">
+                <h3 className="text-sm font-black group-hover:text-cyan-600 transition">
+                  无限画布 • Bàn Vẽ Tự Do
+                </h3>
+                <p className="text-[11px] font-bold opacity-70 leading-relaxed">
+                  Bàn vẽ đa tầng không giới hạn, hỗ trợ kéo thả ảnh, tách nền AI, vẽ mask inpainting.
+                </p>
+              </div>
+              <div className="flex items-center gap-1 text-[11px] font-black text-cyan-600">
+                <span>Mở bàn vẽ</span>
+                <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition" />
+              </div>
+            </div>
+
+            {/* Card 4: Sơ Đồ Node DAG */}
+            <div
+              onClick={() => {
+                setCategoryFilter('featured');
+                onOpenProject(WINTER_FUR_PROJECT);
+              }}
+              className="box box-hover p-5 flex flex-col justify-between gap-4 cursor-pointer group"
+              style={{ '--r': '24px' }}
+            >
+              <div className="circle-overlay" />
+              <div className="flex items-center justify-between">
+                <div className="w-10 h-10 rounded-2xl bg-amber-500/15 flex items-center justify-center text-amber-600 dark:text-amber-400">
+                  <Workflow className="w-5 h-5" />
+                </div>
+                <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400">
+                  DAG Engine
+                </span>
+              </div>
+              <div className="flex flex-col gap-1">
+                <h3 className="text-sm font-black group-hover:text-amber-600 transition">
+                  节点工作流 • Sơ Đồ DAG
+                </h3>
+                <p className="text-[11px] font-bold opacity-70 leading-relaxed">
+                  Quy trình 4 cột tự động hóa: nối dây tuần tự, chờ kết quả từng bước, điều phối thông minh.
+                </p>
+              </div>
+              <div className="flex items-center gap-1 text-[11px] font-black text-amber-600">
+                <span>Khám phá</span>
+                <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition" />
+              </div>
+            </div>
+          </div>
+
+          {/* ================= C. THANH LỌC DANH MỤC QUANTV ================= */}
+          <div className="flex flex-wrap items-center justify-between gap-4 pt-2">
+            <div className="box p-1 flex items-center gap-1 text-xs font-extrabold" style={{ '--r': '999px', width: 'auto' }}>
+              <div className="circle-overlay" />
+              <button
+                onClick={() => setCategoryFilter('all')}
+                className={
+                  'box px-4 py-2 cursor-pointer transition ' +
+                  (categoryFilter === 'all' ? 'active-pill' : 'opacity-70')
+                }
+                style={{ '--r': '999px', width: 'auto' }}
+              >
+                <div className="circle-overlay" />
+                全部 • Tất Cả ({allDisplayItems.length})
+              </button>
 
               <button
-                onClick={onPingFlow}
-                className="box box-hover w-full h-10 flex items-center justify-center gap-2 text-xs font-extrabold cursor-pointer"
-                style={{ '--r': '999px' }}
+                onClick={() => setCategoryFilter('video')}
+                className={
+                  'box px-4 py-2 cursor-pointer transition ' +
+                  (categoryFilter === 'video' ? 'active-pill' : 'opacity-70')
+                }
+                style={{ '--r': '999px', width: 'auto' }}
               >
                 <div className="circle-overlay" />
-                <span>⚡ Test Ping Google Flow</span>
+                🎬 Video Runway 9:16
+              </button>
+
+              <button
+                onClick={() => setCategoryFilter('image')}
+                className={
+                  'box px-4 py-2 cursor-pointer transition ' +
+                  (categoryFilter === 'image' ? 'active-pill' : 'opacity-70')
+                }
+                style={{ '--r': '999px', width: 'auto' }}
+              >
+                <div className="circle-overlay" />
+                👗 Thử Đồ &amp; Lookbook
+              </button>
+
+              <button
+                onClick={() => setCategoryFilter('featured')}
+                className={
+                  'box px-4 py-2 cursor-pointer transition ' +
+                  (categoryFilter === 'featured' ? 'active-pill' : 'opacity-70')
+                }
+                style={{ '--r': '999px', width: 'auto' }}
+              >
+                <div className="circle-overlay" />
+                🔥 Mẫu Thịnh Hành
+              </button>
+
+              <button
+                onClick={() => setCategoryFilter('my-projects')}
+                className={
+                  'box px-4 py-2 cursor-pointer transition ' +
+                  (categoryFilter === 'my-projects' ? 'active-pill' : 'opacity-70')
+                }
+                style={{ '--r': '999px', width: 'auto' }}
+              >
+                <div className="circle-overlay" />
+                📁 Dự Án Của Tôi ({userProjects.length})
               </button>
             </div>
 
-            {/* Khối Uptime Glass (.box) */}
-            <div className="box p-5 flex flex-col items-center text-center gap-1" style={{ '--r': '28px' }}>
-              <div className="circle-overlay" />
-              <span className="text-[11px] font-extrabold uppercase tracking-widest opacity-60">
-                PROJECTS STORED ON DISK
-              </span>
-              <span className="text-2xl font-black">
-                {userProjects.length} SAVED • {PRESET_TEMPLATES.length} PRESETS
-              </span>
+            <div className="text-xs font-bold opacity-60">
+              Đang hiển thị <b>{filteredItems.length}</b> dự án &amp; quy trình
             </div>
-          </aside>
+          </div>
 
-          {/* CỘT CHÍNH BÊN PHẢI */}
-          <main className="flex flex-col gap-6">
-            {/* Hàng Controls & Đồng hồ Kính (.controls-row) */}
-            <div className="flex flex-wrap items-center justify-between gap-4">
-              <div className="flex flex-wrap items-center gap-2.5">
-                <button
-                  onClick={() => setActiveTab('video')}
-                  className={
-                    'box box-hover h-10 px-5 flex items-center gap-2 text-xs font-extrabold cursor-pointer ' +
-                    (activeTab === 'video' ? 'ring-2 ring-sky-500/50' : '')
-                  }
-                  style={{ '--r': '999px' }}
+          {/* ================= D. LƯỚI CARDS DỰ ÁN & MẪU (LIQUID GLASS GRID) ================= */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredItems.map((item) => {
+              const { videoUrl, imageUrl } = extractCardMedia(item);
+              const isHovered = hoveredCardId === item.id;
+              const isUnmuted = unmutedCardId === item.id;
+              const hasVideo = Boolean(videoUrl);
+
+              return (
+                <div
+                  key={item.id}
+                  onMouseEnter={() => setHoveredCardId(item.id)}
+                  onMouseLeave={() => setHoveredCardId(null)}
+                  className="box box-hover p-4 flex flex-col justify-between gap-4 group cursor-pointer border border-white/30 dark:border-white/10"
+                  style={{ '--r': '28px' }}
                 >
                   <div className="circle-overlay" />
-                  <Video className="w-3.5 h-3.5 text-sky-600" />
-                  <span>Workflow Tạo Video</span>
-                </button>
 
-                <button
-                  onClick={() => setActiveTab('image')}
-                  className={
-                    'box box-hover h-10 px-5 flex items-center gap-2 text-xs font-extrabold cursor-pointer ' +
-                    (activeTab === 'image' ? 'ring-2 ring-sky-500/50' : '')
-                  }
-                  style={{ '--r': '999px' }}
-                >
-                  <div className="circle-overlay" />
-                  <ImageIcon className="w-3.5 h-3.5 text-teal-600" />
-                  <span>Workflow Tạo Hình Ảnh</span>
-                </button>
+                  {/* Vùng Media Preview (Kính lồng kính) */}
+                  <div
+                    onClick={() => onOpenProject(item)}
+                    className="box relative w-full h-52 flex items-center justify-center overflow-hidden bg-slate-900/10 dark:bg-black/30"
+                    style={{ '--r': '20px' }}
+                  >
+                    <div className="circle-overlay" />
 
-                <button
-                  onClick={() => {
-                    setNewProjectMode('workflow');
-                    setShowNewModal(true);
-                  }}
-                  className="box box-hover h-10 px-5 flex items-center gap-2 text-xs font-black text-sky-700 cursor-pointer"
-                  style={{ '--r': '999px' }}
-                >
-                  <div className="circle-overlay" />
-                  <Plus className="w-4 h-4" />
-                  <span>+ Tạo Dự Án Mới</span>
-                </button>
-              </div>
+                    {hasVideo ? (
+                      <video
+                        src={videoUrl}
+                        playsInline
+                        loop
+                        muted={!isUnmuted}
+                        autoPlay={isHovered}
+                        className="w-full h-full object-cover transition duration-300 group-hover:scale-105"
+                      />
+                    ) : imageUrl ? (
+                      <img
+                        src={imageUrl}
+                        alt={item.name}
+                        className="w-full h-full object-cover transition duration-300 group-hover:scale-105"
+                      />
+                    ) : (
+                      <div className="flex flex-col items-center gap-2 opacity-50">
+                        <Workflow className="w-8 h-8 text-sky-600" />
+                        <span className="text-[11px] font-bold">Quy trình sơ đồ Node</span>
+                      </div>
+                    )}
 
-              {/* Đồng hồ Kính Quang Học (.clock-box) */}
-              <div className="box h-10 px-5 flex items-center justify-center" style={{ '--r': '999px' }}>
-                <div className="circle-overlay" />
-                <span className="font-mono text-sm font-black italic tracking-widest">
-                  {clockStr}
-                </span>
-              </div>
-            </div>
+                    {/* Badge Nhãn Trên Cùng */}
+                    <div className="absolute top-3 left-3 flex items-center gap-1.5 z-10">
+                      {item.isPreset ? (
+                        <span className="text-[10px] font-black px-2.5 py-1 rounded-full bg-amber-500/90 text-white shadow-sm flex items-center gap-1">
+                          <Flame className="w-3 h-3 fill-current" /> MẪU THỊNH HÀNH
+                        </span>
+                      ) : (
+                        <span className="text-[10px] font-black px-2.5 py-1 rounded-full bg-sky-600/90 text-white shadow-sm flex items-center gap-1">
+                          <ShieldCheck className="w-3 h-3" /> DỰ ÁN CỦA BẠN
+                        </span>
+                      )}
+                    </div>
 
-            {/* KHỐI KÍNH LỚN 1: DANH SÁCH DỰ ÁN MẪU (KÍNH LẤY KÍNH - .box trong .box) */}
-            <section className="box p-7 flex flex-col gap-6" style={{ '--r': '28px' }}>
-              <div className="circle-overlay" />
-
-              <div className="flex flex-wrap items-center justify-between gap-4">
-                <h3 className="source-title-bar text-lg font-black">
-                  {activeTab === 'video'
-                    ? 'DANH SÁCH DỰ ÁN TẠO VIDEO SẴN CÓ'
-                    : activeTab === 'image'
-                    ? 'DANH SÁCH DỰ ÁN TẠO HÌNH ẢNH SẴN CÓ'
-                    : 'TẤT CẢ MẪU WORKFLOW'}
-                </h3>
-
-                {/* Ô tìm kiếm Kính (.search-mini-box) */}
-                <div className="box w-64 h-10 px-4 flex items-center gap-2" style={{ '--r': '999px' }}>
-                  <div className="circle-overlay" />
-                  <Search className="w-3.5 h-3.5 opacity-60 shrink-0" />
-                  <input
-                    type="text"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Tìm kiếm dự án..."
-                    className="bg-transparent border-none outline-none text-xs font-bold w-full"
-                  />
-                </div>
-              </div>
-
-              {/* Lưới 3 cột các thẻ Kính (.box lồng bên trong .box!) */}
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
-                {filteredPresets.map((tpl) => {
-                  const savedProj = userProjects.find((p) => p.id === tpl.id) || tpl;
-                  const cardKey = `preset-${tpl.id}`;
-                  const isHovered = hoveredCardId === cardKey;
-                  const isUnmuted = unmutedCardId === cardKey;
-                  const { videoUrl, imageUrl } = extractCardMedia(savedProj);
-
-                  return (
-                    <div
-                      key={tpl.id}
-                      onMouseEnter={() => setHoveredCardId(cardKey)}
-                      onMouseLeave={() => setHoveredCardId(null)}
-                      onClick={() =>
-                        onOpenProject({
-                          ...savedProj,
-                          id: savedProj.id === 'proj-winter-velvet-luxe-fur' ? savedProj.id : 'proj-' + Date.now(),
-                          nodes: JSON.parse(JSON.stringify(savedProj.nodes || [])),
-                          edges: JSON.parse(JSON.stringify(savedProj.edges || [])),
-                          stickers: JSON.parse(JSON.stringify(savedProj.stickers || [])),
-                          updatedAt: new Date().toISOString()
-                        })
-                      }
-                      className="box box-hover p-4 flex flex-col justify-between gap-3.5 cursor-pointer"
-                      style={{ '--r': '22px' }}
-                    >
-                      <div className="circle-overlay" />
-
-                      {/* Thumbnail Kính bên trong thẻ Kính (Hover là tự động phát Video!) */}
-                      <div
-                        className="box w-full h-44 p-1.5 flex flex-col items-center justify-center relative overflow-hidden"
-                        style={{ '--r': '16px' }}
+                    {/* Nút Bật/Tắt Tiếng Video Khi Hover */}
+                    {hasVideo && (
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setUnmutedCardId(isUnmuted ? null : item.id);
+                        }}
+                        className="box absolute top-3 right-3 w-8 h-8 flex items-center justify-center text-white z-10 cursor-pointer shadow-md bg-black/50"
+                        style={{ '--r': '50%', width: '32px', height: '32px' }}
+                        title={isUnmuted ? 'Tắt tiếng' : 'Bật tiếng'}
                       >
                         <div className="circle-overlay" />
+                        {isUnmuted ? <Volume2 className="w-4 h-4 text-emerald-400" /> : <VolumeX className="w-4 h-4" />}
+                      </button>
+                    )}
 
-                        {isHovered && videoUrl ? (
-                          <>
-                            <video
-                              src={videoUrl}
-                              autoPlay
-                              loop
-                              muted={!isUnmuted}
-                              playsInline
-                              className="w-full h-full object-cover rounded-xl"
-                            />
-                            <button
-                              type="button"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setUnmutedCardId(isUnmuted ? null : cardKey);
-                              }}
-                              className="box absolute bottom-2.5 left-2.5 w-7 h-7 flex items-center justify-center text-white bg-slate-900/70 z-20 cursor-pointer"
-                              style={{ '--r': '50%', width: '28px', height: '28px' }}
-                              title={isUnmuted ? 'Tắt tiếng' : 'Bật tiếng nhạc nền'}
-                            >
-                              <div className="circle-overlay" />
-                              {isUnmuted ? (
-                                <Volume2 className="w-3.5 h-3.5 text-emerald-400" />
-                              ) : (
-                                <VolumeX className="w-3.5 h-3.5 text-white" />
-                              )}
-                            </button>
-                          </>
-                        ) : imageUrl ? (
-                          <img
-                            src={imageUrl}
-                            alt={tpl.name}
-                            className="w-full h-full object-cover rounded-xl opacity-95"
-                          />
-                        ) : (
-                          <div className="flex items-center gap-2">
-                            <div className="box px-2.5 py-1 text-[10px] font-black" style={{ '--r': '10px' }}>
-                              <div className="circle-overlay" />
-                              <span>Cột 1</span>
-                            </div>
-                            <ArrowRight className="w-3.5 h-3.5 text-sky-600" />
-                            <div className="box px-2.5 py-1 text-[10px] font-black" style={{ '--r': '10px' }}>
-                              <div className="circle-overlay" />
-                              <span>Cột 2: 3D</span>
-                            </div>
-                            {tpl.category === 'video' && (
-                              <>
-                                <ArrowRight className="w-3.5 h-3.5 text-teal-600" />
-                                <div className="box px-2.5 py-1 text-[10px] font-black text-sky-700" style={{ '--r': '10px' }}>
-                                  <div className="circle-overlay" />
-                                  <span>Veo 2</span>
-                                </div>
-                              </>
-                            )}
-                          </div>
-                        )}
-
-                        <span className="absolute top-2.5 left-2.5 px-2.5 py-0.5 rounded-md bg-slate-900/75 text-white text-[10px] font-bold z-10">
-                          {isHovered && videoUrl ? '▶ Đang phát Video Preview' : tpl.badge}
-                        </span>
-
-                        {videoUrl && !isHovered && (
-                          <span className="absolute bottom-2.5 left-2.5 px-2 py-0.5 rounded-md bg-emerald-600/90 text-white text-[9px] font-extrabold z-10 flex items-center gap-1">
-                            <Play className="w-2.5 h-2.5 fill-current" /> Rê chuột xem Video
-                          </span>
-                        )}
-
-                        <span className="absolute bottom-2.5 right-2.5 px-2 py-0.5 rounded bg-sky-600 text-white text-[9px] font-black z-10">
-                          {tpl.techTag || 'FLOW'}
-                        </span>
-                      </div>
-
-                      <div className="flex flex-col gap-1 px-1">
-                        <h4 className="font-extrabold text-sm leading-snug">
-                          {tpl.name}
-                        </h4>
-                        <p className="text-xs opacity-75 line-clamp-2 leading-relaxed font-medium">
-                          {tpl.description}
-                        </p>
-                      </div>
-
-                      <div className="pt-2 px-1 flex items-center justify-between text-xs font-extrabold opacity-80">
-                        <span>
-                          {tpl.workspaceMode === 'freeform'
-                            ? 'Bàn vẽ Inpaint'
-                            : `${tpl.nodes.length} Nodes${tpl.stickers?.length ? ` • ${tpl.stickers.length} Ghi chú` : ''}`}
-                        </span>
-                        <span className="text-sky-700 flex items-center gap-1">
-                          <Play className="w-3.5 h-3.5 fill-current" /> Mở Dự Án
-                        </span>
+                    {/* Nút Play Overlay */}
+                    <div className="absolute inset-0 bg-black/25 opacity-0 group-hover:opacity-100 transition flex items-center justify-center z-10">
+                      <div className="w-12 h-12 rounded-full bg-white/90 text-sky-600 flex items-center justify-center shadow-lg group-hover:scale-110 transition">
+                        <Play className="w-5 h-5 fill-current ml-0.5" />
                       </div>
                     </div>
-                  );
-                })}
-              </div>
-            </section>
-
-            {/* KHỐI KÍNH LỚN 2: DỰ ÁN TỰ TẠO CỦA BẠN (KÍNH LẤY KÍNH) */}
-            <section className="box p-7 flex flex-col gap-6" style={{ '--r': '28px' }}>
-              <div className="circle-overlay" />
-
-              <div className="flex items-center justify-between">
-                <h3 className="source-title-bar text-lg font-black">
-                  DỰ ÁN TÙY CHỈNH CỦA BẠN ({filteredUserProjects.length})
-                </h3>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
-                {/* Thẻ Kính Tạo Dự Án Mới */}
-                <div
-                  onClick={() => {
-                    setNewProjectMode('workflow');
-                    setShowNewModal(true);
-                  }}
-                  className="box box-hover p-6 flex flex-col items-center justify-center text-center gap-3 min-h-[240px] cursor-pointer"
-                  style={{ '--r': '22px' }}
-                >
-                  <div className="circle-overlay" />
-                  <div className="box w-14 h-14 flex items-center justify-center" style={{ '--r': '50%' }}>
-                    <div className="circle-overlay" />
-                    <Plus className="w-6 h-6 text-sky-600" />
                   </div>
-                  <span className="font-black text-sm">
-                    + Tự Tạo Dự Án {activeTab === 'image' ? 'Hình Ảnh' : 'Video'} Mới
-                  </span>
-                  <span className="text-xs opacity-70 font-medium">
-                    Tự thêm các Node Cột 1, 2, 3, 4 và kéo dây theo ý muốn
-                  </span>
-                </div>
 
-                {filteredUserProjects.map((proj) => {
-                  const cardKey = `user-${proj.id}`;
-                  const isHovered = hoveredCardId === cardKey;
-                  const isUnmuted = unmutedCardId === cardKey;
-                  const { videoUrl, imageUrl } = extractCardMedia(proj);
-
-                  return (
-                    <div
-                      key={proj.id}
-                      onMouseEnter={() => setHoveredCardId(cardKey)}
-                      onMouseLeave={() => setHoveredCardId(null)}
-                      onClick={() => onOpenProject(proj)}
-                      className="box box-hover p-4 flex flex-col justify-between gap-3 cursor-pointer"
-                      style={{ '--r': '22px' }}
+                  {/* Thông Tin & Tiêu Đề Card */}
+                  <div className="flex flex-col gap-1.5 px-1">
+                    <h3
+                      onClick={() => onOpenProject(item)}
+                      className="font-black text-sm tracking-tight line-clamp-1 group-hover:text-sky-600 transition"
+                      title={item.name}
                     >
-                      <div className="circle-overlay" />
+                      {item.name}
+                    </h3>
+                    <p className="text-[11px] font-semibold opacity-70 line-clamp-2 leading-relaxed">
+                      {item.description || 'Quy trình tự động hóa thử đồ người mẫu và tạo video runway 9:16.'}
+                    </p>
+                  </div>
 
-                      {/* Khung Kính Preview Video khi Hover cho Dự Án Của Bạn */}
-                      <div
-                        className="box w-full h-40 p-1.5 flex items-center justify-center relative overflow-hidden"
-                        style={{ '--r': '16px' }}
-                      >
-                        <div className="circle-overlay" />
-                        {isHovered && videoUrl ? (
-                          <>
-                            <video
-                              src={videoUrl}
-                              autoPlay
-                              loop
-                              muted={!isUnmuted}
-                              playsInline
-                              className="w-full h-full object-cover rounded-xl"
-                            />
-                            <button
-                              type="button"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setUnmutedCardId(isUnmuted ? null : cardKey);
-                              }}
-                              className="box absolute bottom-2 left-2 w-7 h-7 flex items-center justify-center text-white bg-slate-900/70 z-20 cursor-pointer"
-                              style={{ '--r': '50%', width: '28px', height: '28px' }}
-                              title={isUnmuted ? 'Tắt tiếng' : 'Bật tiếng'}
-                            >
-                              <div className="circle-overlay" />
-                              {isUnmuted ? (
-                                <Volume2 className="w-3.5 h-3.5 text-emerald-400" />
-                              ) : (
-                                <VolumeX className="w-3.5 h-3.5 text-white" />
-                              )}
-                            </button>
-                          </>
-                        ) : imageUrl ? (
-                          <img
-                            src={imageUrl}
-                            alt={proj.name}
-                            className="w-full h-full object-cover rounded-xl opacity-95"
-                          />
-                        ) : (
-                          <div className="flex items-center gap-2 text-xs font-extrabold opacity-70">
-                            <Workflow className="w-4 h-4 text-sky-600" />
-                            <span>{proj.nodes?.length || 0} Nodes Workflow</span>
-                          </div>
-                        )}
+                  {/* Footer Card: Số Node, Dây Nối & Nút Hành Động */}
+                  <div className="flex items-center justify-between pt-2 border-t border-white/20 dark:border-white/5">
+                    <div className="flex items-center gap-2 text-[10px] font-black opacity-75">
+                      <span className="px-2 py-0.5 rounded-md bg-sky-500/10 text-sky-600 dark:text-sky-400">
+                        {item.nodes?.length || 0} Nodes
+                      </span>
+                      <span className="px-2 py-0.5 rounded-md bg-teal-500/10 text-teal-600 dark:text-teal-400">
+                        {item.edges?.length || 0} Dây nối
+                      </span>
+                    </div>
 
-                        <span className="absolute top-2 left-2 px-2.5 py-0.5 rounded-md bg-slate-900/75 text-white text-[10px] font-bold z-10">
-                          {isHovered && videoUrl
-                            ? '▶ Đang phát Video'
-                            : proj.workspaceMode === 'freeform'
-                            ? 'Bàn vẽ Inpaint'
-                            : `${proj.nodes?.length || 0} Nodes`}
-                        </span>
-
+                    <div className="flex items-center gap-1.5">
+                      {!item.isPreset && (
                         <button
+                          type="button"
                           onClick={(e) => {
                             e.stopPropagation();
-                            onDeleteProject(proj.id);
+                            if (window.confirm(`Bạn có chắc chắn muốn xóa dự án "${item.name}"?`)) {
+                              onDeleteProject(item.id);
+                            }
                           }}
-                          className="box absolute top-2 right-2 w-7 h-7 flex items-center justify-center hover:text-red-500 cursor-pointer z-20"
+                          className="box box-hover w-7 h-7 flex items-center justify-center text-rose-500 cursor-pointer"
                           style={{ '--r': '50%', width: '28px', height: '28px' }}
-                          title="Xóa dự án"
+                          title="Xóa dự án này"
                         >
                           <div className="circle-overlay" />
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>
-                      </div>
+                      )}
 
-                      <div className="flex flex-col gap-1 px-1">
-                        <h4 className="font-black text-sm leading-snug">{proj.name}</h4>
-                        <p className="text-xs opacity-70 line-clamp-2 font-medium">
-                          {proj.description || 'Dự án Workflow tùy chỉnh của bạn.'}
-                        </p>
-                      </div>
-
-                      <div className="pt-1 px-1 flex items-center justify-between text-xs font-extrabold opacity-80">
-                        <span>{new Date(proj.updatedAt || Date.now()).toLocaleTimeString('vi-VN')}</span>
-                        <span className="text-sky-700 flex items-center gap-1">
-                          Mở Bàn Vẽ <ArrowRight className="w-3.5 h-3.5" />
-                        </span>
-                      </div>
+                      <button
+                        type="button"
+                        onClick={() => onOpenProject(item)}
+                        className="box box-hover px-3 py-1.5 text-xs font-black text-sky-700 dark:text-sky-300 flex items-center gap-1 cursor-pointer"
+                        style={{ '--r': '999px', width: 'auto' }}
+                      >
+                        <div className="circle-overlay" />
+                        <span>Mở Dự Án</span>
+                        <ArrowRight className="w-3 h-3" />
+                      </button>
                     </div>
-                  );
-                })}
-              </div>
-            </section>
-          </main>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </div>
-      </div>
+      </main>
 
-      {/* Modal Kính Quang Học Khởi tạo Dự án mới */}
+      {/* ================= 3. MODAL TẠO DỰ ÁN MỚI (LIQUID GLASS MODAL) ================= */}
       {showNewModal && (
-        <div className="fixed inset-0 bg-black/25 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="box w-full max-w-md p-6 flex flex-col gap-4" style={{ '--r': '28px' }}>
+        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-md flex items-center justify-center z-50 p-4">
+          <div className="box w-full max-w-md p-6 flex flex-col gap-4 shadow-2xl" style={{ '--r': '28px' }}>
             <div className="circle-overlay" />
-            <h3 className="font-black text-base">
-              Khởi Tạo Dự Án {activeTab === 'image' ? 'Hình Ảnh' : 'Video'} Mới
-            </h3>
 
-            <form onSubmit={handleConfirmNewProject} className="flex flex-col gap-4 text-xs">
+            <div className="flex items-center justify-between border-b border-white/20 pb-3">
+              <h3 className="font-black text-base flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-sky-600" />
+                Tạo Dự Án Mới (QuanTV AI Studio)
+              </h3>
+              <button
+                type="button"
+                onClick={() => setShowNewModal(false)}
+                className="box box-hover w-8 h-8 flex items-center justify-center cursor-pointer"
+                style={{ '--r': '50%', width: '32px', height: '32px' }}
+              >
+                <div className="circle-overlay" />
+                ✕
+              </button>
+            </div>
+
+            <form onSubmit={handleConfirmNewProject} className="flex flex-col gap-4">
               <div className="flex flex-col gap-1.5">
-                <label className="font-extrabold opacity-80">Tên dự án của bạn:</label>
-                <div className="box px-4 py-2.5" style={{ '--r': '16px' }}>
+                <label className="text-xs font-black opacity-80">Tên dự án:</label>
+                <div className="box px-3.5 py-2 w-full" style={{ '--r': '14px' }}>
                   <div className="circle-overlay" />
                   <input
                     type="text"
-                    autoFocus
                     value={newProjectTitle}
                     onChange={(e) => setNewProjectTitle(e.target.value)}
-                    placeholder="VD: Lookbook Thời Trang Thu Đông..."
-                    className="bg-transparent border-none outline-none text-sm font-bold w-full"
+                    placeholder="VD: Lookbook & Video Runway Mùa Đông 7s..."
+                    className="w-full bg-transparent text-xs font-semibold focus:outline-none"
+                    autoFocus
                   />
                 </div>
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <label className="font-extrabold opacity-80">Chọn chế độ bàn vẽ:</label>
-                <div className="grid grid-cols-2 gap-3">
-                  <div
+                <label className="text-xs font-black opacity-80">Loại không gian làm việc:</label>
+                <div className="grid grid-cols-2 gap-2 w-full">
+                  <button
+                    type="button"
                     onClick={() => setNewProjectMode('workflow')}
                     className={
-                      'box box-hover p-3.5 cursor-pointer flex flex-col gap-1 ' +
-                      (newProjectMode === 'workflow' ? 'ring-2 ring-sky-500' : 'opacity-70')
+                      'box box-hover p-3 flex flex-col gap-1 text-left cursor-pointer transition ' +
+                      (newProjectMode === 'workflow' ? 'active-pill ring-2 ring-sky-500' : 'opacity-70')
                     }
-                    style={{ '--r': '18px' }}
+                    style={{ '--r': '16px' }}
                   >
                     <div className="circle-overlay" />
-                    <div className="font-black flex items-center gap-1.5 text-sky-700">
-                      <Workflow className="w-4 h-4" /> Sơ đồ Node
-                    </div>
-                    <p className="text-[11px] opacity-75 font-medium">
-                      Thêm Node Cột 1, 2, 3, 4 và kéo dây tự do.
-                    </p>
-                  </div>
+                    <span className="text-xs font-black flex items-center gap-1.5 text-sky-600 dark:text-sky-300">
+                      <Workflow className="w-3.5 h-3.5" /> Sơ Đồ Node DAG
+                    </span>
+                    <span className="text-[10px] font-semibold opacity-75">
+                      Nối dây tuần tự 4 cột, tự động hoá chạy Muse AI.
+                    </span>
+                  </button>
 
-                  <div
+                  <button
+                    type="button"
                     onClick={() => setNewProjectMode('freeform')}
                     className={
-                      'box box-hover p-3.5 cursor-pointer flex flex-col gap-1 ' +
-                      (newProjectMode === 'freeform' ? 'ring-2 ring-sky-500' : 'opacity-70')
+                      'box box-hover p-3 flex flex-col gap-1 text-left cursor-pointer transition ' +
+                      (newProjectMode === 'freeform' ? 'active-pill ring-2 ring-sky-500' : 'opacity-70')
                     }
-                    style={{ '--r': '18px' }}
+                    style={{ '--r': '16px' }}
                   >
                     <div className="circle-overlay" />
-                    <div className="font-black flex items-center gap-1.5 text-teal-700">
-                      <Layers className="w-4 h-4" /> Bàn vẽ Inpaint
-                    </div>
-                    <p className="text-[11px] opacity-75 font-medium">
-                      Vẽ cọ Mask Inpaint và tách nền trực tiếp.
-                    </p>
-                  </div>
+                    <span className="text-xs font-black flex items-center gap-1.5 text-teal-600 dark:text-teal-300">
+                      <Layers className="w-3.5 h-3.5" /> Bàn Vẽ Vô Cực
+                    </span>
+                    <span className="text-[10px] font-semibold opacity-75">
+                      Kéo thả ảnh, tách nền, inpainting tự do.
+                    </span>
+                  </button>
                 </div>
               </div>
 
-              <div className="flex justify-end gap-2.5 pt-2">
+              <div className="flex items-center justify-end gap-2 pt-2">
                 <button
                   type="button"
                   onClick={() => setShowNewModal(false)}
-                  className="box box-hover px-5 py-2 text-xs font-extrabold cursor-pointer"
-                  style={{ '--r': '999px' }}
+                  className="box box-hover px-4 py-2 text-xs font-extrabold cursor-pointer"
+                  style={{ '--r': '999px', width: 'auto' }}
                 >
                   <div className="circle-overlay" />
-                  <span>Hủy</span>
+                  Hủy
                 </button>
                 <button
                   type="submit"
-                  className="box box-hover px-6 py-2 text-xs font-black text-sky-700 cursor-pointer"
-                  style={{ '--r': '999px' }}
+                  className="box box-hover active-pill px-5 py-2 text-xs font-black text-white bg-gradient-to-r from-sky-500 to-indigo-600 cursor-pointer shadow-md"
+                  style={{ '--r': '999px', width: 'auto' }}
                 >
                   <div className="circle-overlay" />
-                  <span>Tạo &amp; Mở Bàn Vẽ</span>
+                  Tạo Dự Án Ngay
                 </button>
               </div>
             </form>

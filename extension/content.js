@@ -284,25 +284,33 @@ function isTrueSubmitButton(el) {
 }
 
 function findMuseSubmitTarget(promptEl) {
+  if (!promptEl) return null;
+  const pr = promptEl.getBoundingClientRect();
+  const promptBox = promptEl.closest('form, [class*="composer"], [class*="input"], [class*="chat-input"]') || promptEl.parentElement?.parentElement || promptEl.parentElement;
+  const boxRect = promptBox ? promptBox.getBoundingClientRect() : pr;
+
   const allElements = queryAllDeep(document);
 
-  // 1. Quét toàn bộ nút / clickable ở nửa dưới màn hình (khu vực dock prompt)
-  const candidateButtons = allElements.filter((el) => {
-    const tag = (el.tagName || '').toLowerCase();
-    const role = (el.getAttribute?.('role') || '').toLowerCase();
-    const isClickable =
-      tag === 'button' ||
-      role === 'button' ||
-      el.getAttribute?.('type') === 'submit' ||
-      window.getComputedStyle(el).cursor === 'pointer';
-    if (!isClickable) return false;
-
+  // TUYỆT ĐỐI KHÔNG chọn phần tử nằm trong Sidebar phải (Muse task list) hoặc Sidebar trái
+  const validElements = allElements.filter((el) => {
     const r = el.getBoundingClientRect();
     if (r.width < 14 || r.width > 90 || r.height < 14 || r.height > 90) return false;
-    // Nằm ở nửa dưới màn hình (gần thanh nhập dock)
-    if (r.bottom < window.innerHeight * 0.35) return false;
 
-    // Loại trừ nút microphone, settings, và nút close/remove chip
+    // Loại trừ Sidebar phải (panel bên phải Muse AI bắt đầu từ khoảng 75-78% màn hình)
+    if (r.left > window.innerWidth * 0.76) return false;
+    // Loại trừ Sidebar trái (dưới 65px)
+    if (r.left < 65) return false;
+
+    // Phải nằm trong khu vực dock của promptEl (nửa dưới màn hình, gần ô nhập)
+    const inPromptZone =
+      r.top >= pr.top - 40 &&
+      r.bottom <= Math.max(pr.bottom + 90, boxRect.bottom + 50) &&
+      r.left >= pr.left + pr.width * 0.25 &&
+      r.right <= Math.max(pr.right + 90, boxRect.right + 40);
+
+    if (!inPromptZone) return false;
+
+    // Loại trừ nút microphone, emoji, settings, và nút close/remove chip
     const label = (
       (el.getAttribute?.('aria-label') || '') +
       ' ' +
@@ -314,58 +322,59 @@ function findMuseSubmitTarget(promptEl) {
     ).toLowerCase();
 
     if (/mic|voice|record|ghi âm|micro/i.test(label)) return false;
+    if (/smile|emoji|icon|biểu tượng/i.test(label)) return false;
+    if (/attach|đính kèm|upload|file|thêm/i.test(label)) return false;
     if (/setting|tune|tùy chọn|cài đặt|slider|parameter/i.test(label)) return false;
     if (/remove|xóa|delete|close|dismiss/i.test(label) || label.trim() === '✕' || label.trim() === '×') return false;
 
-    return true;
+    const tag = (el.tagName || '').toLowerCase();
+    const role = (el.getAttribute?.('role') || '').toLowerCase();
+    const isClickable =
+      tag === 'button' ||
+      role === 'button' ||
+      el.getAttribute?.('type') === 'submit' ||
+      window.getComputedStyle(el).cursor === 'pointer' ||
+      !!el.querySelector?.('svg') ||
+      tag === 'svg';
+
+    return isClickable;
   });
 
-  // 1.1. Ưu tiên cao nhất: Nút hình tròn có nền màu xanh dương đặc trưng trên Muse AI (màu blue chiếm ưu thế)
-  const blueButtons = candidateButtons.filter((el) => {
-    const style = window.getComputedStyle(el);
-    const bg = style.backgroundColor || '';
-    const m = bg.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/);
-    if (m) {
-      const red = Number(m[1]);
-      const green = Number(m[2]);
-      const blue = Number(m[3]);
-      const alpha = m[4] !== undefined ? Number(m[4]) : 1;
-      if (alpha > 0.35 && blue > 140 && blue > red * 1.25) {
-        return true;
-      }
-    }
-    const cls = (el.className || '').toString().toLowerCase();
-    return cls.includes('blue') || cls.includes('primary');
-  });
-
-  if (blueButtons.length > 0) {
-    // Sắp xếp: Chọn nút nằm thấp nhất và xa nhất về bên phải
-    blueButtons.sort((a, b) => {
+  if (validElements.length > 0) {
+    // Sắp xếp: Ưu tiên nút submit thật, nút có mũi tên lên / send, nút xanh dương tròn
+    validElements.sort((a, b) => {
       const ra = a.getBoundingClientRect();
       const rb = b.getBoundingClientRect();
-      return (rb.bottom + rb.right) - (ra.bottom + ra.right);
+
+      const isSubA = a.type === 'submit' || /send|gửi|submit|↑/i.test((a.getAttribute?.('aria-label') || '') + ' ' + (a.innerText || ''));
+      const isSubB = b.type === 'submit' || /send|gửi|submit|↑/i.test((b.getAttribute?.('aria-label') || '') + ' ' + (b.innerText || ''));
+      if (isSubA !== isSubB) return isSubB ? 1 : -1;
+
+      // Gần nhất với góc dưới phải của promptEl
+      const distA = Math.hypot(ra.right - pr.right, ra.bottom - pr.bottom);
+      const distB = Math.hypot(rb.right - pr.right, rb.bottom - pr.bottom);
+      return distA - distB;
     });
-    const target = blueButtons[0];
+
+    const target = validElements[0];
     const tr = target.getBoundingClientRect();
     const btnEl = target.closest?.('button, [role="button"]') || target;
     return { el: btnEl, x: tr.left + tr.width / 2, y: tr.top + tr.height / 2 };
   }
 
-  // 1.2. Tìm nút có chứa icon SVG mũi tên (upward arrow ↑ / send)
-  const arrowButtons = candidateButtons.filter((el) => {
-    const hasSvg = !!el.querySelector?.('svg');
-    const label = ((el.getAttribute?.('aria-label') || '') + ' ' + (el.innerText || '')).toLowerCase();
-    if (el.type === 'submit' || /send|gửi|submit|tạo/i.test(label) || label.includes('↑')) {
-      return true;
-    }
-    return hasSvg;
+  // Fallback: Nếu không tìm thấy bằng tọa độ tương đối, tìm nút có svg mũi tên lên gần promptEl nhất
+  const arrowButtons = allElements.filter((el) => {
+    const r = el.getBoundingClientRect();
+    if (r.left > window.innerWidth * 0.76 || r.left < 65) return false;
+    if (r.top < pr.top - 50 || r.bottom > pr.bottom + 120) return false;
+    return !!el.querySelector?.('svg') || (el.tagName || '').toLowerCase() === 'button';
   });
 
   if (arrowButtons.length > 0) {
     arrowButtons.sort((a, b) => {
       const ra = a.getBoundingClientRect();
       const rb = b.getBoundingClientRect();
-      return (rb.bottom + rb.right) - (ra.bottom + ra.right);
+      return Math.hypot(ra.right - pr.right, ra.bottom - pr.bottom) - Math.hypot(rb.right - pr.right, rb.bottom - pr.bottom);
     });
     const target = arrowButtons[0];
     const tr = target.getBoundingClientRect();
@@ -1286,24 +1295,65 @@ function dismissAnyOpenModal() {
     }
   } catch (e) {}
 
-  // Tìm nút đóng của modal (nút tròn màu xanh có ✕ ở góc trên modal)
-  const closeButtons = queryAllDeep(document).filter((el) => {
+  const allElements = queryAllDeep(document);
+
+  // 1. Quét tìm cụ thể các modal task / log chi tiết trên Muse AI ("Tạo video AI", "Tóm tắt", "Hoàn tất")
+  const taskModals = allElements.filter((el) => {
+    const r = el.getBoundingClientRect();
+    if (r.width < 250 || r.height < 180) return false;
+    const txt = ((el.innerText || el.textContent || '')).slice(0, 800).toLowerCase();
+    const isModalType =
+      el.getAttribute?.('role') === 'dialog' ||
+      el.getAttribute?.('aria-modal') === 'true' ||
+      (el.className && String(el.className).toLowerCase().includes('modal')) ||
+      (r.left > window.innerWidth * 0.15 && r.right < window.innerWidth * 0.95 && r.top > 20);
+
+    return isModalType && (txt.includes('tạo video ai') || txt.includes('tóm tắt') || txt.includes('hoàn tất') || txt.includes('no video was actually created'));
+  });
+
+  for (const modal of taskModals) {
+    const mr = modal.getBoundingClientRect();
+    // Tìm nút tròn ✕ ở góc trên bên phải của modal
+    const closeCandidates = queryAllDeep(modal).filter((el) => {
+      const r = el.getBoundingClientRect();
+      if (r.width < 12 || r.width > 70 || r.height < 12 || r.height > 70) return false;
+      const isTopRight = r.top >= mr.top - 15 && r.top <= mr.top + 100 && r.right >= mr.right - 100 && r.right <= mr.right + 25;
+      const label = ((el.getAttribute?.('aria-label') || '') + ' ' + (el.title || '') + ' ' + (el.innerText || '')).toLowerCase();
+      const hasCloseTxt = /close|đóng|dismiss|x/i.test(label) || label.includes('✕') || label.includes('×');
+      const hasSvg = !!el.querySelector?.('svg') || (el.tagName || '').toLowerCase() === 'svg';
+      return isTopRight && (hasCloseTxt || hasSvg);
+    });
+
+    for (const btn of closeCandidates) {
+      try {
+        btn.click();
+        const r = btn.getBoundingClientRect();
+        triggerDOMClickAt({ el: btn, x: r.left + r.width / 2, y: r.top + r.height / 2 });
+      } catch (e) {}
+    }
+
+    // Ẩn cưỡng bức modal để không bao giờ hiện đè lên giao diện
+    try {
+      modal.style.setProperty('display', 'none', 'important');
+      modal.style.setProperty('opacity', '0', 'important');
+      modal.style.setProperty('pointer-events', 'none', 'important');
+    } catch (e) {}
+  }
+
+  // 2. Quét chung mọi nút close/dismiss khác trên màn hình
+  const genericCloseButtons = allElements.filter((el) => {
     const r = el.getBoundingClientRect();
     if (r.width < 12 || r.width > 65 || r.height < 12 || r.height > 65) return false;
     if (r.top > window.innerHeight * 0.45) return false; // Nằm ở nửa trên màn hình
-    const tag = (el.tagName || '').toLowerCase();
-    const isClickable = tag === 'button' || el.getAttribute?.('role') === 'button' || !!el.onclick;
-    if (!isClickable) return false;
-
     const label = ((el.getAttribute?.('aria-label') || '') + ' ' + (el.title || '') + ' ' + (el.innerText || '')).toLowerCase();
     if (/close|đóng|dismiss/i.test(label) || label.trim() === '✕' || label.trim() === '×' || label.trim() === 'x') {
       return true;
     }
     const hasSvg = !!el.querySelector?.('svg');
-    return hasSvg && r.left > window.innerWidth * 0.4;
+    return hasSvg && r.left > window.innerWidth * 0.4 && r.left < window.innerWidth * 0.78;
   });
 
-  for (const btn of closeButtons) {
+  for (const btn of genericCloseButtons) {
     try {
       btn.click();
     } catch (e) {}
