@@ -488,6 +488,20 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   }
 
   if (message.type === 'QUEUE_FLOW_JOB') {
+    // Chống trùng lặp tác vụ: nếu đã có job cùng prompt & mode trong hàng đợi thì gắn chung sendResponse
+    const existingJob = taskQueue.find(
+      (j) => j.payload?.prompt === message.payload?.prompt && j.payload?.mode === message.payload?.mode
+    );
+    if (existingJob) {
+      console.warn('⚠️ [Background] Bỏ qua job trùng lặp trong hàng đợi:', message.payload?.prompt?.slice(0, 40));
+      const oldSend = existingJob.sendResponse;
+      existingJob.sendResponse = (res) => {
+        try { oldSend(res); } catch (e) {}
+        try { sendResponse(res); } catch (e) {}
+      };
+      return true;
+    }
+
     taskQueue.push({
       payload: message.payload,
       sendResponse

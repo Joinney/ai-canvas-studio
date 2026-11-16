@@ -1116,53 +1116,48 @@ async function fillPromptAndSubmit(rawPromptText, mode = 'IMAGE') {
     );
   }
 
-  for (let attempt = 1; attempt <= 3; attempt++) {
-    promptEl = findFlowPromptElement() || promptEl;
-    const remainingBefore = (promptEl.innerText || promptEl.value || promptEl.textContent || '').trim();
-    if (attempt > 1 && remainingBefore.length < 5) {
-      break;
-    }
+  const currentTarget = findFlowSubmitTarget(promptEl) || targetInfo;
+  if (currentTarget && currentTarget.el && !currentTarget.el.disabled) {
+    updateBridgeBadgeText(`v5.1: Bấm nút Gửi (${isMuse ? '↑ Muse AI' : '➔ Flow'})...`, '#e11d48');
+    triggerDOMClickAt(currentTarget);
 
-    const currentTarget = findFlowSubmitTarget(promptEl) || targetInfo;
-    if (currentTarget && currentTarget.el && !currentTarget.el.disabled) {
-      updateBridgeBadgeText(`v5.1: Bấm nút Gửi (${isMuse ? '↑ Muse AI' : '➔ Flow'}) [Lần ${attempt}]...`, '#e11d48');
-      triggerDOMClickAt(currentTarget);
-
-      await new Promise((resolve) => {
-        try {
-          chrome.runtime.sendMessage(
-            {
-              type: 'NATIVE_CLICK_AND_ENTER',
-              x: currentTarget.x,
-              y: currentTarget.y,
-              clickOnly: false
-            },
-            (res) => resolve(res)
-          );
-        } catch (e) {
-          resolve(null);
-        }
-      });
-
-      // Dispatch thêm sự kiện phím Enter trực tiếp vào promptEl
+    await new Promise((resolve) => {
       try {
-        promptEl.focus();
-        promptEl.dispatchEvent(new KeyboardEvent('keydown', { bubbles: true, cancelable: true, key: 'Enter', code: 'Enter', keyCode: 13, which: 13 }));
-        promptEl.dispatchEvent(new KeyboardEvent('keypress', { bubbles: true, cancelable: true, key: 'Enter', code: 'Enter', keyCode: 13, which: 13 }));
-        promptEl.dispatchEvent(new KeyboardEvent('keyup', { bubbles: true, cancelable: true, key: 'Enter', code: 'Enter', keyCode: 13, which: 13 }));
-      } catch (e) {}
-    }
+        chrome.runtime.sendMessage(
+          {
+            type: 'NATIVE_CLICK_AND_ENTER',
+            x: currentTarget.x,
+            y: currentTarget.y,
+            clickOnly: true
+          },
+          (res) => resolve(res)
+        );
+      } catch (e) {
+        resolve(null);
+      }
+    });
 
-    await new Promise((r) => setTimeout(r, 800));
-
-    const freshPromptEl = findFlowPromptElement() || promptEl;
-    const remainingAfter = (freshPromptEl.innerText || freshPromptEl.value || freshPromptEl.textContent || '').trim();
-    if (remainingAfter.length < 5) {
-      break;
-    }
+    // Dispatch thêm sự kiện phím Enter trực tiếp vào promptEl (nếu textarea yêu cầu)
+    try {
+      promptEl.focus();
+      promptEl.dispatchEvent(new KeyboardEvent('keydown', { bubbles: true, cancelable: true, key: 'Enter', code: 'Enter', keyCode: 13, which: 13 }));
+      promptEl.dispatchEvent(new KeyboardEvent('keyup', { bubbles: true, cancelable: true, key: 'Enter', code: 'Enter', keyCode: 13, which: 13 }));
+    } catch (e) {}
   }
 
-  updateBridgeBadgeText(`🚀 v5.1: Đã gửi lệnh! Đang đợi kết quả từ ${isMuse ? 'Muse AI' : 'Google Flow'}...`, '#7c3aed');
+  // Chờ 800ms để giao diện gửi đi và dọn sạch ô nhập trên Muse AI (không bao giờ bấm gửi lặp lại lần 2)
+  await new Promise((r) => setTimeout(r, 800));
+  if (isMuse) {
+    try {
+      const freshEl = findFlowPromptElement();
+      if (freshEl) {
+        if ('value' in freshEl) freshEl.value = '';
+        if (freshEl.isContentEditable) freshEl.innerText = '';
+      }
+    } catch (e) {}
+  }
+
+  updateBridgeBadgeText(`🚀 v5.4: Đã gửi lệnh! Đang đợi kết quả từ ${isMuse ? 'Muse AI' : 'Google Flow'}...`, '#7c3aed');
 }
 
 function scrollFlowGalleryToTop() {

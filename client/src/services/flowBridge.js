@@ -316,8 +316,8 @@ export async function executeGoogleFlowNode(rawPayload, timeoutMs = 240000) {
     const jobId = 'flow-job-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8);
     let ackReceived = false;
 
-    // Nếu Extension đang kết nối, cho thời gian chờ ACK lên tới 4000ms. Nếu chưa kết nối thì 1000ms để fallback sang relay
-    const ackWaitTime = isExtensionConnected ? 4000 : 1000;
+    // Nếu Extension đang kết nối, cho thời gian chờ ACK lên tới 6000ms. Nếu chưa kết nối thì 2500ms để fallback sang relay
+    const ackWaitTime = isExtensionConnected ? 6000 : 2500;
     const ackTimer = setTimeout(() => {
       if (!ackReceived) {
         window.removeEventListener('message', handleMessage);
