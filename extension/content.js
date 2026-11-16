@@ -1395,13 +1395,43 @@ function recordAllCurrentMediaUrls(existingSet) {
     });
 }
 
+function findLastUserPromptRect(sentPromptText, promptEl) {
+  const snippet = String(sentPromptText || '')
+    .replace(/<br\s*\/?>/gi, ' ')
+    .replace(/[\r\n]+/g, ' ')
+    .replace(/\s{2,}/g, ' ')
+    .trim()
+    .slice(0, 48);
+  if (!snippet || snippet.length < 8) return null;
+
+  const candidates = Array.from(document.querySelectorAll('div, p, span')).filter((el) => {
+    if (promptEl && (el === promptEl || promptEl.contains(el) || el.contains(promptEl))) return false;
+    if (el.closest?.('#ai-canvas-flow-badge, header, nav, aside')) return false;
+    const txt = (el.textContent || '').trim();
+    if (!txt.includes(snippet) || txt.length > 4000) return false;
+    const r = el.getBoundingClientRect();
+    if (r.width < 80 || r.height < 20 || r.left < 60 || r.left > window.innerWidth * 0.76) return false;
+    return true;
+  });
+
+  if (candidates.length === 0) return null;
+  candidates.sort((a, b) => {
+    const ra = a.getBoundingClientRect();
+    const rb = b.getBoundingClientRect();
+    if (Math.abs(rb.bottom - ra.bottom) > 20) return rb.bottom - ra.bottom;
+    return ra.width * ra.height - rb.width * rb.height;
+  });
+  return candidates[0].getBoundingClientRect();
+}
+
 function captureNewMediaOutput(
   existingSet,
   inputFingerprints = [],
   initialFailCount = 0,
   mode = 'IMAGE',
   timeoutMs = 120000,
-  submitTimestamp = Date.now()
+  submitTimestamp = Date.now(),
+  sentPromptText = ''
 ) {
   if (typeof window.__AI_CANVAS_CANCEL_CURRENT_TASK__ === 'function') {
     try {
@@ -1577,12 +1607,16 @@ function captureNewMediaOutput(
 
         if (!isMuse) scrollFlowGalleryToTop();
         const promptEl = findFlowPromptElement();
+        const promptRect = promptEl ? promptEl.getBoundingClientRect() : null;
+        const userPromptRect = isMuse ? findLastUserPromptRect(sentPromptText, promptEl) : null;
+
         // Luôn quét cả thẻ VIDEO lẫn IMG (vì trên Muse AI video hoàn tất thường đi kèm thumbnail poster hoặc player)
         const allNodes = isMuse
           ? Array.from(document.querySelectorAll('img, video'))
           : queryAllDeep(document).filter((el) => el.tagName === 'IMG' || el.tagName === 'VIDEO');
 
-        // Ưu tiên thẻ VIDEO trước nếu mode === 'VIDEO', sau đó đến IMG
+        // Trên Muse AI: Sắp xếp từ DƯỚI LÊN TRÊN (mới nhất ở đáy khung chat lên đầu)
+        // Trên Flow: Ưu tiên kích thước lớn nhất và từ trên xuống
         allNodes.sort((a, b) => {
           if (mode === 'VIDEO') {
             if (a.tagName === 'VIDEO' && b.tagName !== 'VIDEO') return -1;
@@ -1590,6 +1624,10 @@ function captureNewMediaOutput(
           }
           const ra = a.getBoundingClientRect();
           const rb = b.getBoundingClientRect();
+          if (isMuse) {
+            if (Math.abs(rb.bottom - ra.bottom) > 30) return rb.bottom - ra.bottom;
+            return ra.left - rb.left;
+          }
           const areaA = ra.width * ra.height;
           const areaB = rb.width * rb.height;
           if (Math.abs(areaB - areaA) > 10000) return areaB - areaA;
@@ -1606,6 +1644,19 @@ function captureNewMediaOutput(
           // Lọc: Phải nằm trong Chat Feed / Gallery chính, không nằm trong toolbar hay sidebar
           if (!isValidGeneratedMedia(el, src, promptEl, inputFingerprints, null, mode)) continue;
 
+          // BẢO VỆ ĐẶC BIỆT CHO MUSE AI:
+          // 1. Ảnh kết quả của Muse AI luôn nằm BÊN DƯỚI bong bóng câu lệnh vừa gửi của người dùng
+          // 2. Ảnh kết quả của Muse AI luôn CĂN TRÁI trong luồng chat (bong bóng của người dùng căn phải)
+          if (isMuse) {
+            const er = el.getBoundingClientRect();
+            if (userPromptRect && er.top < userPromptRect.bottom - 12) {
+              continue;
+            }
+            if (promptRect && er.left > promptRect.left + promptRect.width * 0.35) {
+              continue;
+            }
+          }
+
           // Nếu ở mode VIDEO: Bắt buộc đã trôi qua ít nhất 18s
           if (mode === 'VIDEO' && elapsed < 18000) {
             updateBridgeBadgeText(`⏳ Đang đợi Muse AI render xong Video 9:16... (${Math.round(elapsed / 1000)}s / 20s)`, '#3b82f6');
@@ -1614,8 +1665,15 @@ function captureNewMediaOutput(
 
           // Chỉ so khớp fingerprint loại trừ ảnh đầu vào khi ở mode IMAGE
           // (Khi ở mode VIDEO: poster video tạo ra bắt buộc phải giống người mẫu trong ảnh đầu vào, không được loại trừ!)
+          let prefetchedBase64 = null;
           if (mode === 'IMAGE' && el.tagName === 'IMG' && Array.isArray(inputFingerprints) && inputFingerprints.length > 0) {
-            const candFp = computeImageFingerprintFromElement(el);
+            let candFp = computeImageFingerprintFromElement(el);
+            if (!candFp) {
+              prefetchedBase64 = await convertFlowUrlToBase64(src, el);
+              if (prefetchedBase64 && prefetchedBase64.startsWith('data:')) {
+                candFp = await computeImageFingerprintFromBase64(prefetchedBase64);
+              }
+            }
             if (candFp) {
               const matchesInput = inputFingerprints.some((inFp) => inFp && isFingerprintMatch(candFp, inFp));
               if (matchesInput) {
@@ -1644,8 +1702,8 @@ function captureNewMediaOutput(
           existingSet.add(finalMediaSrc);
           cleanup();
 
-          updateBridgeBadgeText(`✅ v5.4: Bắt được kết quả ${mode === 'VIDEO' ? 'Video' : 'Ảnh'} từ ${isMuse ? 'Muse AI' : 'Google Flow'}! Đang đồng bộ về bàn vẽ...`, '#10b981');
-          const base64Data = await convertFlowUrlToBase64(finalMediaSrc, el);
+          updateBridgeBadgeText(`✅ v5.8: Bắt được kết quả ${mode === 'VIDEO' ? 'Video' : 'Ảnh'} từ ${isMuse ? 'Muse AI' : 'Google Flow'}! Đang đồng bộ về bàn vẽ...`, '#10b981');
+          const base64Data = prefetchedBase64 && finalMediaSrc === src ? prefetchedBase64 : await convertFlowUrlToBase64(finalMediaSrc, el);
           resolve({ rawUrl: finalMediaSrc, base64Data: base64Data || finalMediaSrc });
           return;
         }
@@ -1748,7 +1806,8 @@ window.__AI_CANVAS_RUN_FLOW_TASK__ = async function (payload = {}) {
       initialFailCount,
       mode,
       timeoutMs,
-      submitTimestamp
+      submitTimestamp,
+      prompt
     );
     updateBridgeBadgeText(`✅ v5.5: Đã nhận kết quả thành công từ ${isMuse ? 'Muse AI' : 'Google Flow'}!`, 'rgba(16,185,129,0.95)');
     return {
