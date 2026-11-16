@@ -16,7 +16,12 @@ import {
   CheckCircle2,
   Link2,
   StickyNote,
-  FileJson
+  FileJson,
+  X,
+  ChevronDown,
+  ChevronUp,
+  ExternalLink,
+  PanelRight
 } from 'lucide-react';
 import axios from 'axios';
 import { executeGoogleFlowNode, getFlowPoolStatus, resetFlowWorkers } from '../services/flowBridge';
@@ -131,6 +136,8 @@ export default function WorkflowNodeCanvas({ project, onSaveProject }) {
 
   const [isRunningAll, setIsRunningAll] = useState(false);
   const [statusBanner, setStatusBanner] = useState('');
+  const [showNodeToolbar, setShowNodeToolbar] = useState(false);
+  const [showResultsDrawer, setShowResultsDrawer] = useState(false);
 
   const containerRef = useRef(null);
   const saveTimerRef = useRef(null);
@@ -895,6 +902,7 @@ export default function WorkflowNodeCanvas({ project, onSaveProject }) {
       }
 
       setStatusBanner(`🎉 Hoàn tất thành công ${executedSet.size}/${totalSteps} Nodes theo đúng 100% sơ đồ dây nối!`);
+      setShowResultsDrawer(true);
       setTimeout(() => setStatusBanner(''), 6000);
     } catch (err) {
       if (isCancelledRef.current) {
@@ -929,139 +937,199 @@ export default function WorkflowNodeCanvas({ project, onSaveProject }) {
     ? nodes.find((n) => n.id === connectingFromNodeId)
     : null;
 
+  const generatedResultNodes = nodes
+    .filter((n) => {
+      if (n.type === 'IMAGE_INPUT') return false;
+      const isStandaloneInputVideo =
+        n.type === 'FFMPEG_POST' && !edges.some((e) => e.target === n.id);
+      if (isStandaloneInputVideo) return false;
+      return Boolean(n.data?.resultUrl);
+    })
+    .sort((a, b) => {
+      const score = (node) => (node.type === 'FFMPEG_POST' ? 0 : node.type === 'FLOW_VIDEO_GEN' ? 1 : 2);
+      const diff = score(a) - score(b);
+      if (diff !== 0) return diff;
+      return (b.x || 0) - (a.x || 0);
+    });
+
   return (
     <div className="relative w-full h-full overflow-hidden select-none flex flex-col">
-      {/* Thanh công cụ Kính Quang Học (Glass-on-Glass Toolbar) */}
-      <div className="px-4 pt-3 z-20 shrink-0">
-        <div className="box px-4 py-2.5 flex flex-wrap items-center justify-between gap-2" style={{ '--r': '24px' }}>
-          <div className="circle-overlay" />
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="text-xs font-extrabold opacity-75 mr-1">Thêm Node Kính:</span>
-            <button
-              onClick={() => handleAddNode('IMAGE_INPUT')}
-              className="box box-hover px-3.5 py-1.5 text-xs font-extrabold flex items-center gap-1.5"
+      {/* Thanh điều khiển góc trên bên phải (Luôn hiển thị: Zoom + Chạy Workflow + Mở/Ẩn Thêm Node + Kết quả) */}
+      <div className="absolute top-3 right-4 left-4 z-30 pointer-events-none flex flex-col items-end gap-2">
+        <div className="pointer-events-auto flex flex-wrap items-center justify-end gap-2">
+          {statusBanner && (
+            <div
+              className="box px-3.5 py-1.5 text-xs font-bold text-sky-800 flex items-center gap-2 max-w-md truncate shadow-md"
               style={{ '--r': '999px', width: 'auto' }}
             >
               <div className="circle-overlay" />
-              <Upload className="w-3.5 h-3.5 text-sky-600" /> + Cột 1: Ảnh Đầu Vào
+              {isRunningAll && <Loader2 className="w-3.5 h-3.5 animate-spin shrink-0 text-sky-600" />}
+              <span className="truncate">{statusBanner}</span>
+            </div>
+          )}
+
+          <button
+            type="button"
+            onClick={() => setShowNodeToolbar((v) => !v)}
+            className={`box box-hover px-3.5 py-2 text-xs font-extrabold flex items-center gap-1.5 cursor-pointer ${
+              showNodeToolbar ? 'active-pill' : ''
+            }`}
+            style={{ '--r': '999px', width: 'auto' }}
+            title="Mở / Ẩn thanh Thêm Node Kính"
+          >
+            <div className="circle-overlay" />
+            <Plus className="w-3.5 h-3.5 text-sky-600" />
+            <span>Thêm Node</span>
+            {showNodeToolbar ? <ChevronUp className="w-3.5 h-3.5 opacity-70" /> : <ChevronDown className="w-3.5 h-3.5 opacity-70" />}
+          </button>
+
+          {generatedResultNodes.length > 0 && (
+            <button
+              type="button"
+              onClick={() => setShowResultsDrawer((v) => !v)}
+              className={`box box-hover px-3.5 py-2 text-xs font-extrabold flex items-center gap-1.5 cursor-pointer ${
+                showResultsDrawer ? 'active-pill' : ''
+              }`}
+              style={{ '--r': '999px', width: 'auto' }}
+              title="Xem bảng kết quả của dự án"
+            >
+              <div className="circle-overlay" />
+              <PanelRight className="w-3.5 h-3.5 text-emerald-600" />
+              <span>Kết quả ({generatedResultNodes.length})</span>
+            </button>
+          )}
+
+          <div className="box flex items-center p-1 text-xs" style={{ '--r': '999px', width: 'auto' }}>
+            <div className="circle-overlay" />
+            <button
+              onClick={() => setZoom((z) => Math.max(0.4, Number((z - 0.1).toFixed(2))))}
+              className="p-1.5 hover:bg-white/30 rounded-full cursor-pointer"
+              title="Thu nhỏ"
+            >
+              <ZoomOut className="w-3.5 h-3.5" />
+            </button>
+            <span className="px-2 font-mono font-bold text-xs">{Math.round(zoom * 100)}%</span>
+            <button
+              onClick={() => setZoom((z) => Math.min(1.6, Number((z + 0.1).toFixed(2))))}
+              className="p-1.5 hover:bg-white/30 rounded-full cursor-pointer"
+              title="Phóng to"
+            >
+              <ZoomIn className="w-3.5 h-3.5" />
             </button>
             <button
-              onClick={() => handleAddNode('FLOW_IMAGE_GEN')}
-              className="box box-hover px-3.5 py-1.5 text-xs font-extrabold flex items-center gap-1.5"
-              style={{ '--r': '999px', width: 'auto' }}
+              onClick={() => {
+                setPan({ x: 60, y: 40 });
+                setZoom(0.95);
+              }}
+              className="p-1.5 hover:bg-white/30 rounded-full cursor-pointer"
+              title="Reset góc nhìn"
             >
-              <div className="circle-overlay" />
-              <ImageIcon className="w-3.5 h-3.5 text-cyan-600" /> + Cột 2: Tạo Ảnh (Flow)
-            </button>
-            <button
-              onClick={() => handleAddNode('FLOW_VIDEO_GEN')}
-              className="box box-hover px-3.5 py-1.5 text-xs font-extrabold flex items-center gap-1.5"
-              style={{ '--r': '999px', width: 'auto' }}
-            >
-              <div className="circle-overlay" />
-              <Video className="w-3.5 h-3.5 text-teal-600" /> + Cột 3: Tạo Video (Veo 2)
-            </button>
-            <button
-              onClick={() => handleAddNode('FFMPEG_POST')}
-              className="box box-hover px-3.5 py-1.5 text-xs font-extrabold flex items-center gap-1.5"
-              style={{ '--r': '999px', width: 'auto' }}
-            >
-              <div className="circle-overlay" />
-              <Sparkles className="w-3.5 h-3.5 text-emerald-600" /> + Cột 4: Upscale &amp; Nhạc
-            </button>
-            <button
-              onClick={handleAddSticker}
-              className="box box-hover px-3.5 py-1.5 text-xs font-extrabold flex items-center gap-1.5"
-              style={{ '--r': '999px', width: 'auto' }}
-              title="Thêm ghi chú (Sticker Note)"
-            >
-              <div className="circle-overlay" />
-              <StickyNote className="w-3.5 h-3.5 text-amber-500" /> + Ghi chú
-            </button>
-            <button
-              onClick={handleImportDaCanvasJson}
-              className="box box-hover px-3.5 py-1.5 text-xs font-extrabold flex items-center gap-1.5"
-              style={{ '--r': '999px', width: 'auto' }}
-              title="Dán / Nhập JSON dự án da-ai-canvas"
-            >
-              <div className="circle-overlay" />
-              <FileJson className="w-3.5 h-3.5 text-indigo-600" /> Nhập JSON
+              <RotateCcw className="w-3.5 h-3.5" />
             </button>
           </div>
 
-          <div className="flex items-center gap-2.5">
-            {statusBanner && (
-              <div
-                className="box px-3.5 py-1.5 text-xs font-bold text-sky-800 flex items-center gap-2 max-w-md truncate"
+          {isRunningAll ? (
+            <div className="flex items-center gap-2">
+              <button
+                disabled
+                className="box active-pill px-4 py-2 text-xs font-extrabold flex items-center gap-2 opacity-85"
                 style={{ '--r': '999px', width: 'auto' }}
               >
-                <div className="circle-overlay" />
-                {isRunningAll && <Loader2 className="w-3.5 h-3.5 animate-spin shrink-0 text-sky-600" />}
-                <span className="truncate">{statusBanner}</span>
-              </div>
-            )}
-
-            <div className="box flex items-center p-1 text-xs" style={{ '--r': '999px', width: 'auto' }}>
-              <div className="circle-overlay" />
-              <button
-                onClick={() => setZoom((z) => Math.max(0.4, Number((z - 0.1).toFixed(2))))}
-                className="p-1.5 hover:bg-white/30 rounded-full cursor-pointer"
-                title="Thu nhỏ"
-              >
-                <ZoomOut className="w-3.5 h-3.5" />
-              </button>
-              <span className="px-2 font-mono font-bold text-xs">{Math.round(zoom * 100)}%</span>
-              <button
-                onClick={() => setZoom((z) => Math.min(1.6, Number((z + 0.1).toFixed(2))))}
-                className="p-1.5 hover:bg-white/30 rounded-full cursor-pointer"
-                title="Phóng to"
-              >
-                <ZoomIn className="w-3.5 h-3.5" />
+                <Loader2 className="w-4 h-4 animate-spin text-sky-600" />
+                <span>Đang chạy Workflow...</span>
               </button>
               <button
-                onClick={() => {
-                  setPan({ x: 60, y: 40 });
-                  setZoom(0.95);
-                }}
-                className="p-1.5 hover:bg-white/30 rounded-full cursor-pointer"
-                title="Reset góc nhìn"
+                onClick={handleStopWorkflow}
+                className="px-4 py-2 text-xs font-extrabold bg-rose-600 hover:bg-rose-500 text-white rounded-full flex items-center gap-1.5 shadow-md shadow-rose-900/30 transition-all cursor-pointer"
+                title="Dừng tiến trình chạy ngay lập tức"
               >
-                <RotateCcw className="w-3.5 h-3.5" />
+                <Square className="w-3.5 h-3.5 fill-current" />
+                <span>Dừng lại</span>
               </button>
             </div>
+          ) : (
+            <button
+              onClick={handleRunFullWorkflow}
+              className="box box-hover active-pill px-5 py-2 text-xs font-extrabold flex items-center gap-2 cursor-pointer"
+              style={{ '--r': '999px', width: 'auto' }}
+            >
+              <div className="circle-overlay" />
+              <Play className="w-4 h-4 fill-current text-sky-600" />
+              Chạy Toàn Bộ Workflow
+            </button>
+          )}
+        </div>
 
-            {isRunningAll ? (
-              <div className="flex items-center gap-2">
-                <button
-                  disabled
-                  className="box active-pill px-4 py-2 text-xs font-extrabold flex items-center gap-2 opacity-85"
-                  style={{ '--r': '999px', width: 'auto' }}
-                >
-                  <Loader2 className="w-4 h-4 animate-spin text-sky-600" />
-                  <span>Đang chạy Workflow...</span>
-                </button>
-                <button
-                  onClick={handleStopWorkflow}
-                  className="px-4 py-2 text-xs font-extrabold bg-rose-600 hover:bg-rose-500 text-white rounded-full flex items-center gap-1.5 shadow-md shadow-rose-900/30 transition-all cursor-pointer"
-                  title="Dừng tiến trình chạy ngay lập tức"
-                >
-                  <Square className="w-3.5 h-3.5 fill-current" />
-                  <span>Dừng lại</span>
-                </button>
-              </div>
-            ) : (
+        {/* Thanh Thêm Node Kính (Có thể ẩn/mở khi cần) */}
+        {showNodeToolbar && (
+          <div
+            className="pointer-events-auto box px-4 py-2.5 flex flex-wrap items-center justify-between gap-2 w-full shadow-xl"
+            style={{ '--r': '24px' }}
+          >
+            <div className="circle-overlay" />
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-xs font-extrabold opacity-75 mr-1">Thêm Node Kính:</span>
               <button
-                onClick={handleRunFullWorkflow}
-                className="box box-hover active-pill px-5 py-2 text-xs font-extrabold flex items-center gap-2"
+                onClick={() => handleAddNode('IMAGE_INPUT')}
+                className="box box-hover px-3.5 py-1.5 text-xs font-extrabold flex items-center gap-1.5 cursor-pointer"
                 style={{ '--r': '999px', width: 'auto' }}
               >
                 <div className="circle-overlay" />
-                <Play className="w-4 h-4 fill-current text-sky-600" />
-                Chạy Toàn Bộ Workflow
+                <Upload className="w-3.5 h-3.5 text-sky-600" /> + Cột 1: Ảnh Đầu Vào
               </button>
-            )}
+              <button
+                onClick={() => handleAddNode('FLOW_IMAGE_GEN')}
+                className="box box-hover px-3.5 py-1.5 text-xs font-extrabold flex items-center gap-1.5 cursor-pointer"
+                style={{ '--r': '999px', width: 'auto' }}
+              >
+                <div className="circle-overlay" />
+                <ImageIcon className="w-3.5 h-3.5 text-cyan-600" /> + Cột 2: Tạo Ảnh (Flow)
+              </button>
+              <button
+                onClick={() => handleAddNode('FLOW_VIDEO_GEN')}
+                className="box box-hover px-3.5 py-1.5 text-xs font-extrabold flex items-center gap-1.5 cursor-pointer"
+                style={{ '--r': '999px', width: 'auto' }}
+              >
+                <div className="circle-overlay" />
+                <Video className="w-3.5 h-3.5 text-teal-600" /> + Cột 3: Tạo Video (Veo 2)
+              </button>
+              <button
+                onClick={() => handleAddNode('FFMPEG_POST')}
+                className="box box-hover px-3.5 py-1.5 text-xs font-extrabold flex items-center gap-1.5 cursor-pointer"
+                style={{ '--r': '999px', width: 'auto' }}
+              >
+                <div className="circle-overlay" />
+                <Sparkles className="w-3.5 h-3.5 text-emerald-600" /> + Cột 4: Upscale &amp; Nhạc
+              </button>
+              <button
+                onClick={handleAddSticker}
+                className="box box-hover px-3.5 py-1.5 text-xs font-extrabold flex items-center gap-1.5 cursor-pointer"
+                style={{ '--r': '999px', width: 'auto' }}
+                title="Thêm ghi chú (Sticker Note)"
+              >
+                <div className="circle-overlay" />
+                <StickyNote className="w-3.5 h-3.5 text-amber-500" /> + Ghi chú
+              </button>
+              <button
+                onClick={handleImportDaCanvasJson}
+                className="box box-hover px-3.5 py-1.5 text-xs font-extrabold flex items-center gap-1.5 cursor-pointer"
+                style={{ '--r': '999px', width: 'auto' }}
+                title="Dán / Nhập JSON dự án da-ai-canvas"
+              >
+                <div className="circle-overlay" />
+                <FileJson className="w-3.5 h-3.5 text-indigo-600" /> Nhập JSON
+              </button>
+            </div>
+            <button
+              type="button"
+              onClick={() => setShowNodeToolbar(false)}
+              className="p-1.5 rounded-full hover:bg-white/40 text-slate-600 cursor-pointer"
+              title="Thu gọn thanh Thêm Node"
+            >
+              <X className="w-4 h-4" />
+            </button>
           </div>
-        </div>
+        )}
       </div>
 
       {/* Vùng Bàn Vẽ Sơ Đồ Node Mượt 120FPS */}
@@ -1817,6 +1885,108 @@ export default function WorkflowNodeCanvas({ project, onSaveProject }) {
           </span>
           <span className="text-[10px] opacity-90">{isLogPanelOpen ? '▼' : '▲'}</span>
         </button>
+      </div>
+
+      {/* Modal Popup trượt từ phải sang trái hiển thị Kết quả Dự án */}
+      <div
+        className={`absolute inset-y-0 right-0 z-40 w-[400px] max-w-[92vw] flex flex-col bg-slate-950/92 backdrop-blur-xl border-l border-white/15 shadow-2xl transition-transform duration-300 ease-out ${
+          showResultsDrawer ? 'translate-x-0' : 'translate-x-full pointer-events-none'
+        }`}
+      >
+        <div className="flex items-center justify-between px-4 py-3.5 border-b border-white/10">
+          <div className="flex items-center gap-2">
+            <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
+            <div>
+              <div className="text-sm font-extrabold text-white">Kết quả Dự án</div>
+              <div className="text-[11px] text-slate-400">
+                {generatedResultNodes.length} sản phẩm đã hoàn thành
+              </div>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={() => setShowResultsDrawer(false)}
+            className="p-1.5 rounded-full bg-white/10 hover:bg-white/20 text-slate-200 transition cursor-pointer"
+            title="Đóng bảng kết quả"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+
+        <div className="flex-1 overflow-y-auto p-4 space-y-4">
+          {generatedResultNodes.length === 0 ? (
+            <div className="text-center text-slate-400 text-xs py-12">
+              Chưa có kết quả nào được tạo. Hãy bấm <b>Chạy Toàn Bộ Workflow</b> để bắt đầu.
+            </div>
+          ) : (
+            generatedResultNodes.map((resNode, idx) => {
+              const url = resNode.data?.resultUrl || '';
+              const isVideoNode =
+                resNode.type === 'FLOW_VIDEO_GEN' ||
+                resNode.type === 'FFMPEG_POST' ||
+                /\.(mp4|webm|mov)(\?|$)/i.test(url);
+
+              return (
+                <div
+                  key={resNode.id}
+                  className="rounded-2xl bg-white/5 border border-white/10 overflow-hidden shadow-lg"
+                >
+                  <div className="flex items-center justify-between px-3 py-2 bg-white/5 border-b border-white/10">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <span
+                        className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold shrink-0 ${
+                          isVideoNode
+                            ? 'bg-teal-500/20 text-teal-300 border border-teal-400/30'
+                            : 'bg-sky-500/20 text-sky-300 border border-sky-400/30'
+                        }`}
+                      >
+                        {isVideoNode ? 'VIDEO' : 'ẢNH'} #{idx + 1}
+                      </span>
+                      <span className="text-xs font-bold text-slate-100 truncate">
+                        {resNode.data?.title || resNode.id}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="bg-black/50 flex items-center justify-center max-h-[340px] overflow-hidden">
+                    {isVideoNode ? (
+                      <video
+                        src={url}
+                        controls
+                        playsInline
+                        className="w-full max-h-[340px] object-contain"
+                      />
+                    ) : (
+                      <img
+                        src={url}
+                        alt={resNode.data?.title || 'Result'}
+                        className="w-full max-h-[340px] object-contain"
+                      />
+                    )}
+                  </div>
+
+                  <div className="flex items-center justify-end gap-2 px-3 py-2 bg-white/5">
+                    <a
+                      href={url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="px-2.5 py-1 rounded-lg bg-white/10 hover:bg-white/20 text-[11px] font-bold text-slate-200 flex items-center gap-1 transition"
+                    >
+                      <ExternalLink className="w-3 h-3" /> Mở tab
+                    </a>
+                    <a
+                      href={url}
+                      download
+                      className="px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-[11px] font-bold text-white flex items-center gap-1 transition"
+                    >
+                      <Download className="w-3 h-3" /> Tải xuống
+                    </a>
+                  </div>
+                </div>
+              );
+            })
+          )}
+        </div>
       </div>
     </div>
   );
