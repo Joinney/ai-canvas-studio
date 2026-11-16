@@ -403,6 +403,24 @@ async function pollBackendBridge() {
 
 setInterval(pollBackendBridge, 1200);
 
+async function withTemporaryTabFocus(tabId, fn) {
+  let prevTabId = null;
+  try {
+    const tab = await chrome.tabs.get(tabId);
+    const [activeInSameWin] = await chrome.tabs.query({ active: true, windowId: tab.windowId });
+    if (activeInSameWin && activeInSameWin.id !== tabId) {
+      prevTabId = activeInSameWin.id;
+      await chrome.tabs.update(tabId, { active: true }).catch(() => {});
+      await new Promise((r) => setTimeout(r, 90));
+    }
+    return await fn();
+  } finally {
+    if (prevTabId) {
+      await chrome.tabs.update(prevTabId, { active: true }).catch(() => {});
+    }
+  }
+}
+
 // Lắng nghe yêu cầu từ Web Canvas (canvas-bridge.js) và từ content.js
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   // Click chuột vào ô Prompt và gõ chữ cấp độ phần cứng (CDP Input.insertText)
@@ -414,7 +432,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       return false;
     }
 
-    (async () => {
+    withTemporaryTabFocus(tabId, async () => {
       const target = { tabId };
       try {
         await chrome.debugger.attach(target, '1.3').catch(() => {});
@@ -446,7 +464,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         await chrome.debugger.detach(target).catch(() => {});
         sendResponse({ ok: false, error: err.message });
       }
-    })();
+    });
     return true;
   }
 
@@ -459,7 +477,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       return false;
     }
 
-    (async () => {
+    withTemporaryTabFocus(tabId, async () => {
       const target = { tabId };
       try {
         await chrome.debugger.attach(target, '1.3').catch(() => {});
@@ -511,7 +529,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         await chrome.debugger.detach(target).catch(() => {});
         sendResponse({ ok: false, error: err.message });
       }
-    })();
+    });
     return true;
   }
 

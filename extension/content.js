@@ -1438,7 +1438,10 @@ function isValidGeneratedMedia(el, src, promptEl = null, inputFingerprints = [],
 
   // 5. Kiểm tra kích thước tự nhiên: Ảnh sinh bởi AI
   if (el.tagName === 'IMG') {
-    if (!el.complete) return false;
+    if (!el.complete) {
+      try { el.loading = 'eager'; } catch (e) {}
+      return false;
+    }
     const nw = el.naturalWidth || 0;
     const nh = el.naturalHeight || 0;
     const minNatural = isMuse ? (mode === 'VIDEO' ? 80 : 120) : 480;
