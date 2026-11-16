@@ -212,7 +212,7 @@ async function focusFlowTabAndWindow(tabId, windowId) {
 async function broadcastLogToCanvasTabs(log) {
   try {
     const canvasTabs = await chrome.tabs.query({
-      url: ['http://localhost/*', 'http://127.0.0.1/*']
+      url: ['http://localhost/*', 'http://127.0.0.1/*', 'https://muse.ai/*', 'https://*.muse.ai/*']
     });
     for (const tab of canvasTabs) {
       if (tab.id) {

@@ -120,30 +120,34 @@ export default function WorkflowNodeCanvas({ project, onSaveProject }) {
   ]);
   const [isLogPanelOpen, setIsLogPanelOpen] = useState(false);
 
-  const pushWorkflowLog = useCallback((text, level = 'info', source = 'Canvas') => {
+  const pushWorkflowLog = useCallback((text, level = 'info', source = 'Canvas', externalId = null, externalTime = null) => {
     if (!text) return;
+    const entry = {
+      id: externalId || `canvas-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+      time: externalTime || new Date().toLocaleTimeString('vi-VN', { hour12: false }),
+      source,
+      text,
+      level
+    };
     setBridgeLogs((prev) => {
+      if (externalId && prev.some((item) => item.id === externalId)) return prev;
       const last = prev[prev.length - 1];
       if (last && last.text === text && last.source === source) return prev;
-      const next = [
-        ...prev,
-        {
-          id: `${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
-          time: new Date().toLocaleTimeString('vi-VN', { hour12: false }),
-          source,
-          text,
-          level
-        }
-      ];
+      const next = [...prev, entry];
       return next.length > 80 ? next.slice(next.length - 80) : next;
     });
+    if (source === 'Canvas' && window.parent !== window) {
+      try {
+        window.parent.postMessage({ source: 'AI_CANVAS_WEB', type: 'CANVAS_LOG_EVENT', log: entry }, '*');
+      } catch (e) {}
+    }
   }, []);
 
   useEffect(() => {
     const onExtLog = (event) => {
       if (event.data?.source === 'AI_CANVAS_EXTENSION' && event.data?.type === 'BRIDGE_LOG_EVENT' && event.data?.log) {
         const l = event.data.log;
-        pushWorkflowLog(l.text, l.level || 'info', l.source || 'Muse AI');
+        pushWorkflowLog(l.text, l.level || 'info', l.source || 'Muse AI', l.id || null, l.time || null);
       }
     };
     window.addEventListener('message', onExtLog);

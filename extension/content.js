@@ -69,6 +69,7 @@ function appendBridgeLog(text, bg = '') {
       : 'info';
 
   const entry = {
+    id: `muse-${now}-${Math.random().toString(36).slice(2, 6)}`,
     time: new Date().toLocaleTimeString('vi-VN', { hour12: false }),
     source: isMuse ? 'Muse AI' : 'Google Flow',
     text,
@@ -80,11 +81,38 @@ function appendBridgeLog(text, bg = '') {
   }
   renderBridgeLogPanel();
 
+  // Đồng bộ tức thì 0ms vào iframe Tool nếu đang mở chung trên trang Muse
+  try {
+    const toolIframe = document.getElementById('ai-canvas-muse-tool-iframe');
+    if (toolIframe && toolIframe.contentWindow) {
+      toolIframe.contentWindow.postMessage(
+        { source: 'AI_CANVAS_EXTENSION', type: 'BRIDGE_LOG_EVENT', log: entry },
+        '*'
+      );
+    }
+  } catch (e) {}
+
   try {
     if (chrome && chrome.runtime && chrome.runtime.id) {
       chrome.runtime.sendMessage({ type: 'BRIDGE_LOG_EVENT', log: entry }).catch?.(() => {});
     }
   } catch (e) {}
+}
+
+if (!window.__AI_CANVAS_PARENT_LOG_LISTENER__) {
+  window.__AI_CANVAS_PARENT_LOG_LISTENER__ = true;
+  window.addEventListener('message', (event) => {
+    if (event.data?.source === 'AI_CANVAS_WEB' && event.data?.type === 'CANVAS_LOG_EVENT' && event.data?.log) {
+      const l = event.data.log;
+      if (!window.__AI_CANVAS_BRIDGE_LOGS__.some((x) => x.id && x.id === l.id)) {
+        window.__AI_CANVAS_BRIDGE_LOGS__.push(l);
+        if (window.__AI_CANVAS_BRIDGE_LOGS__.length > 80) {
+          window.__AI_CANVAS_BRIDGE_LOGS__.shift();
+        }
+        renderBridgeLogPanel();
+      }
+    }
+  });
 }
 
 window.__AI_CANVAS_EMBED_OPEN__ = window.__AI_CANVAS_EMBED_OPEN__ || false;
