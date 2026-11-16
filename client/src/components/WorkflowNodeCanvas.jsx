@@ -103,19 +103,20 @@ export default function WorkflowNodeCanvas({ project, onSaveProject }) {
     resetFlowWorkers();
     setIsRunningAll(false);
     setSelectedNodeId(null);
-    setStatusBanner('⏹️ Đã dừng toàn bộ tiến trình và đưa các Node về trạng thái ban đầu!');
+    setStatusBanner('⏹️ Đã dừng tiến trình! Các kết quả đã tạo vẫn được giữ nguyên (bấm Chạy để chạy lại từ đầu).');
     setNodes((prev) =>
       prev.map((n) => {
         if (n.type === 'IMAGE_INPUT') {
           return { ...n, data: { ...n.data, status: 'done', error: null } };
         }
+        // Giữ nguyên kết quả đã tạo (resultUrl) của các Node đã xong; chỉ dừng Node đang chạy về idle
+        const hasResult = Boolean(n.data?.resultUrl);
         return {
           ...n,
           data: {
             ...n.data,
-            status: 'idle',
-            error: null,
-            resultUrl: ''
+            status: hasResult ? 'done' : 'idle',
+            error: null
           }
         };
       })
