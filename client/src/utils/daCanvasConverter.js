@@ -1090,7 +1090,7 @@ export const AUTUMN_OUTFIT_RAW_CANVAS_JSON = {
     },
     {
       id: 'sticker-1794641474194-250',
-      x: 1378,
+      x: 1580,
       y: 118,
       width: 250,
       height: 110,
@@ -1101,7 +1101,7 @@ export const AUTUMN_OUTFIT_RAW_CANVAS_JSON = {
     },
     {
       id: 'sticker-1794641476788-251',
-      x: 1376,
+      x: 1580,
       y: 490,
       width: 250,
       height: 110,
@@ -1112,7 +1112,7 @@ export const AUTUMN_OUTFIT_RAW_CANVAS_JSON = {
     },
     {
       id: 'sticker-1794641479132-252',
-      x: 1390,
+      x: 1580,
       y: 795,
       width: 250,
       height: 110,
@@ -1123,7 +1123,7 @@ export const AUTUMN_OUTFIT_RAW_CANVAS_JSON = {
     },
     {
       id: 'sticker-1794641482523-253',
-      x: 1368,
+      x: 1580,
       y: 1132,
       width: 250,
       height: 110,
@@ -1134,7 +1134,7 @@ export const AUTUMN_OUTFIT_RAW_CANVAS_JSON = {
     },
     {
       id: 'sticker-1794641487573-254',
-      x: 1385,
+      x: 1580,
       y: 1420,
       width: 250,
       height: 110,

@@ -1336,6 +1336,9 @@ function ensureFlowCanvasView() {
 
 async function typePromptTextIntoElement(promptEl, promptText) {
   if (!promptEl) return;
+  try {
+    promptEl.scrollIntoView({ block: 'center', behavior: 'instant' });
+  } catch (e) {}
   if (!document.hasFocus()) {
     const pr = promptEl.getBoundingClientRect();
     await sendNativeCdpWithDockPassThrough({
@@ -1477,6 +1480,11 @@ async function fillPromptAndSubmit(rawPromptText, mode = 'IMAGE') {
         : 'Nút Gửi trên Google Flow vẫn bị khóa (disabled). Vui lòng đợi Google Flow tải xong ảnh đính kèm hoặc bấm Gửi thủ công trên trang Flow!'
     );
   }
+
+  try {
+    targetInfo.el.scrollIntoView({ block: 'center', behavior: 'instant' });
+  } catch (e) {}
+  await new Promise((r) => setTimeout(r, 80));
 
   const currentTarget = findFlowSubmitTarget(promptEl) || targetInfo;
   if (currentTarget && currentTarget.el && !currentTarget.el.disabled) {
