@@ -291,6 +291,22 @@ function findMuseSubmitTarget(promptEl) {
 
   const allElements = queryAllDeep(document);
 
+  // Helper kiểm tra nút có màu nền xanh dương đặc trưng trên Muse AI
+  const checkIsBlue = (el) => {
+    try {
+      const style = window.getComputedStyle(el);
+      const bg = style.backgroundColor || '';
+      const m = bg.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/);
+      if (m) {
+        const red = Number(m[1]);
+        const blue = Number(m[3]);
+        const alpha = m[4] !== undefined ? Number(m[4]) : 1;
+        if (alpha > 0.35 && blue > 140 && blue > red * 1.2) return true;
+      }
+    } catch (e) {}
+    return false;
+  };
+
   // TUYỆT ĐỐI KHÔNG chọn phần tử nằm trong Sidebar phải (Muse task list) hoặc Sidebar trái
   const validElements = allElements.filter((el) => {
     const r = el.getBoundingClientRect();
@@ -303,10 +319,10 @@ function findMuseSubmitTarget(promptEl) {
 
     // Phải nằm trong khu vực dock của promptEl (nửa dưới màn hình, gần ô nhập)
     const inPromptZone =
-      r.top >= pr.top - 40 &&
-      r.bottom <= Math.max(pr.bottom + 90, boxRect.bottom + 50) &&
-      r.left >= pr.left + pr.width * 0.25 &&
-      r.right <= Math.max(pr.right + 90, boxRect.right + 40);
+      r.top >= pr.top - 50 &&
+      r.bottom <= Math.max(pr.bottom + 140, boxRect.bottom + 80) &&
+      r.left >= pr.left + pr.width * 0.20 &&
+      r.right <= Math.max(pr.right + 100, boxRect.right + 60);
 
     if (!inPromptZone) return false;
 
@@ -341,10 +357,18 @@ function findMuseSubmitTarget(promptEl) {
   });
 
   if (validElements.length > 0) {
-    // Sắp xếp: Ưu tiên nút submit thật, nút có mũi tên lên / send, nút xanh dương tròn
+    // Sắp xếp: Ưu tiên số 1: Nút tròn màu xanh dương của Muse AI
+    // Ưu tiên số 2: Nút có mũi tên lên / submit / send
+    // Ưu tiên số 3: Nút ở góc dưới cùng bên phải gần promptEl nhất
     validElements.sort((a, b) => {
-      const ra = a.getBoundingClientRect();
-      const rb = b.getBoundingClientRect();
+      const btnA = a.closest?.('button, [role="button"]') || a;
+      const btnB = b.closest?.('button, [role="button"]') || b;
+      const blueA = checkIsBlue(a) || checkIsBlue(btnA);
+      const blueB = checkIsBlue(b) || checkIsBlue(btnB);
+      if (blueA !== blueB) return blueB ? 1 : -1;
+
+      const ra = btnA.getBoundingClientRect();
+      const rb = btnB.getBoundingClientRect();
 
       const isSubA = a.type === 'submit' || /send|gửi|submit|↑/i.test((a.getAttribute?.('aria-label') || '') + ' ' + (a.innerText || ''));
       const isSubB = b.type === 'submit' || /send|gửi|submit|↑/i.test((b.getAttribute?.('aria-label') || '') + ' ' + (b.innerText || ''));
@@ -357,9 +381,9 @@ function findMuseSubmitTarget(promptEl) {
     });
 
     const target = validElements[0];
-    const tr = target.getBoundingClientRect();
     const btnEl = target.closest?.('button, [role="button"]') || target;
-    return { el: btnEl, x: tr.left + tr.width / 2, y: tr.top + tr.height / 2 };
+    const btr = btnEl.getBoundingClientRect();
+    return { el: btnEl, x: btr.left + btr.width / 2, y: btr.top + btr.height / 2 };
   }
 
   // Fallback: Nếu không tìm thấy bằng tọa độ tương đối, tìm nút có svg mũi tên lên gần promptEl nhất
@@ -377,9 +401,9 @@ function findMuseSubmitTarget(promptEl) {
       return Math.hypot(ra.right - pr.right, ra.bottom - pr.bottom) - Math.hypot(rb.right - pr.right, rb.bottom - pr.bottom);
     });
     const target = arrowButtons[0];
-    const tr = target.getBoundingClientRect();
     const btnEl = target.closest?.('button, [role="button"]') || target;
-    return { el: btnEl, x: tr.left + tr.width / 2, y: tr.top + tr.height / 2 };
+    const btr = btnEl.getBoundingClientRect();
+    return { el: btnEl, x: btr.left + btr.width / 2, y: btr.top + btr.height / 2 };
   }
 
   return null;
@@ -1117,24 +1141,71 @@ async function fillPromptAndSubmit(rawPromptText, mode = 'IMAGE') {
 
   const currentTarget = findFlowSubmitTarget(promptEl) || targetInfo;
   if (currentTarget && currentTarget.el && !currentTarget.el.disabled) {
-    updateBridgeBadgeText(`v5.5: Bấm nút Gửi (${isMuse ? '↑ Muse AI' : '➔ Flow'})...`, '#e11d48');
-    // BẤM DUY NHẤT 1 LẦN VÀO NÚT SUBMIT (Tuyệt đối không gửi thêm CDP click hoặc Enter để tránh bị lặp prompt)
-    triggerDOMClickAt(currentTarget);
-  }
+    updateBridgeBadgeText(`v5.7: Bấm nút Gửi (${isMuse ? '↑ Muse AI' : '➔ Flow'})...`, '#e11d48');
+    
+    // 1. Hiển thị marker vị trí bấm trên màn hình
+    showClickMarker(currentTarget.x, currentTarget.y);
 
-  // Chờ 600ms để giao diện gửi đi và dọn sạch ô nhập trên Muse AI (không bao giờ bấm gửi lặp lại lần 2)
-  await new Promise((r) => setTimeout(r, 600));
-  if (isMuse) {
+    // 2. Click DOM cơ bản (fallback)
     try {
-      const freshEl = findFlowPromptElement();
-      if (freshEl) {
-        if ('value' in freshEl) freshEl.value = '';
-        if (freshEl.isContentEditable) freshEl.innerText = '';
+      currentTarget.el.focus?.();
+      if (typeof currentTarget.el.click === 'function') {
+        currentTarget.el.click();
       }
     } catch (e) {}
+
+    // 3. GỬI NATIVE HARDWARE CLICK (isTrusted: true) QUA CHROME DEBUGGER
+    // Chế độ clickOnly: true CHỈ CLICK CHUỘT NATIVE VÀO ĐÚNG TÂM NÚT GỬI, TUYỆT ĐỐI KHÔNG GỬI PHÍM ENTER ĐỂ TRÁNH LẶP PROMPT
+    await new Promise((resolve) => {
+      try {
+        chrome.runtime.sendMessage(
+          {
+            type: 'NATIVE_CLICK_AND_ENTER',
+            x: currentTarget.x,
+            y: currentTarget.y,
+            clickOnly: true
+          },
+          (res) => {
+            console.log('[AI Canvas] Kết quả Native Click nút Gửi:', res);
+            resolve(res);
+          }
+        );
+      } catch (err) {
+        console.warn('[AI Canvas] Lỗi khi gửi Native Click:', err);
+        resolve();
+      }
+    });
   }
 
-  updateBridgeBadgeText(`🚀 v5.4: Đã gửi lệnh! Đang đợi kết quả từ ${isMuse ? 'Muse AI' : 'Google Flow'}...`, '#7c3aed');
+  // Chờ 1.2s để giao diện phản hồi lệnh gửi
+  await new Promise((r) => setTimeout(r, 1200));
+
+  // 4. KIỂM TRA DỰ PHÒNG: Nếu sau 1.2s ô nhập văn bản vẫn còn nguyên nội dung và nút gửi vẫn còn sáng
+  // thì gửi 1 phím Enter duy nhất vào ô nhập bằng CDP để kích hoạt Submit
+  const checkPromptStillFull = findFlowPromptElement();
+  const currentText = (checkPromptStillFull?.innerText || checkPromptStillFull?.value || '').trim();
+  if (currentText.length > 10) {
+    console.log('[AI Canvas] Ô prompt vẫn còn văn bản sau khi click, kích hoạt Enter dự phòng qua CDP...');
+    const pr = checkPromptStillFull.getBoundingClientRect();
+    await new Promise((resolve) => {
+      try {
+        chrome.runtime.sendMessage(
+          {
+            type: 'NATIVE_CLICK_AND_ENTER',
+            x: pr.left + pr.width * 0.5,
+            y: pr.top + pr.height * 0.5,
+            clickOnly: false
+          },
+          () => resolve()
+        );
+      } catch (e) {
+        resolve();
+      }
+    });
+    await new Promise((r) => setTimeout(r, 800));
+  }
+
+  updateBridgeBadgeText(`🚀 v5.7: Đã gửi lệnh! Đang đợi kết quả từ ${isMuse ? 'Muse AI' : 'Google Flow'}...`, '#7c3aed');
 }
 
 function scrollFlowGalleryToTop() {
@@ -1479,18 +1550,21 @@ function captureNewMediaOutput(
         // 2. Phát hiện trạng thái Muse AI đang sinh (Progress bar, spinner, Generating, Thinking, hoặc nút Stop)
         const progressEls = queryAllDeep(document).filter((el) => {
           const r = el.getBoundingClientRect();
-          if (r.width < 10 || r.height < 2) return false;
+          if (r.width < 8 || r.height < 2 || r.width > 900 || r.height > 900) return false;
+          try {
+            const st = window.getComputedStyle(el);
+            if (st.display === 'none' || st.visibility === 'hidden' || st.opacity === '0') return false;
+          } catch (e) {}
+
           const role = el.getAttribute?.('role') || '';
+          const ariaBusy = el.getAttribute?.('aria-busy') === 'true';
           const cls = (el.className || '').toString().toLowerCase();
           const aria = (el.getAttribute?.('aria-label') || '').toLowerCase();
-          return (
-            role === 'progressbar' ||
-            cls.includes('progress') ||
-            cls.includes('spinner') ||
-            cls.includes('loading') ||
-            aria.includes('đang tạo') ||
-            aria.includes('generating')
-          );
+
+          if (role === 'progressbar' || ariaBusy) return true;
+          if (aria.includes('đang tạo') || aria.includes('generating') || aria.includes('rendering')) return true;
+          if (cls.includes('animate-spin') || cls.includes('loading-spinner') || cls.includes('progress-bar')) return true;
+          return false;
         });
 
         // Kiểm tra xem Muse AI có nút Dừng (Stop / Cancel) hoặc chữ Thinking/Generating không

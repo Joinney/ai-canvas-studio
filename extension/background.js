@@ -452,18 +452,22 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             x: Math.round(x),
             y: Math.round(y)
           });
+          await new Promise((r) => setTimeout(r, 40));
           await chrome.debugger.sendCommand(target, 'Input.dispatchMouseEvent', {
             type: 'mousePressed',
             x: Math.round(x),
             y: Math.round(y),
             button: 'left',
+            buttons: 1,
             clickCount: 1
           });
+          await new Promise((r) => setTimeout(r, 80));
           await chrome.debugger.sendCommand(target, 'Input.dispatchMouseEvent', {
             type: 'mouseReleased',
             x: Math.round(x),
             y: Math.round(y),
             button: 'left',
+            buttons: 0,
             clickCount: 1
           });
         }
