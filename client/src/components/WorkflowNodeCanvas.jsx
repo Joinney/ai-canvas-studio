@@ -634,7 +634,7 @@ export default function WorkflowNodeCanvas({ project, onSaveProject }) {
         }
       }
 
-      // Sắp xếp queue ban đầu theo trục Y từ trên xuống để chạy theo từng nhánh tự nhiên
+      // Sắp xếp queue ban đầu theo trục Y từ trên xuống để chọn nhánh đầu tiên (Nhánh 1 trước, Nhánh 2 sau)
       executionQueue.sort((a, b) => {
         const na = preparedNodes.find((n) => n.id === a);
         const nb = preparedNodes.find((n) => n.id === b);
@@ -657,7 +657,7 @@ export default function WorkflowNodeCanvas({ project, onSaveProject }) {
         const inputs = getInputsForNode(node.id);
         setSelectedNodeId(node.id);
         setStatusBanner(
-          `⚡ [Bước ${stepIndex}/${totalSteps}] Đang xử lý theo dây nối: "${node.data.title}" (${inputs.length} dữ liệu đầu vào)...`
+          `⚡ [Bước ${stepIndex}/${totalSteps}] Đang xử lý theo nhánh: "${node.data.title}" (${inputs.length} dữ liệu đầu vào)...`
         );
         updateNodeData(node.id, { status: 'running', error: null });
 
@@ -671,8 +671,13 @@ export default function WorkflowNodeCanvas({ project, onSaveProject }) {
         executedSet.add(node.id);
         stepIndex++;
 
-        // Sau khi node này chạy xong, mở khóa cho các Node đích tiếp theo nối từ nó
+        // QUY TẮC NHÁNH CÂY (DFS): Ngay sau khi Node này hoàn thành, nếu dây nối của nó sinh ra
+        // Node tiếp theo (và Node đó đã đủ toàn bộ đầu vào), ĐẨY NGAY VÀO ĐẦU HÀNG ĐỢI (unshift)
+        // để chạy dứt điểm nhánh cây này cho xong (Ví dụ: Thử đồ Nhánh 1 -> Video Nhánh 1 luôn)
+        // chứ KHÔNG nhảy cóc sang chạy thử đồ của Nhánh 2!
         const outgoingTargets = adjList[node.id] || [];
+        const readyImmediateChildren = [];
+
         for (const targetId of outgoingTargets) {
           if (executedSet.has(targetId) || executionQueue.includes(targetId)) continue;
 
@@ -681,8 +686,13 @@ export default function WorkflowNodeCanvas({ project, onSaveProject }) {
           const allPrereqsDone = targetInEdges.every((e) => Boolean(runtimeOutputs[e.source]));
 
           if (allPrereqsDone) {
-            executionQueue.push(targetId);
+            readyImmediateChildren.push(targetId);
           }
+        }
+
+        // Đưa ngay các con nối tiếp vào ĐẦU hàng đợi (Depth-First Branching)
+        if (readyImmediateChildren.length > 0) {
+          executionQueue.unshift(...readyImmediateChildren);
         }
       }
 
