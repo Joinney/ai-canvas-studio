@@ -242,7 +242,7 @@ export function sanitizePromptForGoogleFlow(rawPrompt = '', mode = 'IMAGE', imag
       basePrompt = cleanVid;
     }
 
-    return `Generate and render this video now. Direct execution required, execute media generation tool immediately: ${basePrompt}`;
+    return `Generate and render this video now. Direct execution required, execute media generation tool immediately. IMPORTANT LANGUAGE RULE: Any spoken dialogue, voiceover, or speech in the audio MUST be strictly in natural Vietnamese (never Chinese or Mandarin): ${basePrompt}`;
   }
 
   // Chế độ IMAGE: Chỉ chuẩn hóa các prompt tiếng Trung cũ của Dự án 1 & 2; giữ nguyên prompt của từng dự án mới!

@@ -1575,7 +1575,7 @@ const MAHJONG_SILHOUETTE_VFX_RAW_CANVAS_JSON = {
           }
         },
         prompt:
-          'Replace the center-position model in @Video 1 with a bright white glowing silhouette stylized effect: crisp 3D contours and volumetric form with all surface textures and original facial features removed, while keeping all other people and the scene unchanged.',
+          'Replace the center-position model in @Video 1 with a bright white glowing silhouette stylized effect: crisp 3D contours and volumetric form with all surface textures and original facial features removed, while keeping all other people and the scene unchanged. Audio: Replace any Chinese speech with natural Vietnamese dialogue or ambient sound only (no Chinese speech).',
         promptHidden: false,
         generationStatus: 'completed',
         mediaStatus: 'ready',
@@ -1651,7 +1651,7 @@ const MAHJONG_SILHOUETTE_VFX_RAW_CANVAS_JSON = {
           }
         },
         prompt:
-          'Replace the center-position model in @Video 1 with the model from @Image 1, ensuring the body proportions and appearance of the model in @Image 1 remain consistent throughout.',
+          'Replace the center-position model in @Video 1 with the model from @Image 1, ensuring the body proportions and appearance of the model in @Image 1 remain consistent throughout. Audio: All spoken dialogue must be in natural Vietnamese (no Chinese speech).',
         promptHidden: false,
         generationStatus: 'completed',
         mediaStatus: 'ready',
@@ -1856,7 +1856,7 @@ const MIDDLE_AGED_FASHION_TVC_RAW_CANVAS_JSON = {
           }
         },
         prompt:
-          'Cinematic 4K TVC fashion commercial, 10 seconds, 9:16 vertical, Eastern aesthetics. @Image 1 is the main model wearing the Neo-Chinese outfit, @Image 2 is the autumn traditional tea house courtyard environment reference, and @Image 3 shows the close-up outfit details. An elegant 40-year-old woman (from @Image 1) in a champagne-beige Neo-Chinese butterfly embroidered vest and jacquard wide-leg trouser set (details from @Image 3), carrying a small silver handbag, strolls gracefully through an autumn tea house courtyard with golden leaves, red walls, and yellow tea lanterns (@Image 2). 0-3s: Smooth slow tracking shot as warm sunlight filters through tree shadows onto the fabric. 3-6s: Slow-motion macro close-up highlighting the 3D gold-thread butterfly embroidery, pearl frog buttons, and silky drape. 6-10s: Medium-wide orbit as she pauses, turns gracefully toward the camera with a warm confident smile, wide-leg trousers flowing softly against blurred autumn foliage and red walls.',
+          'Cinematic 4K TVC fashion commercial, 10 seconds, 9:16 vertical, Eastern aesthetics. @Image 1 is the main model wearing the Neo-Chinese outfit, @Image 2 is the autumn traditional tea house courtyard environment reference, and @Image 3 shows the close-up outfit details. An elegant 40-year-old woman (from @Image 1) in a champagne-beige Neo-Chinese butterfly embroidered vest and jacquard wide-leg trouser set (details from @Image 3), carrying a small silver handbag, strolls gracefully through an autumn tea house courtyard with golden leaves, red walls, and yellow tea lanterns (@Image 2). 0-3s: Smooth slow tracking shot as warm sunlight filters through tree shadows onto the fabric. 3-6s: Slow-motion macro close-up highlighting the 3D gold-thread butterfly embroidery, pearl frog buttons, and silky drape. 6-10s: Medium-wide orbit as she pauses, turns gracefully toward the camera with a warm confident smile, wide-leg trousers flowing softly against blurred autumn foliage and red walls. Audio: Gentle ambient music with natural Vietnamese speech only if spoken (no Chinese speech, no subtitles, no watermarks).',
         promptHidden: false,
         generationStatus: 'completed',
         mediaStatus: 'ready',
