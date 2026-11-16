@@ -447,7 +447,7 @@ export function convertDaAiCanvasToProject(rawJson, options = {}) {
     let type = n.type;
     if (!type) {
       if (n.kind === 'image') {
-        type = hasIncoming || prompt ? 'FLOW_IMAGE_GEN' : 'IMAGE_INPUT';
+        type = hasIncoming ? 'FLOW_IMAGE_GEN' : mediaUrl ? 'IMAGE_INPUT' : prompt ? 'FLOW_IMAGE_GEN' : 'IMAGE_INPUT';
       } else if (n.kind === 'video') {
         // Nếu Node video không có prompt và không có dây nối vào (như node 冬季.mp4) hoặc là bản HD 1080p -> FFMPEG_POST
         if (!prompt && !hasIncoming) {

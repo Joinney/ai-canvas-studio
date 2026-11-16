@@ -340,7 +340,11 @@ export default function App() {
           }).catch(() => {});
         }
 
-        if (!map.has(BEAUTY_MIST_PROJECT.id)) {
+        const existingBeauty = map.get(BEAUTY_MIST_PROJECT.id);
+        const beautyNeedsUpgrade = existingBeauty?.nodes?.some(
+          (n) => n.id === 'node-1783071172789' && n.type !== 'IMAGE_INPUT'
+        );
+        if (!existingBeauty || beautyNeedsUpgrade) {
           map.set(BEAUTY_MIST_PROJECT.id, cloneProjectSafe(BEAUTY_MIST_PROJECT));
           fetch('http://localhost:5001/api/ai/projects', {
             method: 'POST',
