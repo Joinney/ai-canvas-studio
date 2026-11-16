@@ -539,50 +539,80 @@ function triggerDOMClickAt(targetInfo) {
 }
 
 async function clearPreviousPromptAttachments(promptEl) {
-  const pr = promptEl ? promptEl.getBoundingClientRect() : null;
-
-  // Quét toàn bộ nút xóa (x) chip đính kèm trên cả Google Flow và Muse AI
-  const removeButtons = queryAllDeep(document).filter((el) => {
-    const r = el.getBoundingClientRect();
-    if (r.width < 10 || r.width > 50 || r.height < 10 || r.height > 50) return false;
-    
-    // Nếu có promptEl, ưu tiên các nút xóa nằm gần vùng prompt (phía trên hoặc trong dock prompt)
-    if (pr) {
-      const nearPrompt =
-        r.left >= pr.left - 120 &&
-        r.right <= pr.right + 120 &&
-        r.top >= pr.top - 280 &&
-        r.bottom <= pr.bottom + 80;
-      if (!nearPrompt) return false;
+  // 1. Tắt chế độ "Đang trả lời Muse" (Replying to) nếu đang hiển thị trên thanh prompt
+  try {
+    const allDivs = queryAllDeep(document);
+    for (const el of allDivs) {
+      const text = (el.innerText || el.textContent || '').trim();
+      if (/^(đang trả lời|replying to|đang trả lời muse)/i.test(text)) {
+        const pBox = el.closest?.('div') || el.parentElement;
+        const closeBtn = pBox ? queryAllDeep(pBox).find((b) => {
+          const t = (b.tagName || '').toLowerCase();
+          return (t === 'button' || b.getAttribute?.('role') === 'button') && (b.innerText === '✕' || b.innerText === '×' || !!b.querySelector?.('svg'));
+        }) : null;
+        if (closeBtn) {
+          closeBtn.click();
+          await new Promise((r) => setTimeout(r, 120));
+        }
+      }
     }
+  } catch (e) {}
 
-    const tag = (el.tagName || '').toLowerCase();
-    const isClickable =
-      tag === 'button' ||
-      el.getAttribute?.('role') === 'button' ||
-      window.getComputedStyle(el).cursor === 'pointer';
-    if (!isClickable) return false;
+  // 2. Quét và bấm xóa toàn bộ nút xóa (✕) chip đính kèm (hỗ trợ nhiều dòng chip trên Muse AI & Google Flow)
+  for (let cycle = 0; cycle < 4; cycle++) {
+    const freshPrompt = findFlowPromptElement() || promptEl;
+    const pr = freshPrompt ? freshPrompt.getBoundingClientRect() : null;
 
-    const label = (
-      (el.getAttribute?.('aria-label') || '') +
-      ' ' +
-      (el.getAttribute?.('title') || '') +
-      ' ' +
-      (el.innerText || el.textContent || '')
-    ).toLowerCase();
+    const removeButtons = queryAllDeep(document).filter((el) => {
+      const r = el.getBoundingClientRect();
+      if (r.width < 8 || r.width > 55 || r.height < 8 || r.height > 55) return false;
 
-    if (/expand|fullscreen|open_in_full|mở rộng|phóng to|maximize/i.test(label)) return false;
-    return /remove|xóa|delete|close|dismiss|clear|huỷ|hủy/i.test(label) || label.trim() === '✕' || label.trim() === '×';
-  });
+      // Mở rộng vùng tìm kiếm lên đến 550px phía trên prompt để bao trùm tất cả các hàng chip ảnh
+      if (pr) {
+        const nearPrompt =
+          r.left >= pr.left - 160 &&
+          r.right <= pr.right + 160 &&
+          r.top >= pr.top - 550 &&
+          r.bottom <= pr.bottom + 80;
+        if (!nearPrompt) return false;
+      }
 
-  for (const btn of removeButtons) {
-    try {
-      btn.click();
-      await new Promise((r) => setTimeout(r, 60));
-    } catch (e) {}
+      const tag = (el.tagName || '').toLowerCase();
+      const isClickable =
+        tag === 'button' ||
+        el.getAttribute?.('role') === 'button' ||
+        window.getComputedStyle(el).cursor === 'pointer';
+      if (!isClickable) return false;
+
+      const label = (
+        (el.getAttribute?.('aria-label') || '') +
+        ' ' +
+        (el.getAttribute?.('title') || '') +
+        ' ' +
+        (el.innerText || el.textContent || '')
+      ).toLowerCase();
+
+      if (/expand|fullscreen|open_in_full|mở rộng|phóng to|maximize/i.test(label)) return false;
+
+      const hasSvgIcon = Boolean(el.querySelector?.('svg') || tag === 'svg');
+      const matchesText = /remove|xóa|delete|close|dismiss|clear|huỷ|hủy/i.test(label) || label.trim() === '✕' || label.trim() === '×';
+
+      // Nút xóa chip trên Muse AI thường là nút tròn nhỏ có icon SVG cross (✕)
+      return matchesText || hasSvgIcon;
+    });
+
+    if (removeButtons.length === 0) break;
+
+    for (const btn of removeButtons) {
+      try {
+        btn.click();
+        await new Promise((r) => setTimeout(r, 80));
+      } catch (e) {}
+    }
+    await new Promise((r) => setTimeout(r, 200));
   }
 
-  // Xóa sạch cả các thẻ input[type="file"] cũ nếu còn lưu files
+  // 3. Xóa sạch cả các thẻ input[type="file"] cũ nếu còn lưu files
   queryAllDeep(document)
     .filter((el) => el.tagName === 'INPUT' && el.type === 'file')
     .forEach((finput) => {
@@ -591,6 +621,7 @@ async function clearPreviousPromptAttachments(promptEl) {
       } catch (e) {}
     });
 
+  // 4. Xóa sạch văn bản trong ô nhập Prompt
   try {
     const freshPrompt = findFlowPromptElement() || promptEl;
     if (freshPrompt) {
@@ -1181,7 +1212,7 @@ function isAttachmentOrChipElement(el, promptEl = null) {
   return false;
 }
 
-function isValidGeneratedMedia(el, src, promptEl = null, inputFingerprints = [], candidateFingerprint = null) {
+function isValidGeneratedMedia(el, src, promptEl = null, inputFingerprints = [], candidateFingerprint = null, mode = 'IMAGE') {
   if (!src) return false;
   if (/googleusercontent\.com\/(a|ogw)\//i.test(src)) return false; // Avatar/profile icon
   const isMuse = window.location.hostname.includes('muse.ai');
@@ -1199,15 +1230,14 @@ function isValidGeneratedMedia(el, src, promptEl = null, inputFingerprints = [],
 
   // 3. Phải nằm trong khu vực hiển thị Workspace / Chat Feed / Gallery chính
   const rect = el.getBoundingClientRect();
-  const minLeft = isMuse ? 60 : 240; // Muse AI thanh bar bên trái chỉ rộng 60px
+  const minLeft = isMuse ? 50 : 240; // Muse AI thanh bar bên trái chỉ rộng 60px
   if (rect.left < minLeft) return false;
-  if (rect.top < 35) return false; // Loại bỏ header/topbar
-  if (rect.bottom > window.innerHeight - 60) return false; // Loại bỏ dock bar ở đáy
-  const minDimension = isMuse ? 80 : 180;
-  if (rect.width < minDimension || rect.height < minDimension) return false; // Loại bỏ thumbnail bé/icon
+  if (rect.top < 30) return false; // Loại bỏ header/topbar
+  const minDimension = isMuse ? 60 : 160;
+  if (rect.width < minDimension || rect.height < minDimension) return false; // Loại bỏ icon nhỏ
 
   // Trên Muse AI: Loại bỏ avatar mascot hoặc widget bên panel phải
-  if (isMuse && rect.left > window.innerWidth * 0.82) return false;
+  if (isMuse && rect.left > window.innerWidth * 0.85) return false;
 
   // 4. Nếu là VIDEO: Chấp nhận video có kích thước hợp lệ
   if (el.tagName === 'VIDEO') {
@@ -1219,12 +1249,12 @@ function isValidGeneratedMedia(el, src, promptEl = null, inputFingerprints = [],
     if (!el.complete) return false;
     const nw = el.naturalWidth || 0;
     const nh = el.naturalHeight || 0;
-    const minNatural = isMuse ? 180 : 480;
+    const minNatural = isMuse ? (mode === 'VIDEO' ? 80 : 160) : 480;
     if (nw < minNatural || nh < minNatural) return false;
   }
 
-  // 6. SO SÁNH VỚI ẢNH ĐẦU VÀO: Tuyệt đối KHÔNG ĐƯỢC trùng với bất kỳ ảnh tham chiếu nào (Ảnh Mẫu hoặc Ảnh Trang Phục)
-  if (candidateFingerprint && Array.isArray(inputFingerprints) && inputFingerprints.length > 0) {
+  // 6. SO SÁNH VỚI ẢNH ĐẦU VÀO: Chỉ so sánh loại trừ khi tạo Ảnh (mode === 'IMAGE')
+  if (mode === 'IMAGE' && candidateFingerprint && Array.isArray(inputFingerprints) && inputFingerprints.length > 0) {
     for (const inFp of inputFingerprints) {
       if (inFp && isFingerprintMatch(candidateFingerprint, inFp)) {
         console.warn('⚠️ [FlowContent] Bỏ qua phần tử vì trùng với ảnh đầu vào (Input Reference):', src.slice(0, 80));
@@ -1469,13 +1499,13 @@ function captureNewMediaOutput(
           const src = el.currentSrc || el.src || el.querySelector?.('source')?.src;
           if (!src || existingSet.has(src)) continue;
 
-          // Lọc cực kỳ nghiêm ngặt: Phải nằm trong Canvas chính, không nằm trong popup/dialog/settings
-          if (!isValidGeneratedMedia(el, src, promptEl, inputFingerprints, null)) continue;
+          // Lọc: Phải nằm trong Chat Feed / Gallery chính, không nằm trong toolbar
+          if (!isValidGeneratedMedia(el, src, promptEl, inputFingerprints, null, mode)) continue;
 
-          // So khớp fingerprint đồng bộ 0ms từ phần tử DOM sẵn có (không gọi network)
-          let candFp = null;
-          if (el.tagName === 'IMG' && Array.isArray(inputFingerprints) && inputFingerprints.length > 0) {
-            candFp = computeImageFingerprintFromElement(el);
+          // Chỉ so khớp fingerprint loại trừ ảnh đầu vào khi ở mode IMAGE
+          // (Khi ở mode VIDEO: poster video tạo ra bắt buộc phải giống người mẫu trong ảnh đầu vào, không được loại trừ!)
+          if (mode === 'IMAGE' && el.tagName === 'IMG' && Array.isArray(inputFingerprints) && inputFingerprints.length > 0) {
+            const candFp = computeImageFingerprintFromElement(el);
             if (candFp) {
               const matchesInput = inputFingerprints.some((inFp) => inFp && isFingerprintMatch(candFp, inFp));
               if (matchesInput) {
@@ -1488,7 +1518,7 @@ function captureNewMediaOutput(
           existingSet.add(src);
           cleanup();
 
-          updateBridgeBadgeText(`✅ v5.1: Bắt được kết quả từ ${isMuse ? 'Muse AI' : 'Google Flow'}! Đang đồng bộ về bàn vẽ...`, '#10b981');
+          updateBridgeBadgeText(`✅ v5.3: Bắt được kết quả ${mode === 'VIDEO' ? 'Video' : 'Ảnh'} từ ${isMuse ? 'Muse AI' : 'Google Flow'}! Đang đồng bộ về bàn vẽ...`, '#10b981');
           const base64Data = await convertFlowUrlToBase64(src, el);
           resolve({ rawUrl: src, base64Data });
           return;

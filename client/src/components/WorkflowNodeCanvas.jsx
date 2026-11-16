@@ -455,11 +455,9 @@ export default function WorkflowNodeCanvas({ project, onSaveProject }) {
         prompt: node.data.prompt
       });
       const out = res?.base64 || res?.rawUrl;
-      const looksLikeImageOnly =
-        typeof out === 'string' && (out.startsWith('data:image/') || /\.(png|jpe?g|webp)(\?|$)/i.test(out));
-      if (!out || looksLikeImageOnly) {
+      if (!out) {
         throw new Error(
-          `Google Flow chưa chuyển sang chế độ tạo Video cho "${node.data.title}". Hãy kiểm tra tab Google Flow!`
+          `Muse AI / Google Flow không trả về video cho "${node.data.title}". Hãy kiểm tra lại tab tạo Video!`
         );
       }
       return out;
@@ -657,11 +655,11 @@ export default function WorkflowNodeCanvas({ project, onSaveProject }) {
         const inputs = getInputsForNode(node.id);
         setSelectedNodeId(node.id);
         setStatusBanner(
-          `⚡ [Bước ${stepIndex}/${totalSteps}] Đang xử lý theo nhánh: "${node.data.title}" (${inputs.length} dữ liệu đầu vào)...`
+          `⚡ [Bước ${stepIndex}/${totalSteps}] Đang chờ Muse AI hoàn tất: "${node.data.title}" (${inputs.length} dữ liệu đầu vào)... Đợi có kết quả nạp vào bàn vẽ mới chuyển bước tiếp theo!`
         );
         updateNodeData(node.id, { status: 'running', error: null });
 
-        // Chạy node và chờ có kết quả thực sự
+        // Chạy node và CHỜ 100% CÓ KẾT QUẢ TRẢ VỀ
         const outUrl = await runNodeWithSmartFallback(node, inputs, usedOutputsSet);
         if (isCancelledRef.current) break;
 
@@ -670,6 +668,11 @@ export default function WorkflowNodeCanvas({ project, onSaveProject }) {
         updateNodeData(node.id, { resultUrl: outUrl, status: 'done', error: null });
         executedSet.add(node.id);
         stepIndex++;
+
+        setStatusBanner(
+          `✅ [Bước ${stepIndex - 1}/${totalSteps}] Hoàn tất "${node.data.title}"! Đã nạp kết quả vào bàn vẽ.`
+        );
+        await new Promise((r) => setTimeout(r, 1200));
 
         // QUY TẮC NHÁNH CÂY (DFS): Ngay sau khi Node này hoàn thành, nếu dây nối của nó sinh ra
         // Node tiếp theo (và Node đó đã đủ toàn bộ đầu vào), ĐẨY NGAY VÀO ĐẦU HÀNG ĐỢI (unshift)
@@ -1425,7 +1428,7 @@ export default function WorkflowNodeCanvas({ project, onSaveProject }) {
 
                     {node.type !== 'IMAGE_INPUT' && (
                       <button
-                        onClick={() => executeSingleNode(node.id).catch((e) => alert(e.message))}
+                        onClick={() => executeSingleNode(node.id).catch((e) => setStatusBanner('❌ ' + e.message))}
                         disabled={node.data.status === 'running' || isRunningAll}
                         className="box box-hover active-pill w-full py-2 text-xs font-extrabold flex items-center justify-center gap-1.5 disabled:opacity-50"
                         style={{ '--r': '999px' }}

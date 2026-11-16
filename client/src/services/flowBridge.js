@@ -307,24 +307,29 @@ export async function executeGoogleFlowNode(rawPayload, timeoutMs = 240000) {
     prompt: safePrompt
   };
 
-  // Thử Kênh 1 (Direct Content Script Bridge) với cơ chế xác nhận ACK trong 1.2 giây
+  // Thử Kênh 1 (Direct Content Script Bridge)
+  const isExtensionConnected =
+    document.documentElement.getAttribute('data-ai-canvas-extension') === 'connected' ||
+    typeof window.__AI_CANVAS_BRIDGE_HANDLER__ === 'function';
+
   const directAttempt = await new Promise((resolve) => {
     const jobId = 'flow-job-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8);
     let ackReceived = false;
 
-    // Nếu sau 1.2s không nhận được ACK từ canvas-bridge.js -> chuyển ngay sang Backend Relay, tuyệt đối không đợi 150s!
+    // Nếu Extension đang kết nối, cho thời gian chờ ACK lên tới 4000ms. Nếu chưa kết nối thì 1000ms để fallback sang relay
+    const ackWaitTime = isExtensionConnected ? 4000 : 1000;
     const ackTimer = setTimeout(() => {
       if (!ackReceived) {
         window.removeEventListener('message', handleMessage);
         resolve({ fallbackToRelay: true });
       }
-    }, 1200);
+    }, ackWaitTime);
 
     const jobTimer = setTimeout(() => {
       window.removeEventListener('message', handleMessage);
       resolve({
         done: true,
-        error: 'Quá thời gian phản hồi từ Google Flow (180s)'
+        error: 'Quá thời gian phản hồi từ Muse AI / Google Flow (240s)'
       });
     }, timeoutMs);
 
@@ -355,7 +360,7 @@ export async function executeGoogleFlowNode(rawPayload, timeoutMs = 240000) {
         } else {
           resolve({
             done: true,
-            error: res?.error || 'Lỗi thực thi Node trên Google Flow'
+            error: res?.error || 'Lỗi thực thi Node trên Muse AI / Google Flow'
           });
         }
       }
@@ -378,7 +383,7 @@ export async function executeGoogleFlowNode(rawPayload, timeoutMs = 240000) {
     throw new Error(directAttempt.error);
   }
 
-  // Kênh 2 (Backend Relay): background.js luôn chủ động lấy lệnh mỗi 1.5s kể cả khi chưa F5 trang web
+  // Kênh 2 (Backend Relay) chỉ kích hoạt khi Kênh 1 không có Extension
   const { data } = await api.post(
     '/flow-bridge/dispatch',
     {
@@ -392,7 +397,7 @@ export async function executeGoogleFlowNode(rawPayload, timeoutMs = 240000) {
   if (res && res.success && res.ok) {
     return res;
   }
-  throw new Error(res?.error || data?.error || 'Lỗi thực thi Node trên Google Flow');
+  throw new Error(res?.error || data?.error || 'Lỗi thực thi Node trên Muse AI / Google Flow');
 }
 
 /**

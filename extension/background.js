@@ -169,45 +169,48 @@ async function focusFlowTabAndWindow(tabId, windowId) {
   } catch (e) {}
 }
 
-// Tìm hoặc khởi tạo Tab Google Flow (Không bao giờ để kẹt trạng thái busy từ phiên cũ)
+// Tìm hoặc cấp phát Tab Google Flow / Muse AI (chờ tuần tự cho đến khi tab rảnh hoàn toàn)
 async function acquireAvailableFlowTab() {
-  const openTabs = await queryFlowTabs();
+  const waitStart = Date.now();
 
-  const openTabIds = new Set(openTabs.map((t) => t.id));
-  workerTabs = workerTabs.filter((w) => openTabIds.has(w.tabId));
+  while (true) {
+    const openTabs = await queryFlowTabs();
+    const openTabIds = new Set(openTabs.map((t) => t.id));
+    workerTabs = workerTabs.filter((w) => openTabIds.has(w.tabId));
 
-  for (const tab of openTabs) {
-    const existing = workerTabs.find((w) => w.tabId === tab.id);
-    if (!existing) {
-      workerTabs.push({ tabId: tab.id, windowId: tab.windowId, busy: false });
-    } else {
-      existing.windowId = tab.windowId;
+    for (const tab of openTabs) {
+      const existing = workerTabs.find((w) => w.tabId === tab.id);
+      if (!existing) {
+        workerTabs.push({ tabId: tab.id, windowId: tab.windowId, busy: false });
+      } else {
+        existing.windowId = tab.windowId;
+      }
+    }
+
+    // Ưu tiên cấp worker đang rảnh
+    const freeWorker = workerTabs.find((w) => !w.busy);
+    if (freeWorker) {
+      freeWorker.busy = true;
+      return freeWorker;
+    }
+
+    // Nếu chưa mở bất kỳ tab nào -> tự động mở mới
+    if (workerTabs.length === 0) {
+      const newTab = await chrome.tabs.create({ url: FLOW_DEFAULT_URL, active: true });
+      await waitForTabComplete(newTab.id);
+      const worker = { tabId: newTab.id, windowId: newTab.windowId, busy: true };
+      workerTabs.push(worker);
+      return worker;
+    }
+
+    // Nếu tab đang bận xử lý lượt trước -> ĐỢI TUẦN TỰ (không bao giờ cướp tab giữa chừng)
+    await new Promise((r) => setTimeout(r, 600));
+
+    // Sau 5 phút chờ mà vẫn bận thì mới tự giải phóng
+    if (Date.now() - waitStart > 300000) {
+      workerTabs[0].busy = false;
     }
   }
-
-  let freeWorker = workerTabs.find((w) => !w.busy);
-  if (freeWorker) {
-    freeWorker.busy = true;
-    return freeWorker;
-  }
-
-  // Nếu người dùng chỉ mở 1 tab Google Flow mà worker đang bị đánh dấu busy (do lần chạy trước bị F5 hoặc ngắt giữa chừng),
-  // tự động hủy watcher cũ trên tab đó và cấp phát ngay lập tức để không bao giờ bị treo "Đang chờ"!
-  if (workerTabs.length > 0) {
-    const targetWorker = workerTabs[0];
-    try {
-      await chrome.tabs.sendMessage(targetWorker.tabId, { type: 'CANCEL_ACTIVE_FLOW_TASK' }).catch(() => {});
-    } catch (e) {}
-    targetWorker.busy = true;
-    return targetWorker;
-  }
-
-  // Nếu chưa mở bất kỳ tab Google Flow nào -> tự động mở mới
-  const newTab = await chrome.tabs.create({ url: FLOW_DEFAULT_URL, active: true });
-  await waitForTabComplete(newTab.id);
-  const worker = { tabId: newTab.id, windowId: newTab.windowId, busy: true };
-  workerTabs.push(worker);
-  return worker;
 }
 
 function waitForTabComplete(tabId, timeoutMs = 20000) {
@@ -228,43 +231,50 @@ function waitForTabComplete(tabId, timeoutMs = 20000) {
   });
 }
 
+let isProcessingQueue = false;
+
 async function processQueue() {
+  if (isProcessingQueue) return;
   if (taskQueue.length === 0) return;
 
-  const job = taskQueue.shift();
-  const worker = await acquireAvailableFlowTab();
-
+  isProcessingQueue = true;
   try {
-    if (!dynamicSelectors) await syncDynamicSelectors();
+    while (taskQueue.length > 0) {
+      const job = taskQueue.shift();
+      const worker = await acquireAvailableFlowTab();
 
-    await focusFlowTabAndWindow(worker.tabId, worker.windowId);
-    await ensureContentScriptReady(worker.tabId);
+      try {
+        if (!dynamicSelectors) await syncDynamicSelectors();
 
-    const response = await chrome.tabs.sendMessage(worker.tabId, {
-      type: 'EXECUTE_FLOW_NODE',
-      payload: {
-        ...job.payload,
-        selectors: dynamicSelectors
+        await focusFlowTabAndWindow(worker.tabId, worker.windowId);
+        await ensureContentScriptReady(worker.tabId);
+
+        const response = await chrome.tabs.sendMessage(worker.tabId, {
+          type: 'EXECUTE_FLOW_NODE',
+          payload: {
+            ...job.payload,
+            selectors: dynamicSelectors
+          }
+        });
+
+        job.sendResponse({
+          success: Boolean(response && response.ok),
+          tabId: worker.tabId,
+          ...(response || {})
+        });
+      } catch (err) {
+        job.sendResponse({
+          success: false,
+          ok: false,
+          tabId: worker?.tabId,
+          error: err.message || 'Lỗi khi thực thi trên tab Google Flow / Muse AI'
+        });
+      } finally {
+        if (worker) worker.busy = false;
       }
-    });
-
-    job.sendResponse({
-      success: Boolean(response && response.ok),
-      tabId: worker.tabId,
-      ...(response || {})
-    });
-  } catch (err) {
-    job.sendResponse({
-      success: false,
-      ok: false,
-      tabId: worker?.tabId,
-      error: err.message || 'Lỗi khi thực thi trên tab Google Flow'
-    });
-  } finally {
-    if (worker) worker.busy = false;
-    if (taskQueue.length > 0) {
-      setTimeout(() => processQueue(), 250);
     }
+  } finally {
+    isProcessingQueue = false;
   }
 }
 
