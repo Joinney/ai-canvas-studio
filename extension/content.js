@@ -594,30 +594,22 @@ async function clearPreviousPromptAttachments(promptEl) {
     }
   } catch (e) {}
 
-  // 2. Quét và bấm xóa toàn bộ nút xóa (✕) chip đính kèm (hỗ trợ nhiều dòng chip trên Muse AI & Google Flow)
+  // 2. Quét và bấm xóa toàn bộ nút xóa (✕) chip đính kèm CHỈ BÊN TRONG khung soạn thảo promptBox
+  // (Tuyệt đối không quét lên 550px phía trên vào luồng chat để tránh bấm nhầm nút Chia sẻ / Copy / Thích!)
   for (let cycle = 0; cycle < 4; cycle++) {
     const freshPrompt = findFlowPromptElement() || promptEl;
-    const pr = freshPrompt ? freshPrompt.getBoundingClientRect() : null;
+    const promptBox = freshPrompt ? getPromptBoxContainer(freshPrompt) : null;
+    if (!promptBox) break;
 
-    const removeButtons = queryAllDeep(document).filter((el) => {
+    const removeButtons = queryAllDeep(promptBox).filter((el) => {
+      if (freshPrompt && (el === freshPrompt || freshPrompt.contains(el))) return false;
       const r = el.getBoundingClientRect();
-      if (r.width < 8 || r.width > 55 || r.height < 8 || r.height > 55) return false;
-
-      // Mở rộng vùng tìm kiếm lên đến 550px phía trên prompt để bao trùm tất cả các hàng chip ảnh
-      if (pr) {
-        const nearPrompt =
-          r.left >= pr.left - 160 &&
-          r.right <= pr.right + 160 &&
-          r.top >= pr.top - 550 &&
-          r.bottom <= pr.bottom + 80;
-        if (!nearPrompt) return false;
-      }
+      if (r.width < 8 || r.width > 42 || r.height < 8 || r.height > 42) return false;
 
       const tag = (el.tagName || '').toLowerCase();
       const isClickable =
         tag === 'button' ||
-        el.getAttribute?.('role') === 'button' ||
-        window.getComputedStyle(el).cursor === 'pointer';
+        el.getAttribute?.('role') === 'button';
       if (!isClickable) return false;
 
       const label = (
@@ -628,13 +620,14 @@ async function clearPreviousPromptAttachments(promptEl) {
         (el.innerText || el.textContent || '')
       ).toLowerCase();
 
-      if (/expand|fullscreen|open_in_full|mở rộng|phóng to|maximize/i.test(label)) return false;
+      if (/expand|fullscreen|open_in_full|mở rộng|phóng to|maximize|share|chia sẻ|copy|sao chép|mic|voice|attach|upload|thêm|add|send|gửi|stop|dừng/i.test(label)) {
+        return false;
+      }
 
-      const hasSvgIcon = Boolean(el.querySelector?.('svg') || tag === 'svg');
       const matchesText = /remove|xóa|delete|close|dismiss|clear|huỷ|hủy/i.test(label) || label.trim() === '✕' || label.trim() === '×';
-
-      // Nút xóa chip trên Muse AI thường là nút tròn nhỏ có icon SVG cross (✕)
-      return matchesText || hasSvgIcon;
+      // Hoặc nằm trực tiếp bên trong 1 thẻ preview/chip có ảnh (nút ✕ góc ảnh đính kèm)
+      const isInsideChipImg = Boolean(el.parentElement?.querySelector?.('img, video'));
+      return matchesText || isInsideChipImg;
     });
 
     if (removeButtons.length === 0) break;
@@ -1357,7 +1350,10 @@ function dismissAnyOpenModal() {
       txt.includes('tạo video ai') ||
       txt.includes('tóm tắt') ||
       txt.includes('hoàn tất') ||
-      txt.includes('no video was actually created')
+      txt.includes('no video was actually created') ||
+      txt.includes('chia sẻ') ||
+      txt.includes('sao chép liên kết') ||
+      txt.includes('copy link')
     );
   });
 
