@@ -411,9 +411,15 @@ async function withTemporaryTabFocus(tabId, fn) {
     if (activeInSameWin && activeInSameWin.id !== tabId) {
       prevTabId = activeInSameWin.id;
       await chrome.tabs.update(tabId, { active: true }).catch(() => {});
-      await new Promise((r) => setTimeout(r, 90));
+      // Đợi 250ms để Chrome đánh thức renderer của tab nền trước khi gửi click/phím phần cứng
+      await new Promise((r) => setTimeout(r, 250));
     }
-    return await fn();
+    const result = await fn();
+    if (prevTabId) {
+      // Đợi 250ms sau khi click để React trên Muse AI xử lý xong sự kiện rồi mới trả về tab Tool
+      await new Promise((r) => setTimeout(r, 250));
+    }
+    return result;
   } finally {
     if (prevTabId) {
       await chrome.tabs.update(prevTabId, { active: true }).catch(() => {});
