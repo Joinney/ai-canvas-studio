@@ -695,9 +695,19 @@ export default function WorkflowNodeCanvas({ project, onSaveProject }) {
 
     try {
       // 1. Chuẩn bị danh sách Node: giữ nguyên fallbackUrl, reset status các node cần sinh
+      const isSourceInputNode = (n) => {
+        if (n.type === 'IMAGE_INPUT') return true;
+        if (n.type === 'FFMPEG_POST') {
+          const hasIncoming = edges.some((e) => e.target === n.id);
+          const hasMedia = Boolean(n.data?.resultUrl || n.data?.fallbackUrl || n.data?.imageUrl);
+          return !hasIncoming && hasMedia;
+        }
+        return false;
+      };
+
       const preparedNodes = nodes.map((n) => {
         const savedFallback = n.data?.fallbackUrl || n.data?.resultUrl || '';
-        if (n.type === 'IMAGE_INPUT') {
+        if (isSourceInputNode(n)) {
           return {
             ...n,
             data: { ...n.data, status: 'done', error: null }
@@ -719,18 +729,21 @@ export default function WorkflowNodeCanvas({ project, onSaveProject }) {
       const runtimeOutputs = {};
       const usedOutputsSet = new Set();
 
-      // Nạp toàn bộ các node nguồn (IMAGE_INPUT) vào runtimeOutputs
+      // Nạp toàn bộ các node nguồn (IMAGE_INPUT hoặc Video đầu vào gốc) vào runtimeOutputs
       for (const n of preparedNodes) {
-        if (n.type === 'IMAGE_INPUT' && n.data?.imageUrl) {
-          runtimeOutputs[n.id] = n.data.imageUrl;
-          usedOutputsSet.add(n.data.imageUrl);
+        if (isSourceInputNode(n)) {
+          const srcMedia = n.data?.imageUrl || n.data?.resultUrl || n.data?.fallbackUrl;
+          if (srcMedia) {
+            runtimeOutputs[n.id] = srcMedia;
+            usedOutputsSet.add(srcMedia);
+          }
         }
       }
 
       // 2. Thuật toán Sắp xếp Tô-pô (Topological Sort / DAG) theo đúng từng dây nối (edges):
       // Một Node CHỈ ĐƯỢC CHẠY khi TẤT CẢ các Node nguồn trỏ dây vào nó đã chạy xong và có kết quả!
       const adjList = {};
-      const executableNodes = preparedNodes.filter((n) => n.type !== 'IMAGE_INPUT');
+      const executableNodes = preparedNodes.filter((n) => !isSourceInputNode(n));
 
       for (const n of preparedNodes) {
         adjList[n.id] = [];
