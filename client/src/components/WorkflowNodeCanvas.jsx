@@ -36,14 +36,14 @@ const NODE_TYPES_META = {
     hasOutput: true
   },
   FLOW_IMAGE_GEN: {
-    label: 'Cột 2: Tạo Ảnh Google Flow',
+    label: 'Cột 2: Tạo Ảnh (Muse / Flow)',
     badgeClass: 'bg-cyan-500/15 text-cyan-800 border-cyan-500/35',
     headerAccent: 'border-t-4 border-t-cyan-500',
     hasInput: true,
     hasOutput: true
   },
   FLOW_VIDEO_GEN: {
-    label: 'Cột 3: Tạo Video Veo 2 (Flow)',
+    label: 'Cột 3: Tạo Video (Muse / Veo 2)',
     badgeClass: 'bg-teal-500/15 text-teal-800 border-teal-500/35',
     headerAccent: 'border-t-4 border-t-teal-500',
     hasInput: true,

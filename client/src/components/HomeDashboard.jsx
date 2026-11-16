@@ -307,7 +307,7 @@ export default function HomeDashboard({
               </div>
             </div>
 
-            {/* Khối Kính Trạng Thái Google Flow Bridge (.box chứa .box) */}
+            {/* Khối Kính Trạng Thái Muse AI & Flow Bridge (.box chứa .box) */}
             <div className="box p-5 flex flex-col gap-3.5" style={{ '--r': '28px' }}>
               <div className="circle-overlay" />
               <div className="flex items-center justify-between">
@@ -318,7 +318,7 @@ export default function HomeDashboard({
                       (flowStatus.connected ? 'bg-emerald-500' : 'bg-amber-500')
                     }
                   />
-                  <span>GOOGLE FLOW BRIDGE</span>
+                  <span>MUSE AI & FLOW BRIDGE</span>
                 </div>
                 <button
                   onClick={onCheckFlow}
@@ -334,8 +334,8 @@ export default function HomeDashboard({
                 <div className="circle-overlay" />
                 <span>
                   {flowStatus.connected
-                    ? `🟢 Đã kết nối (${flowStatus.openFlowTabs || 1} tab Google Flow sẵn sàng)`
-                    : '🟠 Chưa phát hiện tab Google Flow'}
+                    ? `🟢 Đã kết nối (${flowStatus.openFlowTabs || 1} tab Muse AI / Flow sẵn sàng)`
+                    : '🟠 Chưa phát hiện tab Muse AI / Flow'}
                 </span>
               </div>
 

@@ -23,7 +23,7 @@ function mountConnectionBadge() {
   badge.style.cssText =
     'position:fixed;bottom:16px;left:16px;z-index:999999;background:rgba(16,185,129,0.95);color:#fff;padding:8px 14px;border-radius:999px;font-family:sans-serif;font-size:12px;font-weight:600;box-shadow:0 4px 15px rgba(0,0,0,0.35);display:flex;align-items:center;gap:8px;pointer-events:none;transition:all 0.3s ease;';
   badge.innerHTML =
-    '<span style="width:8px;height:8px;border-radius:50%;background:#fff;display:inline-block;"></span><span id="ai-canvas-flow-badge-text">AI Canvas Bridge v4.1: Đã kết nối</span>';
+    '<span style="width:8px;height:8px;border-radius:50%;background:#fff;display:inline-block;"></span><span id="ai-canvas-flow-badge-text">AI Canvas Bridge v5.0: Đã kết nối (Muse AI / Flow)</span>';
 }
 
 function updateBridgeBadgeText(text, bg = 'rgba(16,185,129,0.95)') {
@@ -175,7 +175,34 @@ async function base64ToFile(inputSource, filename = 'node_input.jpg') {
 }
 
 function findFlowPromptElement() {
+  const isMuseAi = window.location.hostname.includes('muse.ai');
   const allEls = queryAllDeep(document);
+
+  // 1. Nếu đang ở trên trang Muse AI
+  if (isMuseAi) {
+    const musePromptCandidates = allEls.filter((el) => {
+      const isEditable =
+        el.tagName === 'TEXTAREA' ||
+        (el.tagName === 'INPUT' && (el.type === 'text' || !el.type)) ||
+        el.getAttribute?.('contenteditable') === 'true' ||
+        el.getAttribute?.('role') === 'textbox';
+      if (!isEditable) return false;
+      const placeholder = (el.getAttribute?.('placeholder') || '').toLowerCase();
+      // Bỏ qua input đăng nhập email/password nếu có
+      if (placeholder.includes('email') || placeholder.includes('phone') || placeholder.includes('password')) {
+        return false;
+      }
+      const r = el.getBoundingClientRect();
+      return r.width > 120 && r.height > 20;
+    });
+
+    if (musePromptCandidates.length > 0) {
+      musePromptCandidates.sort((a, b) => b.getBoundingClientRect().bottom - a.getBoundingClientRect().bottom);
+      return musePromptCandidates[0];
+    }
+  }
+
+  // 2. Mặc định quét cho cả Muse AI và Google Flow
   const candidates = allEls.filter((el) => {
     const isEditable =
       el.tagName === 'TEXTAREA' ||
@@ -183,7 +210,7 @@ function findFlowPromptElement() {
       el.getAttribute?.('role') === 'textbox';
     if (!isEditable) return false;
     const r = el.getBoundingClientRect();
-    return r.width > 70 && r.height > 12 && r.top > window.innerHeight * 0.2;
+    return r.width > 70 && r.height > 12 && r.top > window.innerHeight * 0.15;
   });
 
   if (candidates.length > 0) {
@@ -869,7 +896,12 @@ async function fillPromptAndSubmit(rawPromptText, mode = 'IMAGE') {
 
   let promptEl = findFlowPromptElement();
   if (!promptEl) {
-    throw new Error('Không tìm thấy ô nhập Prompt trên Google Flow! Hãy mở vào bên trong 1 dự án trên Google Flow.');
+    const isMuse = window.location.hostname.includes('muse.ai');
+    throw new Error(
+      isMuse
+        ? 'Không tìm thấy ô nhập câu lệnh trên Muse AI! Hãy đăng nhập vào giao diện tạo video của Muse AI.'
+        : 'Không tìm thấy ô nhập Prompt! Hãy mở trang tạo video trên Muse AI hoặc Google Flow.'
+    );
   }
 
   updateBridgeBadgeText(`v4.2: Đang nhập Prompt (${mode === 'VIDEO' ? 'Veo 2' : 'Imagen 3'})...`, '#2563eb');

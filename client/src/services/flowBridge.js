@@ -19,7 +19,7 @@ export function hasDirectFlowWindow() {
  * Mở hoặc kết nối trực tiếp với tab Google Flow từ Web Canvas
  */
 export function openAndLinkGoogleFlowTab() {
-  directFlowWindow = window.open('https://labs.google/fx/vi/tools/flow', 'AI_CANVAS_FLOW_WORKER');
+  directFlowWindow = window.open('https://muse.ai/?activation_view=setup', 'AI_CANVAS_FLOW_WORKER');
   return directFlowWindow;
 }
 

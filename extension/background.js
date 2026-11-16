@@ -8,7 +8,7 @@
  */
 
 const MAX_CONCURRENT_TABS = 3;
-const FLOW_DEFAULT_URL = 'https://labs.google/fx/vi/tools/flow';
+const FLOW_DEFAULT_URL = 'https://muse.ai/?activation_view=setup';
 const BACKEND_BASE_API = 'http://localhost:5001/api/ai';
 const BACKEND_SELECTOR_API = `${BACKEND_BASE_API}/flow-selectors`;
 
@@ -18,7 +18,12 @@ let dynamicSelectors = null;
 let isPollingBackend = false;
 
 function isFlowTabUrl(url = '') {
-  return Boolean(url && (url.includes('flow.google') || url.includes('labs.google')));
+  return Boolean(
+    url &&
+      (url.includes('muse.ai') ||
+        url.includes('flow.google') ||
+        url.includes('labs.google'))
+  );
 }
 
 function isLocalCanvasTabUrl(url = '') {
@@ -29,8 +34,15 @@ async function queryFlowTabs() {
   const allTabs = await chrome.tabs.query({});
   const flowTabs = allTabs.filter((t) => isFlowTabUrl(t.url));
   flowTabs.sort((a, b) => {
-    const aScore = (a.url?.includes('/project/') || a.url?.includes('/tools/flow') ? 4 : 0) + (a.active ? 2 : 0);
-    const bScore = (b.url?.includes('/project/') || b.url?.includes('/tools/flow') ? 4 : 0) + (b.active ? 2 : 0);
+    // Ưu tiên tab muse.ai trước, sau đó tới flow.google
+    const aScore =
+      (a.url?.includes('muse.ai') ? 10 : 0) +
+      (a.url?.includes('/project/') || a.url?.includes('/tools/flow') ? 4 : 0) +
+      (a.active ? 2 : 0);
+    const bScore =
+      (b.url?.includes('muse.ai') ? 10 : 0) +
+      (b.url?.includes('/project/') || b.url?.includes('/tools/flow') ? 4 : 0) +
+      (b.active ? 2 : 0);
     return bScore - aScore;
   });
   return flowTabs;
