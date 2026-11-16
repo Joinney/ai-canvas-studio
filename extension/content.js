@@ -1227,28 +1227,25 @@ function scrollFlowGalleryToTop() {
 
 function isAttachmentOrChipElement(el, promptEl = null) {
   if (!el) return false;
+  const promptBox = promptEl ? getPromptBoxContainer(promptEl) : null;
 
-  // 1. Kiểm tra các thẻ cha có class hoặc thuộc tính liên quan đến Chip/Attachment/Upload/Preview
+  // 1. Nếu phần tử nằm trực tiếp bên trong khung soạn thảo Prompt (composer box) -> chắc chắn là chip đính kèm
+  if (promptBox && promptBox.contains(el)) {
+    return true;
+  }
+
+  // 2. Kiểm tra các thẻ cha gần nhất xem có phải chip đính kèm có nút xóa hay không
   let curr = el;
-  for (let i = 0; i < 6 && curr && curr !== document.body; i++) {
+  for (let i = 0; i < 4 && curr && curr !== document.body; i++) {
     const cls = (curr.className || '').toString().toLowerCase();
-    const role = (curr.getAttribute?.('role') || '').toLowerCase();
     const testid = (curr.getAttribute?.('data-testid') || '').toLowerCase();
     const aria = (curr.getAttribute?.('aria-label') || '').toLowerCase();
 
     if (
       cls.includes('chip') ||
-      cls.includes('attachment') ||
-      cls.includes('thumbnail') ||
-      cls.includes('preview') ||
-      cls.includes('upload') ||
-      role === 'status' ||
-      testid.includes('attachment') ||
       testid.includes('chip') ||
       aria.includes('đính kèm') ||
-      aria.includes('attachment') ||
-      aria.includes('xóa') ||
-      aria.includes('remove')
+      aria.includes('remove attachment')
     ) {
       return true;
     }
@@ -1258,15 +1255,15 @@ function isAttachmentOrChipElement(el, promptEl = null) {
     curr = curr.parentElement;
   }
 
-  // 2. Nằm trong vùng thanh nhập Prompt ở đáy màn hình
-  if (promptEl) {
-    const pr = promptEl.getBoundingClientRect();
+  // 3. Kiểm tra tọa độ nằm gọn bên trong khung composer box (không quét lên trên 220px vào luồng chat!)
+  if (promptBox) {
+    const br = promptBox.getBoundingClientRect();
     const r = el.getBoundingClientRect();
     if (
-      r.top >= pr.top - 220 &&
-      r.bottom <= pr.bottom + 120 &&
-      r.left >= pr.left - 80 &&
-      r.right <= pr.right + 100
+      r.top >= br.top - 5 &&
+      r.bottom <= br.bottom + 5 &&
+      r.left >= br.left - 10 &&
+      r.right <= br.right + 10
     ) {
       return true;
     }
@@ -1557,32 +1554,10 @@ function captureNewMediaOutput(
           }
         }
 
-        // 2. Phát hiện trạng thái Muse AI đang sinh (chỉ quét trong khu vực khung chat chính, loại trừ 2 sidebar)
-        const promptElForBusy = findFlowPromptElement();
-        const prBusy = promptElForBusy ? promptElForBusy.getBoundingClientRect() : null;
+        // 2. Kiểm tra nút Dừng (Stop / ■) trong thanh nhập Prompt (hoặc thanh tiến trình trên Google Flow)
+        const promptEl = findFlowPromptElement();
+        const prBusy = promptEl ? promptEl.getBoundingClientRect() : null;
 
-        const progressCandidates = isMuse
-          ? Array.from(document.querySelectorAll('[role="progressbar"], [aria-busy="true"], .animate-spin, .loading-spinner, .progress-bar, [aria-label*="generating" i], [aria-label*="đang tạo" i]'))
-          : queryAllDeep(document).filter((el) => {
-              const role = el.getAttribute?.('role') || '';
-              const ariaBusy = el.getAttribute?.('aria-busy') === 'true';
-              const cls = (el.className || '').toString().toLowerCase();
-              return role === 'progressbar' || ariaBusy || cls.includes('animate-spin') || cls.includes('loading-spinner') || cls.includes('progress-bar');
-            });
-
-        const progressEls = progressCandidates.filter((el) => {
-          if (el.closest?.('#ai-canvas-flow-badge, header, nav, aside')) return false;
-          const r = el.getBoundingClientRect();
-          if (r.width < 8 || r.height < 2 || r.width > 900 || r.height > 900) return false;
-          if (isMuse && (r.left < 65 || r.left > window.innerWidth * 0.76)) return false;
-          try {
-            const st = window.getComputedStyle(el);
-            if (st.display === 'none' || st.visibility === 'hidden' || st.opacity === '0') return false;
-          } catch (e) {}
-          return true;
-        });
-
-        // Kiểm tra nút Dừng (Stop / ■) CHỈ nằm trong vùng thanh nhập Prompt (không quét nhầm sidebar)
         const isMuseBusy = isMuse && (() => {
           if (prBusy) {
             const btns = document.querySelectorAll('button, [role="button"]');
@@ -1598,7 +1573,17 @@ function captureNewMediaOutput(
           return false;
         })();
 
-        if (progressEls.length > 0 || isMuseBusy) {
+        const flowProgressActive = !isMuse && queryAllDeep(document).some((el) => {
+          if (el.closest?.('#ai-canvas-flow-badge, header, nav, aside')) return false;
+          const r = el.getBoundingClientRect();
+          if (r.width < 8 || r.height < 2 || r.width > 900 || r.height > 900) return false;
+          const role = el.getAttribute?.('role') || '';
+          const ariaBusy = el.getAttribute?.('aria-busy') === 'true';
+          const cls = (el.className || '').toString().toLowerCase();
+          return role === 'progressbar' || ariaBusy || cls.includes('animate-spin') || cls.includes('loading-spinner') || cls.includes('progress-bar');
+        });
+
+        if (isMuseBusy || flowProgressActive) {
           updateBridgeBadgeText(
             `⚡ ${isMuse ? 'Muse AI' : 'Google Flow'} đang thực thi sinh ${mode === 'VIDEO' ? 'Video' : 'Ảnh'}... (${Math.round(elapsed / 1000)}s)`,
             '#f59e0b'
@@ -1607,7 +1592,6 @@ function captureNewMediaOutput(
         }
 
         if (!isMuse) scrollFlowGalleryToTop();
-        const promptEl = findFlowPromptElement();
         const promptRect = promptEl ? promptEl.getBoundingClientRect() : null;
         const userPromptRect = isMuse ? findLastUserPromptRect(sentPromptText, promptEl) : null;
 
@@ -1646,14 +1630,12 @@ function captureNewMediaOutput(
           if (!isValidGeneratedMedia(el, src, promptEl, inputFingerprints, null, mode)) continue;
 
           // BẢO VỆ ĐẶC BIỆT CHO MUSE AI:
-          // 1. Ảnh kết quả của Muse AI luôn nằm BÊN DƯỚI bong bóng câu lệnh vừa gửi của người dùng
-          // 2. Ảnh kết quả của Muse AI luôn CĂN TRÁI trong luồng chat (bong bóng của người dùng căn phải)
+          // Ảnh kết quả của Muse AI luôn nằm BÊN DƯỚI bong bóng câu lệnh vừa gửi của người dùng
           if (isMuse) {
             const er = el.getBoundingClientRect();
-            if (userPromptRect && er.top < userPromptRect.bottom - 12) {
-              continue;
-            }
-            if (promptRect && er.left > promptRect.left + promptRect.width * 0.35) {
+            if (userPromptRect) {
+              if (er.top < userPromptRect.bottom - 12) continue;
+            } else if (promptRect && er.left > promptRect.left + promptRect.width * 0.45) {
               continue;
             }
           }
@@ -1720,7 +1702,13 @@ function captureNewMediaOutput(
               `${isMuse ? 'Muse AI' : 'Google Flow'} báo không thành công. Hãy thử đổi câu lệnh Prompt!`
             )
           );
+          return;
         }
+
+        updateBridgeBadgeText(
+          `🔍 Đang chờ ${isMuse ? 'Muse AI' : 'Google Flow'} xuất ${mode === 'VIDEO' ? 'Video' : 'Ảnh'}... (${Math.round(elapsed / 1000)}s)`,
+          '#f59e0b'
+        );
       } catch (err) {
         console.warn(`⚠️ [FlowContent v5.1] Lỗi khi quét Media mới:`, err);
       } finally {
