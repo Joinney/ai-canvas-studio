@@ -898,26 +898,34 @@ async function waitForAttachmentsReady(expectedCount, maxWaitMs = 25000) {
   return false;
 }
 
-// Nạp từng ảnh tham chiếu: Ảnh 1 là Mẫu, Ảnh 2 là Trang phục
-async function uploadInputImages(images = []) {
-  const safeList = (images || []).filter(Boolean).slice(0, 2);
+// Nạp ảnh tham chiếu theo đúng chế độ:
+// Chế độ IMAGE: Nạp tối đa 2 ảnh (Ảnh 1 là Mẫu, Ảnh 2 là Trang phục)
+// Chế độ VIDEO: Nạp đúng 1 ảnh duy nhất (Ảnh người mẫu đã thử đồ từ Cột 2)
+async function uploadInputImages(images = [], mode = 'IMAGE') {
+  const maxCount = mode === 'VIDEO' ? 1 : 2;
+  const safeList = (images || []).filter(Boolean).slice(0, maxCount);
   if (safeList.length === 0) return [];
 
   const initialPrompt = findFlowPromptElement();
   await clearPreviousPromptAttachments(initialPrompt);
-  await new Promise((r) => setTimeout(r, 400));
+  await new Promise((r) => setTimeout(r, 600));
 
   for (let i = 0; i < safeList.length; i++) {
-    const roleText = i === 0 ? 'Mẫu (Image 1)' : 'Trang phục (Image 2)';
-    updateBridgeBadgeText(`v5.0: Đang nạp ảnh ${i + 1}/${safeList.length} [${roleText}]...`, '#2563eb');
+    const roleText =
+      mode === 'VIDEO'
+        ? 'Ảnh thử đồ từ Cột 2 (Image 1)'
+        : i === 0
+        ? 'Mẫu (Image 1)'
+        : 'Trang phục (Image 2)';
+    updateBridgeBadgeText(`v5.3: Đang nạp ảnh ${i + 1}/${safeList.length} [${roleText}]...`, '#2563eb');
     const file = await base64ToFile(safeList[i], `flow_ref_${Date.now()}_${i + 1}.jpg`);
     await pasteSingleFileIntoPrompt(file, i === 0);
 
     // Chờ cho ảnh này được giao diện nhận diện chip
-    await new Promise((r) => setTimeout(r, 1200));
+    await new Promise((r) => setTimeout(r, 1400));
 
     // Đợi ảnh này nạp xong trước khi nạp tiếp ảnh sau
-    await waitForAttachmentsReady(i + 1, 12000);
+    await waitForAttachmentsReady(i + 1, 15000);
   }
 
   // Đợi cho TẤT CẢ các ảnh hoàn tất 100%
@@ -1572,6 +1580,13 @@ function captureNewMediaOutput(
 
 window.__AI_CANVAS_RUN_FLOW_TASK__ = async function (payload = {}) {
   const { mode = 'IMAGE', images = [], prompt = '' } = payload;
+  const isMuse = window.location.hostname.includes('muse.ai');
+
+  // Đợi 1 giây để giao diện Muse AI ổn định trước khi nhận lượt mới
+  if (isMuse) {
+    dismissAnyOpenModal();
+    await new Promise((r) => setTimeout(r, 1000));
+  }
 
   if (typeof window.__AI_CANVAS_CANCEL_CURRENT_TASK__ === 'function') {
     try {
@@ -1588,7 +1603,7 @@ window.__AI_CANVAS_RUN_FLOW_TASK__ = async function (payload = {}) {
 
   let inputFingerprints = [];
   if (images && images.length > 0) {
-    inputFingerprints = await uploadInputImages(images);
+    inputFingerprints = await uploadInputImages(images, mode);
     // Ghi nhận toàn bộ chip đính kèm vừa xuất hiện vào danh sách ảnh cũ
     recordAllCurrentMediaUrls(existingUrls);
   }
@@ -1606,8 +1621,7 @@ window.__AI_CANVAS_RUN_FLOW_TASK__ = async function (payload = {}) {
     timeoutMs,
     submitTimestamp
   );
-  const isMuse = window.location.hostname.includes('muse.ai');
-  updateBridgeBadgeText(`✅ v5.1: Đã nhận kết quả thành công từ ${isMuse ? 'Muse AI' : 'Google Flow'}!`, 'rgba(16,185,129,0.95)');
+  updateBridgeBadgeText(`✅ v5.3: Đã nhận kết quả thành công từ ${isMuse ? 'Muse AI' : 'Google Flow'}!`, 'rgba(16,185,129,0.95)');
   return {
     ok: true,
     mode,

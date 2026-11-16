@@ -596,8 +596,9 @@ export default function WorkflowNodeCanvas({ project, onSaveProject }) {
         }
       }
 
-      // Hàm lấy danh sách ảnh/video đầu vào cho 1 Node theo đúng dây nối:
-      // Ảnh 1 luôn là Ảnh Mẫu (Image 1), Ảnh 2 luôn là Ảnh Trang Phục (Image 2)
+      // Hàm lấy danh sách ảnh/video đầu vào cho 1 Node theo đúng đường dây nối (edges):
+      // QUY TẮC BẮT BUỘC: Chỉ lấy ảnh MỚI NHẤT vừa sinh từ Node nguồn (runtimeOutputs),
+      // TUYỆT ĐỐI KHÔNG dùng lại ảnh cũ (fallbackUrl)! Nếu node nguồn chưa có kết quả -> báo lỗi và dừng ngay.
       const getInputsForNode = (targetId) => {
         const targetNode = preparedNodes.find((pn) => pn.id === targetId);
         const incomingEdges = edges.filter((e) => e.target === targetId);
@@ -605,24 +606,34 @@ export default function WorkflowNodeCanvas({ project, onSaveProject }) {
           .map((e) => preparedNodes.find((pn) => pn.id === e.source))
           .filter(Boolean);
 
+        if (sourceNodeObjs.length === 0) {
+          throw new Error(`Node "${targetNode?.data?.title}" chưa được nối dây với bất kỳ node nguồn nào!`);
+        }
+
+        // BẮT BUỘC: Mọi node nguồn nối vào node này PHẢI ĐÃ HOÀN THÀNH và có kết quả thật trong runtimeOutputs
+        for (const sn of sourceNodeObjs) {
+          const val = runtimeOutputs[sn.id];
+          if (!val) {
+            throw new Error(
+              `Node "${targetNode?.data?.title}" chưa thể chạy vì node nguồn "${sn.data?.title}" chưa có kết quả trả về từ Muse AI!`
+            );
+          }
+        }
+
         if (targetNode?.type === 'FLOW_IMAGE_GEN' && sourceNodeObjs.length >= 2) {
           const isModelNode = (n) =>
             /mẫu|model|三视图|gốc/i.test(n.data?.title || '') ||
             String(n.id).endsWith('-0') ||
             String(n.id).endsWith('-4') ||
-            n.y === Math.min(...sourceNodeObjs.map((s) => s.y));
+            (n.y || 0) <= Math.min(...sourceNodeObjs.map((s) => s.y || 0));
 
           const modelNodes = sourceNodeObjs.filter(isModelNode);
           const outfitNodes = sourceNodeObjs.filter((n) => !isModelNode(n));
           const sortedObjs = [...modelNodes, ...outfitNodes];
-          return sortedObjs
-            .map((sn) => runtimeOutputs[sn.id] || sn.data?.resultUrl || sn.data?.fallbackUrl)
-            .filter(Boolean);
+          return sortedObjs.map((sn) => runtimeOutputs[sn.id]).filter(Boolean);
         }
 
-        return sourceNodeObjs
-          .map((sn) => runtimeOutputs[sn.id] || sn.data?.resultUrl || sn.data?.fallbackUrl)
-          .filter(Boolean);
+        return sourceNodeObjs.map((sn) => runtimeOutputs[sn.id]).filter(Boolean);
       };
 
       // Hàng đợi các Node đã sẵn sàng (đã có đủ toàn bộ đầu vào từ các node trước đó)
@@ -677,10 +688,14 @@ export default function WorkflowNodeCanvas({ project, onSaveProject }) {
           executedSet.add(node.id);
           stepIndex++;
 
-          setStatusBanner(
-            `✅ [Bước ${stepIndex - 1}/${totalSteps}] Hoàn tất "${node.data.title}"! Đã nhận kết quả vào bàn vẽ.`
-          );
-          await new Promise((r) => setTimeout(r, 1200));
+          // NGHỈ ĐỆM 4 GIÂY CÓ ĐẾM LÙI (KHÔNG LÀM NHANH) ĐỂ MUSE AI ỔN ĐỊNH VÀ KẾT QUẢ ĐƯỢC NẠP HOÀN TOÀN TRƯỚC KHI CHUYỂN BƯỚC
+          for (let sec = 4; sec > 0; sec--) {
+            if (isCancelledRef.current) break;
+            setStatusBanner(
+              `⏳ [Bước ${stepIndex - 1}/${totalSteps}] Đã có kết quả "${node.data.title}" trên bàn vẽ! Nghỉ ${sec}s để Muse AI ổn định rồi mới chuyển sang bước tiếp theo...`
+            );
+            await new Promise((r) => setTimeout(r, 1000));
+          }
         } catch (nodeErr) {
           updateNodeData(node.id, { status: 'error', error: nodeErr.message });
           throw nodeErr;
