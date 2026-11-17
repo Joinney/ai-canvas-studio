@@ -693,8 +693,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         const leftW = Math.round(totalW * 0.54);
         const rightW = totalW - leftW;
 
-        // Tìm tab Tool và tab Muse AI
-        const canvasTabs = await chrome.tabs.query({ url: ['http://localhost/*', 'http://127.0.0.1/*'] });
+        // Tìm tab AI Engine
         const museTabs = await queryFlowTabs();
 
         let leftWinId = currentWin?.id;
