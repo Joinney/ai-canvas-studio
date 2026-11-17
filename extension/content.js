@@ -234,12 +234,21 @@ function toggleMuseEmbeddedTool(forceOpen = null) {
           <button id="ai-canvas-embed-close" style="background:rgba(239,68,68,0.25);border:none;color:#fecaca;padding:4px 8px;border-radius:6px;font-size:11px;cursor:pointer;">✕ Đóng</button>
         </div>
       </div>
-      <iframe id="ai-canvas-muse-tool-iframe" src="http://localhost:5174/" style="width:100%;height:calc(100% - 40px);border:none;background:#f8fafc;" allow="clipboard-read; clipboard-write"></iframe>
+      <iframe id="ai-canvas-muse-tool-iframe" src="http://localhost:5173/" style="width:100%;height:calc(100% - 40px);border:none;background:#f8fafc;" allow="clipboard-read; clipboard-write"></iframe>
       <div id="ai-canvas-embed-resizer" title="Kéo sang trái / phải để tùy chỉnh kích thước" style="position:absolute;top:0;right:-5px;width:10px;height:100%;cursor:col-resize;z-index:2147483647;display:flex;align-items:center;justify-content:center;">
         <div style="width:4px;height:48px;border-radius:999px;background:rgba(56,189,248,0.85);box-shadow:0 0 10px rgba(56,189,248,0.7);"></div>
       </div>
     `;
     (document.body || document.documentElement).appendChild(dock);
+
+    try {
+      chrome.runtime.sendMessage({ type: 'GET_ACTIVE_CANVAS_URL' }, (res) => {
+        const iframe = dock.querySelector('#ai-canvas-muse-tool-iframe');
+        if (res?.url && iframe && iframe.src !== res.url) {
+          iframe.src = res.url;
+        }
+      });
+    } catch (err) {}
 
     dock.querySelector('#ai-canvas-embed-w50')?.addEventListener('click', (e) => {
       e.stopPropagation();
@@ -267,7 +276,8 @@ function toggleMuseEmbeddedTool(forceOpen = null) {
       e.stopPropagation();
       toggleMuseEmbeddedTool(false);
       try {
-        chrome.runtime.sendMessage({ type: 'OPEN_SPLIT_WINDOWS', canvasUrl: 'http://localhost:5174/' });
+        const iframeUrl = dock.querySelector('#ai-canvas-muse-tool-iframe')?.src || 'http://localhost:5173/';
+        chrome.runtime.sendMessage({ type: 'OPEN_SPLIT_WINDOWS', canvasUrl: iframeUrl });
       } catch (err) {}
     });
     dock.querySelector('#ai-canvas-embed-close')?.addEventListener('click', (e) => {

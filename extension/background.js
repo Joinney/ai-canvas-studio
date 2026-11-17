@@ -665,10 +665,26 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   }
 
   // Mở 2 cửa sổ song song (Trái: Web Canvas Tool, Phải: Muse AI) để cả 2 cùng hiển thị đồng thời
+  if (message.type === 'GET_ACTIVE_CANVAS_URL') {
+    (async () => {
+      try {
+        const canvasTabs = await chrome.tabs.query({ url: ['http://localhost/*', 'http://127.0.0.1/*'] });
+        const viteTab = canvasTabs.find((t) => t.url && /localhost:517\d|127\.0\.0\.1:517\d/.test(t.url));
+        const activeUrl = viteTab?.url || canvasTabs[0]?.url || 'http://localhost:5173/';
+        sendResponse({ ok: true, url: activeUrl });
+      } catch (err) {
+        sendResponse({ ok: true, url: 'http://localhost:5173/' });
+      }
+    })();
+    return true;
+  }
+
   if (message.type === 'OPEN_SPLIT_WINDOWS') {
     (async () => {
       try {
-        const canvasUrl = message.canvasUrl || 'http://localhost:5174/';
+        const canvasTabs = await chrome.tabs.query({ url: ['http://localhost/*', 'http://127.0.0.1/*'] });
+        const viteTab = canvasTabs.find((t) => t.url && /localhost:517\d|127\.0\.0\.1:517\d/.test(t.url));
+        const canvasUrl = message.canvasUrl || viteTab?.url || 'http://localhost:5173/';
         const currentWin = await chrome.windows.getLastFocused();
         const totalW = currentWin?.width || 1440;
         const totalH = currentWin?.height || 900;
