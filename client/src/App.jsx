@@ -10,7 +10,9 @@ import {
   RefreshCw,
   Loader2,
   ArrowLeft,
-  Layers
+  Layers,
+  Sun,
+  Moon
 } from 'lucide-react';
 import InfiniteCanvas from './components/InfiniteCanvas';
 import Toolbar from './components/Toolbar';
@@ -730,8 +732,29 @@ export default function App() {
                 </button>
               </div>
 
-              {/* Cụm nút Kết nối Google Flow & Xuất file */}
+              {/* Cụm nút Sáng/Tối & Kết nối Flow Bridge */}
               <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={handleToggleTheme}
+                  className="box box-hover px-3 py-1.5 text-xs font-extrabold flex items-center gap-1.5 cursor-pointer"
+                  style={{ '--r': '999px', width: 'auto' }}
+                  title="Chuyển giao diện Sáng / Tối"
+                >
+                  <div className="circle-overlay" />
+                  {isDarkMode ? (
+                    <>
+                      <Sun className="w-3.5 h-3.5 text-amber-400" />
+                      <span>Sáng</span>
+                    </>
+                  ) : (
+                    <>
+                      <Moon className="w-3.5 h-3.5 text-slate-700" />
+                      <span>Tối</span>
+                    </>
+                  )}
+                </button>
+
                 <button
                   onClick={() => {
                     checkExtensionConnection();

@@ -147,7 +147,7 @@ export default function HomeDashboard({
   });
 
   return (
-    <div className="flex h-screen w-screen overflow-hidden text-slate-800 dark:text-slate-100 select-none">
+    <div className="flex h-screen w-screen overflow-hidden text-slate-900 dark:text-white select-none">
       {/* ================= 1. SIDEBAR TRÁI (QUANTV AI LAYOUT + LIQUID GLASS, TỰ ĐỘNG ẨN) ================= */}
       <aside
         className={`shrink-0 h-full flex flex-col justify-between border-white/20 dark:border-white/5 backdrop-blur-2xl z-30 transition-all duration-300 ease-out ${
@@ -198,10 +198,8 @@ export default function HomeDashboard({
               setNewProjectMode('workflow');
               setShowNewModal(true);
             }}
-            className="box box-hover w-full py-2.5 px-4 flex items-center justify-center gap-2 text-xs font-black text-white bg-gradient-to-r from-sky-500 via-blue-600 to-indigo-600 shadow-md shadow-sky-500/25 cursor-pointer"
-            style={{ '--r': '999px' }}
+            className="w-full py-2.5 px-4 rounded-full flex items-center justify-center gap-2 text-xs font-black text-white bg-gradient-to-r from-sky-500 via-blue-600 to-indigo-600 hover:brightness-110 transition-all shadow-md shadow-sky-500/30 cursor-pointer"
           >
-            <div className="circle-overlay" />
             <Plus className="w-4 h-4" />
             <span>TẠO DỰ ÁN MỚI</span>
           </button>
@@ -440,6 +438,28 @@ export default function HomeDashboard({
               <span>{clockStr}</span>
             </div>
 
+            {/* Nút Đổi Giao Diện Sáng / Tối */}
+            <button
+              type="button"
+              onClick={onToggleTheme}
+              className="box box-hover px-3.5 py-1.5 text-xs font-extrabold flex items-center gap-1.5 cursor-pointer"
+              style={{ '--r': '999px', width: 'auto' }}
+              title="Chuyển giao diện Sáng / Tối"
+            >
+              <div className="circle-overlay" />
+              {isDarkMode ? (
+                <>
+                  <Sun className="w-3.5 h-3.5 text-amber-400" />
+                  <span>Sáng</span>
+                </>
+              ) : (
+                <>
+                  <Moon className="w-3.5 h-3.5 text-slate-700" />
+                  <span>Tối</span>
+                </>
+              )}
+            </button>
+
             {/* Nút Test Ping AI Engine */}
             <button
               onClick={onPingFlow}
@@ -503,10 +523,8 @@ export default function HomeDashboard({
             <div className="flex flex-wrap items-center gap-3 pt-2">
               <button
                 onClick={() => onOpenProject(MIRROR_SELFIE_PROJECT)}
-                className="box box-hover px-5 py-2.5 text-xs font-black text-white bg-gradient-to-r from-sky-500 to-indigo-600 flex items-center gap-2 shadow-lg shadow-sky-500/30 cursor-pointer"
-                style={{ '--r': '999px', width: 'auto' }}
+                className="px-5 py-2.5 rounded-full text-xs font-black text-white bg-gradient-to-r from-sky-500 to-indigo-600 hover:brightness-110 transition-all flex items-center gap-2 shadow-lg shadow-sky-500/30 cursor-pointer"
               >
-                <div className="circle-overlay" />
                 <Play className="w-4 h-4 fill-current" />
                 <span>CHẠY NGAY WORKFLOW ĐỐI GƯƠNG 7S</span>
               </button>
