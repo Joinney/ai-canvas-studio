@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Video,
   Image as ImageIcon,
@@ -54,6 +54,33 @@ export const PRESET_TEMPLATES = [
   MIDDLE_AGED_FASHION_TVC_PROJECT,
   WINTER_FUR_PROJECT
 ];
+
+function HoverPreviewVideo({ src, poster, isHovered, isUnmuted, className = '' }) {
+  const videoRef = useRef(null);
+
+  useEffect(() => {
+    const v = videoRef.current;
+    if (!v) return;
+    if (isHovered) {
+      v.play().catch(() => {});
+    } else {
+      v.pause();
+    }
+  }, [isHovered]);
+
+  return (
+    <video
+      ref={videoRef}
+      src={src}
+      poster={poster || undefined}
+      muted={!isUnmuted}
+      loop
+      playsInline
+      preload="metadata"
+      className={className}
+    />
+  );
+}
 
 export default function HomeDashboard({
   activeTab,
@@ -594,14 +621,18 @@ export default function HomeDashboard({
               </div>
             </div>
 
-            {/* Cột phải: 3 Thẻ Showcase Dọc 3:4 So Le (SoraTK Style) */}
+            {/* Cột phải: 3 Thẻ Showcase Dọc 3:4 So Le (SoraTK Style + Kính Quang Học) */}
             <div className="lg:col-span-6 grid grid-cols-3 gap-3 items-center z-10">
               {heroShowcaseTemplates.map((tpl, idx) => {
                 const { videoUrl, imageUrl } = extractCardMedia(tpl);
+                const heroKey = `hero-${tpl.id}`;
+                const isHeroHovered = hoveredCardId === heroKey;
                 return (
                   <div
                     key={tpl.id}
                     onClick={() => handleOpenTemplateCard(tpl)}
+                    onMouseEnter={() => setHoveredCardId(heroKey)}
+                    onMouseLeave={() => setHoveredCardId(null)}
                     className={`box box-hover relative aspect-[3/4] rounded-2xl overflow-hidden cursor-pointer group border border-white/40 dark:border-white/15 shadow-xl ${
                       idx === 1 ? '-translate-y-3' : idx === 2 ? 'translate-y-2' : ''
                     }`}
@@ -610,13 +641,11 @@ export default function HomeDashboard({
                   >
                     <div className="circle-overlay" />
                     {videoUrl ? (
-                      <video
+                      <HoverPreviewVideo
                         src={videoUrl}
-                        poster={imageUrl || undefined}
-                        muted
-                        loop
-                        playsInline
-                        autoPlay
+                        poster={imageUrl}
+                        isHovered={isHeroHovered}
+                        isUnmuted={false}
                         className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                       />
                     ) : imageUrl ? (
@@ -626,14 +655,17 @@ export default function HomeDashboard({
                         className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                       />
                     ) : null}
-                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/20 to-transparent" />
                     <div className="absolute top-2 left-2 z-10">
-                      <span className="px-2 py-0.5 rounded-full text-[9px] font-black bg-emerald-500/90 text-white shadow">
+                      <span className="px-2 py-0.5 rounded-full text-[9px] font-black bg-emerald-500/90 text-white shadow backdrop-blur-md">
                         ▶ Video
                       </span>
                     </div>
-                    <div className="absolute bottom-2.5 left-2.5 right-2.5 z-10">
-                      <p className="text-[11px] font-black text-white line-clamp-2 leading-snug drop-shadow">
+                    <div
+                      className="box absolute bottom-2 left-2 right-2 z-10 p-2 opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300"
+                      style={{ '--r': '14px', width: 'auto' }}
+                    >
+                      <div className="circle-overlay" />
+                      <p className="text-[11px] font-black text-slate-900 dark:text-white line-clamp-2 leading-snug">
                         {tpl.name}
                       </p>
                     </div>
@@ -843,15 +875,13 @@ export default function HomeDashboard({
                   >
                     <div className="circle-overlay" />
 
-                    {/* Ảnh / Video nền tràn khung 3:4 */}
+                    {/* Ảnh / Video nền tràn khung 3:4 (Hover vào sẽ tự phát Video) */}
                     {hasVideo ? (
-                      <video
+                      <HoverPreviewVideo
                         src={videoUrl}
-                        poster={imageUrl || undefined}
-                        muted={!isUnmuted}
-                        loop
-                        playsInline
-                        autoPlay={isHovered}
+                        poster={imageUrl}
+                        isHovered={isHovered}
+                        isUnmuted={isUnmuted}
                         className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
                       />
                     ) : imageUrl ? (
@@ -865,9 +895,6 @@ export default function HomeDashboard({
                         <Workflow className="w-10 h-10 text-sky-500 opacity-50" />
                       </div>
                     )}
-
-                    {/* Lớp phủ tối phía dưới để chữ luôn nổi bật trên cả Sáng & Tối */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950/92 via-slate-950/30 to-black/15 pointer-events-none" />
 
                     {/* Nhãn góc trên trái */}
                     <div className="absolute top-3 left-3 z-10 flex items-center gap-1.5">
@@ -891,17 +918,21 @@ export default function HomeDashboard({
                       </button>
                     )}
 
-                    {/* Footer bo tròn dưới đáy thẻ (SoraTK Flow Card Footer) */}
-                    <div className="absolute bottom-3 left-3 right-3 z-10 p-3 rounded-[18px] bg-slate-950/65 backdrop-blur-md border border-white/15 flex flex-col gap-2">
-                      <h3 className="text-xs font-black text-white line-clamp-2 leading-snug" title={tpl.name}>
+                    {/* Footer Kính Quang Học (.box) hiện lên mượt mà khi Hover */}
+                    <div
+                      className="box absolute bottom-3 left-3 right-3 z-10 p-3 flex flex-col gap-2 opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300"
+                      style={{ '--r': '18px', width: 'auto' }}
+                    >
+                      <div className="circle-overlay" />
+                      <h3 className="text-xs font-black text-slate-900 dark:text-white line-clamp-2 leading-snug" title={tpl.name}>
                         {tpl.name}
                       </h3>
                       <div className="flex items-center justify-between gap-2">
-                        <div className="flex items-center gap-1.5 text-[10px] font-bold text-slate-300">
-                          <span className="px-2 py-0.5 rounded-full bg-white/10">
+                        <div className="flex items-center gap-1.5 text-[10px] font-extrabold text-slate-700 dark:text-slate-200">
+                          <span className="px-2 py-0.5 rounded-full bg-slate-900/10 dark:bg-white/15">
                             {tpl.nodes?.length || 0} Nodes
                           </span>
-                          <span className="px-2 py-0.5 rounded-full bg-white/10">
+                          <span className="px-2 py-0.5 rounded-full bg-slate-900/10 dark:bg-white/15">
                             {tpl.edges?.length || 0} Dây
                           </span>
                         </div>
