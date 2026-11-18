@@ -3233,3 +3233,1582 @@ export const CLAYMATION_BOBO_BEAR_PROJECT = convertDaAiCanvasToProject(CLAYMATIO
   previewImage:
     'https://rh-canvas-files.xiaoyaoyou.com/2e813926dc44bf9d0ca606850d64cef5/output/42cc253c-e5f7-4d1c-bb58-bcebab81799e.png'
 });
+
+
+// Vietnam Roaming Journal — 2D Sketch x Real Photo Travel Film (16:9)
+export const VIETNAM_TRAVEL_VLOG_RAW_CANVAS_JSON = {
+  "nodes": [
+    {
+      "id": "5508871a69ab465d9b55e219d1f48086",
+      "kind": "image",
+      "title": "Cover | Vietnam Roaming Journal",
+      "x": 340,
+      "y": 0,
+      "width": 444,
+      "height": 250,
+      "meta": {
+        "mediaUrl": "https://rh-images-switch.xiaoyaoyou.com/input/openapi/306d2593e1e92d624bd929ab29ab9bb107aeab8dd9395607287820851804c214.png",
+        "dimensions": {
+          "width": 444,
+          "height": 250
+        }
+      }
+    },
+    {
+      "id": "959c9edc0f0e4102af8ad11634a8704f",
+      "kind": "image",
+      "title": "Ref 01",
+      "x": 2938.59,
+      "y": 1444.65,
+      "width": 250,
+      "height": 250,
+      "meta": {
+        "mediaUrl": "https://rh-images-switch.xiaoyaoyou.com/input/openapi/bcb8e69bb6aeffffd2d99310a4288ab6b480e50ec8664da0e3f158c943c66b78.png",
+        "dimensions": {
+          "width": 250,
+          "height": 250
+        }
+      }
+    },
+    {
+      "id": "3c59fea233d24fecba6ba00b332b1787",
+      "kind": "image",
+      "title": "Ref 02",
+      "x": 3311.91,
+      "y": 4227.85,
+      "width": 250,
+      "height": 333,
+      "meta": {
+        "mediaUrl": "https://rh-images-switch.xiaoyaoyou.com/input/openapi/f28ca4e64ba0970f18e71ccfa0a03cb9b65527717df6af7eafbf750b83dc6fe5.png",
+        "dimensions": {
+          "width": 250,
+          "height": 333
+        },
+        "prompt": "Hand-drawn bold sketch of a young man wearing a light gray Henley long-sleeve shirt and black shorts, thick black square-framed glasses, medium-long black hair. Full-body character design of a 16-year-old Asian male. Relaxed expression, playful style, exaggerated rough brushstrokes.",
+        "settings": {
+          "params": {
+            "ratio": "3:4",
+            "resolution": "2K"
+          }
+        }
+      }
+    },
+    {
+      "id": "3169b48a70db473ba28c3d37577a9c25",
+      "kind": "image",
+      "title": "Ref 03",
+      "x": 4661.46,
+      "y": 3680.76,
+      "width": 250,
+      "height": 250,
+      "meta": {
+        "mediaUrl": "https://rh-images-switch.xiaoyaoyou.com/input/openapi/bcb8e69bb6aeffffd2d99310a4288ab6b480e50ec8664da0e3f158c943c66b78.png",
+        "dimensions": {
+          "width": 250,
+          "height": 250
+        }
+      }
+    },
+    {
+      "id": "18df51420569423798394de2918462e9",
+      "kind": "video",
+      "title": "Video Shot 04",
+      "x": 3842.4,
+      "y": 3609.47,
+      "width": 444,
+      "height": 250,
+      "meta": {
+        "mediaUrl": "https://rh-images-switch.xiaoyaoyou.com/input/openapi/01a9a543637a4fe7afdba1c57516893916e8b3d9c04d60f272db37b0cb27e735.mp4",
+        "dimensions": {
+          "width": 444,
+          "height": 250
+        },
+        "prompt": "Replace the blue character in @Video 1 with @Image 1. Keep the character's pose and expression unchanged. Maintain the real-life photographic background from @Video 1.",
+        "settings": {
+          "params": {
+            "ratio": "16:9",
+            "resolution": "720p",
+            "duration": "5s"
+          }
+        }
+      }
+    },
+    {
+      "id": "44b2968415a447b9be91dd27fd6dcadd",
+      "kind": "image",
+      "title": "Ref 05",
+      "x": 5044.67,
+      "y": 2641.06,
+      "width": 375,
+      "height": 250,
+      "meta": {
+        "mediaUrl": "https://rh-images-switch.xiaoyaoyou.com/input/openapi/3de7a4680d26e6b7be0528c7eea02368135ac3fd3342f6b6ad818deb63fa5669.png",
+        "dimensions": {
+          "width": 375,
+          "height": 250
+        },
+        "prompt": "Replace the two characters in @Image 2 with the characters from @Image 1, preserving the hand-drawn sketch texture of @Image 1 and the original character poses and states in @Image 2.",
+        "settings": {
+          "params": {
+            "ratio": "auto",
+            "resolution": "2K"
+          }
+        }
+      }
+    },
+    {
+      "id": "f3f79a63751748b0a1d46bf478343898",
+      "kind": "image",
+      "title": "Ref 06",
+      "x": 4596.28,
+      "y": 2716.7,
+      "width": 250,
+      "height": 373,
+      "meta": {
+        "mediaUrl": "https://rh-images-switch.xiaoyaoyou.com/input/openapi/5619cc41c399dc3ec64d9b34ebe1d54851d6ca1dee890264b874ed8c24df2e59.png",
+        "dimensions": {
+          "width": 250,
+          "height": 373
+        },
+        "prompt": "The woman's height reaches the man's shoulder.",
+        "settings": {
+          "params": {
+            "ratio": "auto",
+            "resolution": "2K"
+          }
+        }
+      }
+    },
+    {
+      "id": "c8368b52d8de4a119ca8fda2be3a562f",
+      "kind": "image",
+      "title": "Ref 07",
+      "x": 4519.95,
+      "y": 2443.4,
+      "width": 375,
+      "height": 250,
+      "meta": {
+        "mediaUrl": "https://rh-images-switch.xiaoyaoyou.com/input/openapi/99ad0cba60f0b37ee21c13dad72469694db98db1748011bf0b1d1eb7257a0000.png",
+        "dimensions": {
+          "width": 375,
+          "height": 250
+        }
+      }
+    },
+    {
+      "id": "3fc4ebea6de54c829d97f3b098e50507",
+      "kind": "video",
+      "title": "Video Shot 08",
+      "x": 4352.57,
+      "y": 3266.28,
+      "width": 444,
+      "height": 250,
+      "meta": {
+        "mediaUrl": "https://rh-images-switch.xiaoyaoyou.com/input/openapi/c15f736beeed0b8ba3de4343df7ff6dde38bd4fdce6996716209fe7c6ec7d2cb.mp4",
+        "dimensions": {
+          "width": 444,
+          "height": 250
+        },
+        "prompt": "Handheld camera shake, a 2D animated character with curly blue hair inside a real-life photographic style. Exaggerated 2D animation style, natural boiling-line brushstrokes, seamless blending. The little character presses the vending machine button; the vending machine shakes violently and drops a pile of drink cans that bury the character, who then pokes their head out.",
+        "settings": {
+          "params": {
+            "ratio": "16:9",
+            "resolution": "720p",
+            "duration": "5s"
+          }
+        }
+      }
+    },
+    {
+      "id": "7cbea0356d9846e0a13df30389905949",
+      "kind": "video",
+      "title": "Video Shot 09",
+      "x": 3934.18,
+      "y": 2772.37,
+      "width": 444,
+      "height": 250,
+      "meta": {
+        "mediaUrl": "https://rh-images-switch.xiaoyaoyou.com/input/openapi/360f8ee769627824ded36ce10b3dc3ea92938ad2ae6cf3911524ae9d0d03f4ee.mp4",
+        "dimensions": {
+          "width": 444,
+          "height": 250
+        },
+        "prompt": "Handheld camera shake, a 2D animated character with curly blue hair inside a real-life photographic style. Exaggerated 2D animation style, natural boiling-line brushstrokes, seamless blending. The character takes a big hearty bite of ramen, shows a satisfied expression, and gives a thumbs up.",
+        "settings": {
+          "params": {
+            "ratio": "16:9",
+            "resolution": "720p",
+            "duration": "5s"
+          }
+        }
+      }
+    },
+    {
+      "id": "ee3ba2c56c4f4a08ba82a5247e1960c7",
+      "kind": "video",
+      "title": "Video Shot 10",
+      "x": 3923.62,
+      "y": 1781.86,
+      "width": 444,
+      "height": 250,
+      "meta": {
+        "mediaUrl": "https://rh-images-switch.xiaoyaoyou.com/input/openapi/b383f7a976475009650444c08a6a6c3df79d296878a1f46665fd2039ec4028ba.mp4",
+        "dimensions": {
+          "width": 444,
+          "height": 250
+        },
+        "prompt": "Handheld camera shake, a 2D animated character with curly blue hair inside a real-life photographic style. Exaggerated 2D animation style, natural boiling-line brushstrokes, seamless blending. The character takes a biscuit offered from the foreground camera, eats it in delight, and says \"Sugoi!\" in Japanese.",
+        "settings": {
+          "params": {
+            "ratio": "16:9",
+            "resolution": "720p",
+            "duration": "5s"
+          }
+        }
+      }
+    },
+    {
+      "id": "e21b2e8b675940b3a3338474e2a93851",
+      "kind": "image",
+      "title": "Ref 11",
+      "x": 3461.51,
+      "y": 2450.05,
+      "width": 444,
+      "height": 250,
+      "meta": {
+        "mediaUrl": "https://rh-images-switch.xiaoyaoyou.com/input/openapi/9ab6a41876f5c9d94588b903b4838c431ee7849a2e651aece0ab601ba7f2d053.png",
+        "dimensions": {
+          "width": 444,
+          "height": 250
+        }
+      }
+    },
+    {
+      "id": "2d500759b4014ddf90b3597d15e33270",
+      "kind": "image",
+      "title": "Ref 12",
+      "x": 3433.26,
+      "y": 2766.69,
+      "width": 444,
+      "height": 250,
+      "meta": {
+        "mediaUrl": "https://rh-images-switch.xiaoyaoyou.com/input/openapi/1b24d1cb4d703eaeaf7d741967242f8a1d8f822c942dd2209e0787b550fd3ef6.png",
+        "dimensions": {
+          "width": 444,
+          "height": 250
+        }
+      }
+    },
+    {
+      "id": "2f9c52edc811466e9682e0c03eb27187",
+      "kind": "image",
+      "title": "Ref 13",
+      "x": 4261.54,
+      "y": 2040.24,
+      "width": 444,
+      "height": 250,
+      "meta": {
+        "mediaUrl": "https://rh-images-switch.xiaoyaoyou.com/input/openapi/91bd00d24272835ff9668b1bdd9b081798c5ed3845d6c22b5388330f16e43187.png",
+        "dimensions": {
+          "width": 444,
+          "height": 250
+        }
+      }
+    },
+    {
+      "id": "26fea872987a407a8b94ed5bfb4db813",
+      "kind": "image",
+      "title": "Ref 14",
+      "x": 3758.63,
+      "y": 2019.84,
+      "width": 444,
+      "height": 250,
+      "meta": {
+        "mediaUrl": "https://rh-images-switch.xiaoyaoyou.com/input/openapi/643e54362877a4ebe216b65d50dd0dc0ae1cc209892ea2da1ea2a89c327bbac4.png",
+        "dimensions": {
+          "width": 444,
+          "height": 250
+        }
+      }
+    },
+    {
+      "id": "4cd55116a6784b70ad4ed892e7582d2f",
+      "kind": "image",
+      "title": "Ref 15",
+      "x": 4417.73,
+      "y": 1770.54,
+      "width": 444,
+      "height": 250,
+      "meta": {
+        "mediaUrl": "https://rh-images-switch.xiaoyaoyou.com/input/openapi/3501b835d5bae07957bd3682316d37be9a476bc77105a67ea0bc868a54e831f1.png",
+        "dimensions": {
+          "width": 444,
+          "height": 250
+        }
+      }
+    },
+    {
+      "id": "0d7fabf8fc3e44c69edcbba75c0ee0e2",
+      "kind": "image",
+      "title": "Ref 16",
+      "x": 3845.02,
+      "y": 1743.61,
+      "width": 444,
+      "height": 250,
+      "meta": {
+        "mediaUrl": "https://rh-images-switch.xiaoyaoyou.com/input/openapi/4f947c4275446f159db438be2a741d6929e87a4bc7805dc3e76a330569303b6f.png",
+        "dimensions": {
+          "width": 444,
+          "height": 250
+        }
+      }
+    },
+    {
+      "id": "f876d5b0f3254c1289491a7fa3cd8c17",
+      "kind": "image",
+      "title": "Ref 17",
+      "x": 4078.11,
+      "y": 1404.03,
+      "width": 444,
+      "height": 250,
+      "meta": {
+        "mediaUrl": "https://rh-images-switch.xiaoyaoyou.com/input/openapi/74cc4a9b8acca3849107c199821527b8f0fdb748654d4e806563c434b23af418.png",
+        "dimensions": {
+          "width": 444,
+          "height": 250
+        },
+        "prompt": "Generate a travel photo of this character in real-world Tokyo, combining a real camera photography background with a 2D hand-drawn character. Location: Tokyo city, the character interacts naturally and playfully with the scene. Natural boiling-line brushstrokes, seamless blending. Everything except the character maintains candid, authentic smartphone photography realism. Keep the blue-haired female character's look and same outfit consistent. Automatically choose Tokyo landmarks, streets, and local everyday scenes, 16:9 aspect ratio.",
+        "settings": {
+          "params": {
+            "ratio": "16:9",
+            "resolution": "2K"
+          }
+        }
+      }
+    },
+    {
+      "id": "dfa24f2e862f460ba9540936c0fcdf8a",
+      "kind": "image",
+      "title": "Ref 18",
+      "x": 3348.3,
+      "y": 1173.74,
+      "width": 250,
+      "height": 333,
+      "meta": {
+        "mediaUrl": "https://rh-images-switch.xiaoyaoyou.com/input/openapi/ae5b5039bb8386d4fe9d0da788cb7c60a7f8c22c8aa38646e5ef7c5788b66243.png",
+        "dimensions": {
+          "width": 250,
+          "height": 333
+        },
+        "prompt": "Following the simple, bold, rough brushstroke style of @Image 2, draw a full-body portrait of the young man in @Image 1 wearing a dark gray Henley long-sleeve shirt and black shorts, with thick black square-framed glasses and medium-long black hair. Young Asian 16-year-old male.",
+        "settings": {
+          "params": {
+            "ratio": "3:4",
+            "resolution": "2K"
+          }
+        }
+      }
+    },
+    {
+      "id": "d04e4eff807f4ce196355cc02699ac3a",
+      "kind": "image",
+      "title": "Ref 19",
+      "x": 3476.52,
+      "y": 2013.77,
+      "width": 333,
+      "height": 250,
+      "meta": {
+        "mediaUrl": "https://rh-images-switch.xiaoyaoyou.com/input/openapi/915b742f33191b02f40e2faad8b73807a31d7cd234a577b48a2ea1d23cf0ee0b.png",
+        "dimensions": {
+          "width": 333,
+          "height": 250
+        }
+      }
+    },
+    {
+      "id": "d38444a804ad42ec90c4355f24fe0f16",
+      "kind": "image",
+      "title": "Ref 20",
+      "x": 2952.66,
+      "y": 989.04,
+      "width": 250,
+      "height": 373,
+      "meta": {
+        "mediaUrl": "https://rh-images-switch.xiaoyaoyou.com/input/openapi/5619cc41c399dc3ec64d9b34ebe1d54851d6ca1dee890264b874ed8c24df2e59.png",
+        "dimensions": {
+          "width": 250,
+          "height": 373
+        },
+        "prompt": "The woman's height reaches the man's shoulder.",
+        "settings": {
+          "params": {
+            "ratio": "auto",
+            "resolution": "2K"
+          }
+        }
+      }
+    },
+    {
+      "id": "fdeac45c270f4335bee7d5cd54c039fc",
+      "kind": "image",
+      "title": "Ref 21",
+      "x": 2735.96,
+      "y": 3121.48,
+      "width": 250,
+      "height": 333,
+      "meta": {
+        "mediaUrl": "https://rh-images-switch.xiaoyaoyou.com/input/openapi/c7c888255e419d2db2c7fd335f0b4bb0508426ccfe2fe921476af9efdf089670.png",
+        "dimensions": {
+          "width": 250,
+          "height": 333
+        },
+        "prompt": "Hand-drawn bold sketch of a young girl wearing a sweater and denim shorts, with short curly blue hair. Asian. Cute expression, playful style, exaggerated rough brushstrokes.",
+        "settings": {
+          "params": {
+            "ratio": "3:4",
+            "resolution": "2K"
+          }
+        }
+      }
+    },
+    {
+      "id": "5173e1e508ce4500a8eb4bcbf6e2ac83",
+      "kind": "image",
+      "title": "Ref 22",
+      "x": 1536.03,
+      "y": 1579,
+      "width": 250,
+      "height": 373,
+      "meta": {
+        "mediaUrl": "https://rh-images-switch.xiaoyaoyou.com/input/openapi/5619cc41c399dc3ec64d9b34ebe1d54851d6ca1dee890264b874ed8c24df2e59.png",
+        "dimensions": {
+          "width": 250,
+          "height": 373
+        },
+        "prompt": "The woman's height reaches the man's shoulder.",
+        "settings": {
+          "params": {
+            "ratio": "auto",
+            "resolution": "2K"
+          }
+        }
+      }
+    },
+    {
+      "id": "bbd7567670304f219a281b0ed666bc80",
+      "kind": "video",
+      "title": "Video Shot 23",
+      "x": 1009.3,
+      "y": 6266.35,
+      "width": 444,
+      "height": 250,
+      "meta": {
+        "mediaUrl": "https://rh-images-switch.xiaoyaoyou.com/input/openapi/fcff809f12cd79f4bd11e57b376496623ddfee70160ca59bcf9f2f244fdeaaca.mp4",
+        "dimensions": {
+          "width": 444,
+          "height": 250
+        },
+        "prompt": "@Image 1 By a bridge in Vietnam, a 2D cartoon character inside a real-life photography scene. Fixed camera @Image 1, exaggerated 2D animation style, natural boiling-line brushstrokes, seamless style blending. Multiple jump cuts with a fixed camera; the 2D girl in an orange vest strikes exaggerated poses on the bridge with every cut.",
+        "settings": {
+          "params": {
+            "ratio": "16:9",
+            "resolution": "720p",
+            "duration": "7s"
+          }
+        }
+      }
+    },
+    {
+      "id": "d4dfe5f72f3a41c3be025215555de678",
+      "kind": "video",
+      "title": "Video Shot 24",
+      "x": 962.3,
+      "y": 6551.35,
+      "width": 444,
+      "height": 250,
+      "meta": {
+        "mediaUrl": "https://rh-images-switch.xiaoyaoyou.com/input/openapi/4a863551da9a19aa7cd43df1603fa624a95f2ef6226ff1de4c90981606cc039e.mp4",
+        "dimensions": {
+          "width": 444,
+          "height": 250
+        },
+        "prompt": "By a bridge in Vietnam, a 2D cartoon character inside a real-life photography scene. Handheld camera shake, exaggerated 2D animation style, natural boiling-line brushstrokes, seamless blending. Multiple jump cuts with a fixed camera; the 2D boy in a black shirt with medium hair poses dramatically facing the camera from various angles on every cut.",
+        "settings": {
+          "params": {
+            "ratio": "16:9",
+            "resolution": "720p",
+            "duration": "10s"
+          }
+        }
+      }
+    },
+    {
+      "id": "0ee79b80d8994f86b9708a97889b447d",
+      "kind": "image",
+      "title": "Ref 25",
+      "x": 438.75,
+      "y": 6553.83,
+      "width": 444,
+      "height": 250,
+      "meta": {
+        "mediaUrl": "https://rh-images-switch.xiaoyaoyou.com/input/openapi/1949d93011bb0c726673e949dd7de33da8134619ae657118e1d6953105bc67b5.png",
+        "dimensions": {
+          "width": 444,
+          "height": 250
+        }
+      }
+    },
+    {
+      "id": "2fded7e571ea40be9780ec2587b508e0",
+      "kind": "image",
+      "title": "Ref 26",
+      "x": 472.28,
+      "y": 6259.26,
+      "width": 444,
+      "height": 250,
+      "meta": {
+        "mediaUrl": "https://rh-images-switch.xiaoyaoyou.com/input/openapi/54c2a7e2849a477fef2b4bf0ecdc7cc5d673265e844997e39c4f6f7a50b79a3f.png",
+        "dimensions": {
+          "width": 444,
+          "height": 250
+        }
+      }
+    },
+    {
+      "id": "10585b2b65cc43d58e8187be60f148c7",
+      "kind": "video",
+      "title": "Video Shot 27",
+      "x": 982.3,
+      "y": 5959.35,
+      "width": 444,
+      "height": 250,
+      "meta": {
+        "mediaUrl": "https://rh-images-switch.xiaoyaoyou.com/input/openapi/41f65488147ac0db5d575ed3a0bdcdac6b2c8cae40eabf536dfe263dd60493a7.mp4",
+        "dimensions": {
+          "width": 444,
+          "height": 250
+        },
+        "prompt": "Both happily put on their hats, then point at each other and burst out laughing.",
+        "settings": {
+          "params": {
+            "ratio": "16:9",
+            "resolution": "720p",
+            "duration": "5s"
+          }
+        }
+      }
+    },
+    {
+      "id": "95ebd649c55d4013947b335edae44d3c",
+      "kind": "image",
+      "title": "Ref 28",
+      "x": 507.5,
+      "y": 5954.9,
+      "width": 444,
+      "height": 250,
+      "meta": {
+        "mediaUrl": "https://rh-images-switch.xiaoyaoyou.com/input/openapi/e6bb4adb4e37875b911095ecbce19267cfbdac2bbc8008210c1e73d49e5bb377.png",
+        "dimensions": {
+          "width": 444,
+          "height": 250
+        }
+      }
+    },
+    {
+      "id": "55e5d0eb9b354e25ba04595811f35022",
+      "kind": "video",
+      "title": "Video Shot 29",
+      "x": 976.3,
+      "y": 5432.35,
+      "width": 444,
+      "height": 250,
+      "meta": {
+        "mediaUrl": "https://rh-images-switch.xiaoyaoyou.com/input/openapi/9911d6f68c62477affcf3cfd72da235d55a81c547926e166ba874b3f6499ce40.mp4",
+        "dimensions": {
+          "width": 444,
+          "height": 250
+        },
+        "prompt": "The two joyfully dance a waltz, handheld camera shake, two 2D cartoon characters inside a real-life photographic scene. Exaggerated 2D animation style, smiling in sync as they hold books as props while waltzing.",
+        "settings": {
+          "params": {
+            "ratio": "16:9",
+            "resolution": "720p",
+            "duration": "7s"
+          }
+        }
+      }
+    },
+    {
+      "id": "a2b5a721826e4dc5b59fb3250639dae0",
+      "kind": "image",
+      "title": "Ref 30",
+      "x": 514.88,
+      "y": 5510.58,
+      "width": 444,
+      "height": 250,
+      "meta": {
+        "mediaUrl": "https://rh-images-switch.xiaoyaoyou.com/input/openapi/3684077ee626b78c062768a6fa9e32d84dd1d447deb59ee3a933ca99cc4ed372.png",
+        "dimensions": {
+          "width": 444,
+          "height": 250
+        }
+      }
+    },
+    {
+      "id": "dcfb8e72d2c541c3bc58546a4f1cd50f",
+      "kind": "image",
+      "title": "Ref 31",
+      "x": 120.3,
+      "y": 5485.35,
+      "width": 250,
+      "height": 373,
+      "meta": {
+        "mediaUrl": "https://rh-images-switch.xiaoyaoyou.com/input/openapi/5619cc41c399dc3ec64d9b34ebe1d54851d6ca1dee890264b874ed8c24df2e59.png",
+        "dimensions": {
+          "width": 250,
+          "height": 373
+        },
+        "prompt": "The woman's height reaches the man's shoulder.",
+        "settings": {
+          "params": {
+            "ratio": "auto",
+            "resolution": "2K"
+          }
+        }
+      }
+    },
+    {
+      "id": "4277ea38f49d438c93c170941555579d",
+      "kind": "video",
+      "title": "Video Shot 32",
+      "x": 480.3,
+      "y": 5179.35,
+      "width": 444,
+      "height": 250,
+      "meta": {
+        "mediaUrl": "https://rh-images-switch.xiaoyaoyou.com/input/openapi/0e4a020d37ddfdd36858030c24ba5fa991689ee6189455c9761e6cca924830a9.mp4",
+        "dimensions": {
+          "width": 444,
+          "height": 250
+        },
+        "prompt": "@Image 2 Two 2D animated characters from @Image 1 inside a real-life photographic style. Centered composition, handheld tracking camera, exaggerated 2D animation style, natural boiling-line brushstrokes, seamless blending. The glasses-wearing man in a black shirt has his short-medium hair and face dramatically blown by the wind while the woman rides a bike. Both laugh exaggeratedly. Motion blur.",
+        "settings": {
+          "params": {
+            "ratio": "16:9",
+            "resolution": "720p",
+            "duration": "7s"
+          }
+        }
+      }
+    },
+    {
+      "id": "a691560321d64610b50d9d4bad3e9f45",
+      "kind": "image",
+      "title": "Ref 33",
+      "x": 0,
+      "y": 5169.85,
+      "width": 444,
+      "height": 250,
+      "meta": {
+        "mediaUrl": "https://rh-images-switch.xiaoyaoyou.com/input/openapi/10e705d9705478263d74807fdbdd69bd0280698c0f2b57fa84cfdbf39db27168.png",
+        "dimensions": {
+          "width": 444,
+          "height": 250
+        }
+      }
+    },
+    {
+      "id": "0dae6e422b3949028064a5a63e39d6ef",
+      "kind": "video",
+      "title": "Video Shot 34",
+      "x": 1264.63,
+      "y": 5713.99,
+      "width": 444,
+      "height": 250,
+      "meta": {
+        "mediaUrl": "https://rh-images-switch.xiaoyaoyou.com/input/openapi/ee13bf8891f53a0926cda3af16abd245338811a1c647b78a8503bc19a2771635.mp4",
+        "dimensions": {
+          "width": 444,
+          "height": 250
+        },
+        "prompt": "The two joyfully dance a waltz, handheld camera shake, two 2D cartoon characters inside a real-life photographic style. Exaggerated 2D animation style, smiling in sync while holding clothes as props as they waltz.",
+        "settings": {
+          "params": {
+            "ratio": "16:9",
+            "resolution": "720p",
+            "duration": "8s"
+          }
+        }
+      }
+    },
+    {
+      "id": "f3a68d1a4a0b401b956c7900add32d16",
+      "kind": "image",
+      "title": "Ref 35",
+      "x": 1022.67,
+      "y": 5746.4,
+      "width": 444,
+      "height": 250,
+      "meta": {
+        "mediaUrl": "https://rh-images-switch.xiaoyaoyou.com/input/openapi/e621d159292881dc5f160cc2b419d3b4d03243dca37166d24310d6529e8cd0b2.png",
+        "dimensions": {
+          "width": 444,
+          "height": 250
+        }
+      }
+    },
+    {
+      "id": "f37d7209f1374b079af75f64f6054385",
+      "kind": "video",
+      "title": "Video Shot 36",
+      "x": 967.63,
+      "y": 4991.99,
+      "width": 444,
+      "height": 250,
+      "meta": {
+        "mediaUrl": "https://rh-images-switch.xiaoyaoyou.com/input/openapi/60abe8bd7395d78f16801fd9d2895da103c4fc22abc583990a86e23cc64e0032.mp4",
+        "dimensions": {
+          "width": 444,
+          "height": 250
+        },
+        "prompt": "The two joyfully dance a waltz, handheld camera shake, two 2D cartoon characters inside a real-life photographic style. Exaggerated 2D animation style, smiling in sync as they waltz together.",
+        "settings": {
+          "params": {
+            "ratio": "16:9",
+            "resolution": "720p",
+            "duration": "8s"
+          }
+        }
+      }
+    },
+    {
+      "id": "7ab0c3a605b64f489e32372ea9d0dc1c",
+      "kind": "image",
+      "title": "Ref 37",
+      "x": 751.93,
+      "y": 4937.4,
+      "width": 444,
+      "height": 250,
+      "meta": {
+        "mediaUrl": "https://rh-images-switch.xiaoyaoyou.com/input/openapi/3481b90d32d311252bcd17fcd4030ca0f30ccf80435709ea73691d743de9a8ba.png",
+        "dimensions": {
+          "width": 444,
+          "height": 250
+        }
+      }
+    },
+    {
+      "id": "e7b39847c1c64d31bfc78f24b9c674fb",
+      "kind": "video",
+      "title": "Video Shot 38",
+      "x": 1333.27,
+      "y": 4657.62,
+      "width": 444,
+      "height": 250,
+      "meta": {
+        "mediaUrl": "https://rh-images-switch.xiaoyaoyou.com/input/openapi/6342de0e1a4e618a76bc1b243c2ade0ca96cc78f010658a3ada8e0adc445db9c.mp4",
+        "dimensions": {
+          "width": 444,
+          "height": 250
+        },
+        "prompt": "Handheld camera shake, two 2D animated characters inside a real-life photographic style. Exaggerated 2D animation style, natural boiling-line brushstrokes, seamless blending. The two clink glasses in sync and burst into laughter.",
+        "settings": {
+          "params": {
+            "ratio": "16:9",
+            "resolution": "720p",
+            "duration": "7s"
+          }
+        }
+      }
+    },
+    {
+      "id": "f54afe0d41784d9d9b75e95a579f657e",
+      "kind": "image",
+      "title": "Ref 39",
+      "x": 690.41,
+      "y": 4670.86,
+      "width": 444,
+      "height": 250,
+      "meta": {
+        "mediaUrl": "https://rh-images-switch.xiaoyaoyou.com/input/openapi/6ac64e9c0e2965cea0a39d2b3c35d1f8b8084fb1398358748888e0a601c087fc.png",
+        "dimensions": {
+          "width": 444,
+          "height": 250
+        }
+      }
+    },
+    {
+      "id": "8d9b24285e7e47a09a086dfd6e3be655",
+      "kind": "video",
+      "title": "Video Shot 40",
+      "x": 1280.63,
+      "y": 4362.99,
+      "width": 444,
+      "height": 250,
+      "meta": {
+        "mediaUrl": "https://rh-images-switch.xiaoyaoyou.com/input/openapi/9ada7af236c1079f5bb04a03462458717097da0df83e49fe5a428ad8c6b1f7f4.mp4",
+        "dimensions": {
+          "width": 444,
+          "height": 250
+        },
+        "prompt": "Two 2D animated characters inside a real-life photographic style. @Image 1 On a rainstorm-drenched street, exaggerated 2D animation style, natural boiling-line brushstrokes, seamless blending. Drenched and laughing happily together while running forward quickly.",
+        "settings": {
+          "params": {
+            "ratio": "16:9",
+            "resolution": "720p",
+            "duration": "7s"
+          }
+        }
+      }
+    },
+    {
+      "id": "d90d45cd608f461ea863769635075312",
+      "kind": "image",
+      "title": "Ref 41",
+      "x": 437.88,
+      "y": 4371.53,
+      "width": 444,
+      "height": 250,
+      "meta": {
+        "mediaUrl": "https://rh-images-switch.xiaoyaoyou.com/input/openapi/975ef65944c11e6712ad41fe88c22bb57473408f2406eb0730e9e2210eeea2a1.png",
+        "dimensions": {
+          "width": 444,
+          "height": 250
+        }
+      }
+    },
+    {
+      "id": "760a3264a3cf4a39935433a043794264",
+      "kind": "image",
+      "title": "Ref 42",
+      "x": 1416.43,
+      "y": 2962.94,
+      "width": 444,
+      "height": 250,
+      "meta": {
+        "mediaUrl": "https://rh-images-switch.xiaoyaoyou.com/input/openapi/975ef65944c11e6712ad41fe88c22bb57473408f2406eb0730e9e2210eeea2a1.png",
+        "dimensions": {
+          "width": 444,
+          "height": 250
+        }
+      }
+    },
+    {
+      "id": "c71901c8393a450bb232a6d62d844f81",
+      "kind": "video",
+      "title": "Video Shot 43",
+      "x": 1358.38,
+      "y": 4019.68,
+      "width": 444,
+      "height": 250,
+      "meta": {
+        "mediaUrl": "https://rh-images-switch.xiaoyaoyou.com/input/openapi/70411bd6aae62c9bfb1c8b511934378b2be0f50fa94aa579de2bd7546b1a0814.mp4",
+        "dimensions": {
+          "width": 444,
+          "height": 250
+        },
+        "prompt": "Two 2D animated characters inside a real-life photographic style. @Image 1 On a moving boat, exaggerated 2D animation style, natural boiling-line brushstrokes, seamless blending. The girl pouts and sits sulking on the left side of the boat, while the boy on the right side takes out his phone to take a photo of her.",
+        "settings": {
+          "params": {
+            "ratio": "16:9",
+            "resolution": "720p",
+            "duration": "8s"
+          }
+        }
+      }
+    },
+    {
+      "id": "99b87b39bc054719b1de7a994c344378",
+      "kind": "image",
+      "title": "Ref 44",
+      "x": 881.88,
+      "y": 4026.02,
+      "width": 444,
+      "height": 250,
+      "meta": {
+        "mediaUrl": "https://rh-images-switch.xiaoyaoyou.com/input/openapi/e82779a436c7d832fd6bc05bfd220df8a0420efe6e8d02ad176f076c3bfda325.png",
+        "dimensions": {
+          "width": 444,
+          "height": 250
+        }
+      }
+    },
+    {
+      "id": "922e219e5cde4ad3b521419e84898e5c",
+      "kind": "video",
+      "title": "Video Shot 45",
+      "x": 1363.88,
+      "y": 3672.75,
+      "width": 444,
+      "height": 250,
+      "meta": {
+        "mediaUrl": "https://rh-images-switch.xiaoyaoyou.com/input/openapi/3df140e59f842238b085d02f38da69743dbc3e0c49274c6fdbd677865bf0da5c.mp4",
+        "dimensions": {
+          "width": 444,
+          "height": 250
+        },
+        "prompt": "Two 2D animated characters inside a real-life photographic style. Exaggerated 2D animation style, natural boiling-line brushstrokes, seamless blending. The two sit on the balcony, chatting and laughing quietly together.",
+        "settings": {
+          "params": {
+            "ratio": "16:9",
+            "resolution": "720p",
+            "duration": "5s"
+          }
+        }
+      }
+    },
+    {
+      "id": "3293765319f743cbb007f21870b2726d",
+      "kind": "image",
+      "title": "Ref 46",
+      "x": 826.65,
+      "y": 3667.2,
+      "width": 444,
+      "height": 250,
+      "meta": {
+        "mediaUrl": "https://rh-images-switch.xiaoyaoyou.com/input/openapi/8a4acf1e8bf785765b700fe1b9a635da688e6ca1096be31c2eae8534680d0421.png",
+        "dimensions": {
+          "width": 444,
+          "height": 250
+        }
+      }
+    },
+    {
+      "id": "5546b9eb05094db8b97e543e8acc35e3",
+      "kind": "video",
+      "title": "Video Shot 47",
+      "x": 1358.38,
+      "y": 3385.02,
+      "width": 444,
+      "height": 250,
+      "meta": {
+        "mediaUrl": "https://rh-images-switch.xiaoyaoyou.com/input/openapi/0bb1fa52af971e6590ca83daeb697573d0b84df3b3f329988c8a0c53b0352d0d.mp4",
+        "dimensions": {
+          "width": 444,
+          "height": 250
+        },
+        "prompt": "The two stay together peacefully; a gentle breeze outside rustles the leaves while the man sways slightly in a rocking chair.",
+        "settings": {
+          "params": {
+            "ratio": "16:9",
+            "resolution": "720p",
+            "duration": "5s"
+          }
+        }
+      }
+    },
+    {
+      "id": "b60a4c6348144d24acbe5c58c20ecae4",
+      "kind": "image",
+      "title": "Ref 48",
+      "x": 850.18,
+      "y": 3375.76,
+      "width": 444,
+      "height": 250,
+      "meta": {
+        "mediaUrl": "https://rh-images-switch.xiaoyaoyou.com/input/openapi/e1502f3c579b9183946b12aca477419fd4b8c8e46526ce5a93362ae494e62bd5.png",
+        "dimensions": {
+          "width": 444,
+          "height": 250
+        }
+      }
+    },
+    {
+      "id": "fdfef38231ff492797c9962ee681684e",
+      "kind": "video",
+      "title": "Video Shot 49",
+      "x": 2112.89,
+      "y": 2772.5,
+      "width": 444,
+      "height": 250,
+      "meta": {
+        "mediaUrl": "https://rh-images-switch.xiaoyaoyou.com/input/openapi/d74394daf71f7690e09787dc515f92abf6fe760f53b4f45e8a192fe5e2f085cc.mp4",
+        "dimensions": {
+          "width": 444,
+          "height": 250
+        },
+        "prompt": "@Image 2 A street lined with bookstores, two 2D animated characters inside a real-life photographic style. Fixed camera, exaggerated 2D animation style, natural boiling-line brushstrokes, seamless blending. 2D character design referencing @Image 1. Multiple jump cuts with a fixed camera as the characters move; the 2D girl in an orange vest and the boy in a black shirt sweetly browse books together in different bookstores along the street on each cut.",
+        "settings": {
+          "params": {
+            "ratio": "16:9",
+            "resolution": "720p",
+            "duration": "7s"
+          }
+        }
+      }
+    },
+    {
+      "id": "0ba113cd33214bec9ffb74e37ab032c9",
+      "kind": "image",
+      "title": "Ref 50",
+      "x": 1456.12,
+      "y": 2251.7,
+      "width": 250,
+      "height": 373,
+      "meta": {
+        "mediaUrl": "https://rh-images-switch.xiaoyaoyou.com/input/openapi/5619cc41c399dc3ec64d9b34ebe1d54851d6ca1dee890264b874ed8c24df2e59.png",
+        "dimensions": {
+          "width": 250,
+          "height": 373
+        },
+        "prompt": "The woman's height reaches the man's shoulder.",
+        "settings": {
+          "params": {
+            "ratio": "auto",
+            "resolution": "2K"
+          }
+        }
+      }
+    },
+    {
+      "id": "65fe57e1db8c4ced9bc45c303a16a10f",
+      "kind": "image",
+      "title": "Ref 51",
+      "x": 989.93,
+      "y": 2634.08,
+      "width": 444,
+      "height": 250,
+      "meta": {
+        "mediaUrl": "https://rh-images-switch.xiaoyaoyou.com/input/openapi/49d9b224d5030923d30ece7629943a2fc803ebb05353e3e06dd6e1aa519843be.png",
+        "dimensions": {
+          "width": 444,
+          "height": 250
+        }
+      }
+    },
+    {
+      "id": "84d14d8e7edb474997d15712be705a75",
+      "kind": "video",
+      "title": "Video Shot 52",
+      "x": 764.7,
+      "y": 2960.59,
+      "width": 444,
+      "height": 250,
+      "meta": {
+        "mediaUrl": "https://rh-images-switch.xiaoyaoyou.com/input/openapi/e7ef33adf93fafbead6b372b541e01b8342d4584e14fcbe212578fb31daa7634.mp4",
+        "dimensions": {
+          "width": 444,
+          "height": 250
+        },
+        "prompt": "Two 2D animated characters inside a real-life photographic style. @Image 2 Inside a moving train carriage, handheld camera shake, exaggerated 2D animation style, natural boiling-line brushstrokes, seamless blending. 2D character design referencing @Image 2. Cut to a medium shot: the 2D girl in an orange vest looks at the boy in a black shirt, they share a warm smile, and lean their heads together.",
+        "settings": {
+          "params": {
+            "ratio": "16:9",
+            "resolution": "720p",
+            "duration": "10s"
+          }
+        }
+      }
+    },
+    {
+      "id": "26d241280ebc4ebcba400e0483257f1b",
+      "kind": "image",
+      "title": "Ref 53",
+      "x": 328.6,
+      "y": 3039.18,
+      "width": 250,
+      "height": 373,
+      "meta": {
+        "mediaUrl": "https://rh-images-switch.xiaoyaoyou.com/input/openapi/5619cc41c399dc3ec64d9b34ebe1d54851d6ca1dee890264b874ed8c24df2e59.png",
+        "dimensions": {
+          "width": 250,
+          "height": 373
+        },
+        "prompt": "The woman's height reaches the man's shoulder.",
+        "settings": {
+          "params": {
+            "ratio": "auto",
+            "resolution": "2K"
+          }
+        }
+      }
+    },
+    {
+      "id": "1a6f3136ded042b9b8752ded1c3c39de",
+      "kind": "image",
+      "title": "Ref 54",
+      "x": 196.8,
+      "y": 2749.39,
+      "width": 444,
+      "height": 250,
+      "meta": {
+        "mediaUrl": "https://rh-images-switch.xiaoyaoyou.com/input/openapi/4effa23b96dae0cd3c40a6aa6cf4437c513b347ab2b34bc587055f4357f08f68.png",
+        "dimensions": {
+          "width": 444,
+          "height": 250
+        }
+      }
+    },
+    {
+      "id": "d2e918c4f3dc42d68a6c484cdda31cf8",
+      "kind": "video",
+      "title": "Video Shot 55",
+      "x": 811.82,
+      "y": 2313.93,
+      "width": 444,
+      "height": 250,
+      "meta": {
+        "mediaUrl": "https://rh-images-switch.xiaoyaoyou.com/input/openapi/0b42c105710bd9d0d6636af038e42db8dd7dfa89adb116c7805fd0c71cb6f91d.mp4",
+        "dimensions": {
+          "width": 444,
+          "height": 250
+        },
+        "prompt": "Two 2D animated characters inside a real-life photographic style. Handheld tracking camera shake, exaggerated 2D animation style, natural boiling-line brushstrokes, seamless blending. The 2D girl in an orange vest holds a bamboo pole fishing for a crocodile; the crocodile lunges at the pole, she quickly pulls it back, the crocodile swims away sheepishly, and the boy opens his mouth wide mimicking the crocodile's missed bite, making the girl laugh.",
+        "settings": {
+          "params": {
+            "ratio": "16:9",
+            "resolution": "720p",
+            "duration": "6s"
+          }
+        }
+      }
+    },
+    {
+      "id": "3dd587ac9c2144268e9a531dd90df975",
+      "kind": "video",
+      "title": "Video Shot 56",
+      "x": 934.54,
+      "y": 1864.37,
+      "width": 444,
+      "height": 250,
+      "meta": {
+        "mediaUrl": "https://rh-images-switch.xiaoyaoyou.com/input/openapi/eb9b19bea5edbd19e251053bb5bee6d34b1fda51c30cb014d73a2d926f378724.mp4",
+        "dimensions": {
+          "width": 444,
+          "height": 250
+        },
+        "prompt": "Two 2D animated characters inside a real-life photographic style. @Image 1 Rear-view angle, handheld camera shake, exaggerated 2D animation style, natural boiling-line brushstrokes, seamless blending. 2D character design referencing @Image 2. Holding hands, the 2D girl in an orange vest walks right while the boy in black walks left, playfully stretching their arms longer and longer until they snap back together like a spring into a hug.",
+        "settings": {
+          "params": {
+            "ratio": "16:9",
+            "resolution": "1080p",
+            "duration": "10s"
+          }
+        }
+      }
+    },
+    {
+      "id": "743592c6ee774e79af5e2318202148b3",
+      "kind": "image",
+      "title": "Ref 57",
+      "x": 312.08,
+      "y": 1701.02,
+      "width": 250,
+      "height": 373,
+      "meta": {
+        "mediaUrl": "https://rh-images-switch.xiaoyaoyou.com/input/openapi/5619cc41c399dc3ec64d9b34ebe1d54851d6ca1dee890264b874ed8c24df2e59.png",
+        "dimensions": {
+          "width": 250,
+          "height": 373
+        },
+        "prompt": "The woman's height reaches the man's shoulder.",
+        "settings": {
+          "params": {
+            "ratio": "auto",
+            "resolution": "2K"
+          }
+        }
+      }
+    },
+    {
+      "id": "301065e469a64e99ba583e8761ea4383",
+      "kind": "image",
+      "title": "Ref 58",
+      "x": 183.11,
+      "y": 2094.09,
+      "width": 444,
+      "height": 250,
+      "meta": {
+        "mediaUrl": "https://rh-images-switch.xiaoyaoyou.com/input/openapi/637c17668d7a816835948be86b3b1c4ac4b1a73a35bba523f33d3e52ac29f1ac.png",
+        "dimensions": {
+          "width": 444,
+          "height": 250
+        }
+      }
+    },
+    {
+      "id": "4231deb3625249488733bd3069e4e5f3",
+      "kind": "image",
+      "title": "Ref 59",
+      "x": 164.7,
+      "y": 2439.16,
+      "width": 444,
+      "height": 250,
+      "meta": {
+        "mediaUrl": "https://rh-images-switch.xiaoyaoyou.com/input/openapi/e3c11fe7014e09948637e87433b82f1fba7fdaf537fcc40e9dee3c27c867d2fe.png",
+        "dimensions": {
+          "width": 444,
+          "height": 250
+        }
+      }
+    },
+    {
+      "id": "dd5937979a3346efa9ee9ce5edc34803",
+      "kind": "video",
+      "title": "Video Shot 60",
+      "x": 1288.58,
+      "y": 1291.41,
+      "width": 444,
+      "height": 250,
+      "meta": {
+        "mediaUrl": "https://rh-images-switch.xiaoyaoyou.com/input/openapi/52f5721f485b4376f40c73df6eb822c5cc8b34960769eb55073ea63bf4913f29.mp4",
+        "dimensions": {
+          "width": 444,
+          "height": 250
+        },
+        "prompt": "Fixed camera starting on an empty shot, then the 2D animated man in a black shirt and glasses and the woman in an orange vest from @Image 2 joyfully dance into frame; the woman dances cheerfully while the man gazes at her affectionately as they waltz happily together, then both dance out of frame. Fixed camera on the real-life photographed street @Image 1. Natural boiling-line brushstrokes, seamless blending.",
+        "settings": {
+          "params": {
+            "ratio": "16:9",
+            "resolution": "720p",
+            "duration": "5s"
+          }
+        }
+      }
+    },
+    {
+      "id": "fe7b56cba0ee4c6d838978295c151717",
+      "kind": "image",
+      "title": "Ref 61",
+      "x": 952.79,
+      "y": 921.44,
+      "width": 250,
+      "height": 373,
+      "meta": {
+        "mediaUrl": "https://rh-images-switch.xiaoyaoyou.com/input/openapi/5619cc41c399dc3ec64d9b34ebe1d54851d6ca1dee890264b874ed8c24df2e59.png",
+        "dimensions": {
+          "width": 250,
+          "height": 373
+        },
+        "prompt": "The woman's height reaches the man's shoulder.",
+        "settings": {
+          "params": {
+            "ratio": "auto",
+            "resolution": "2K"
+          }
+        }
+      }
+    },
+    {
+      "id": "654242a30eae4115b7cbc4039ea6d8f2",
+      "kind": "image",
+      "title": "Ref 62",
+      "x": 410.18,
+      "y": 1611.33,
+      "width": 250,
+      "height": 373,
+      "meta": {
+        "mediaUrl": "https://rh-images-switch.xiaoyaoyou.com/input/openapi/fcbc424996b36570033810561f078a745d5359f021fc3866efb05578026bb3c1.png",
+        "dimensions": {
+          "width": 250,
+          "height": 373
+        },
+        "prompt": "The two characters from @Image 2 hold hands and look left and right as they cross the road in @Image 1.",
+        "settings": {
+          "params": {
+            "ratio": "auto",
+            "resolution": "2K"
+          }
+        }
+      }
+    },
+    {
+      "id": "296aec5494414eb19a3828f997427a6c",
+      "kind": "image",
+      "title": "Ref 63",
+      "x": 926.61,
+      "y": 1315.21,
+      "width": 250,
+      "height": 375,
+      "meta": {
+        "mediaUrl": "https://rh-images-switch.xiaoyaoyou.com/input/openapi/2095ad5702019a9525f8cd1fad5589676d56e7941ddab30b95ca16541fa9b049.jpg",
+        "dimensions": {
+          "width": 250,
+          "height": 375
+        }
+      }
+    },
+    {
+      "id": "6f2929431c1040c58f548d3547070d62",
+      "kind": "image",
+      "title": "Ref 64",
+      "x": 470.94,
+      "y": 1099.02,
+      "width": 250,
+      "height": 373,
+      "meta": {
+        "mediaUrl": "https://rh-images-switch.xiaoyaoyou.com/input/openapi/a954161d2249f19ef62f97470bd7ee7322fadb785c5f29ee108b51eadfe35bec.png",
+        "dimensions": {
+          "width": 250,
+          "height": 373
+        },
+        "prompt": "Change the woman's outfit on the left to a yellow vest, change the man's hair on the right to black. Draw a minimalist mouth on the man. The woman wears blue Crocs clogs, the man wears black German Army Trainers.",
+        "settings": {
+          "params": {
+            "ratio": "auto",
+            "resolution": "2K"
+          }
+        }
+      }
+    },
+    {
+      "id": "903e13f4026e4196b32c159a9a9b58b2",
+      "kind": "image",
+      "title": "Ref 65",
+      "x": 1963.44,
+      "y": 1748.35,
+      "width": 250,
+      "height": 333,
+      "meta": {
+        "mediaUrl": "https://rh-images-switch.xiaoyaoyou.com/input/openapi/e3dca26743014ba0c91ed5492619b399257a8757aeb71b9c127b9f53920b2574.png",
+        "dimensions": {
+          "width": 250,
+          "height": 333
+        },
+        "prompt": "Hand-drawn, bold sketch, a young girl wearing a yellow vest and denim shorts. With bangs and long black straight hair. Asian. Cold expression, cute style. Exaggerated thick brushstrokes. Standing beside her is a man wearing a black short-sleeved shirt and black wide-leg pants. The man has medium-length hair and wears thick black-framed glasses.",
+        "settings": {
+          "params": {
+            "ratio": "3:4",
+            "resolution": "2K"
+          }
+        }
+      }
+    },
+    {
+      "id": "ea41d03d0a6341f0a83f4467ea3ac4c5",
+      "kind": "image",
+      "title": "Ref 66",
+      "x": 73.17,
+      "y": 1256.41,
+      "width": 250,
+      "height": 375,
+      "meta": {
+        "mediaUrl": "https://rh-images-switch.xiaoyaoyou.com/input/openapi/e6f19947317482833b19d0eb4cd84e9a10477f57076165fc180fef985de4ccd8.png",
+        "dimensions": {
+          "width": 250,
+          "height": 375
+        },
+        "prompt": "Hand-drawn, bold sketch, a young girl wearing a yellow vest and denim shorts. With bangs and long black straight hair. Asian. Cold expression, cute style. Exaggerated thick brushstrokes. Standing beside her is a man wearing a black short-sleeved shirt and black wide-leg pants. The man has medium-length hair and wears thick black-framed glasses.",
+        "settings": {
+          "params": {
+            "ratio": "2:3",
+            "resolution": "2K"
+          }
+        }
+      }
+    },
+    {
+      "id": "10ed421d92d44a51bf1ca86d50116bb1",
+      "kind": "image",
+      "title": "Ref 67",
+      "x": 355.54,
+      "y": 650,
+      "width": 250,
+      "height": 375,
+      "meta": {
+        "mediaUrl": "https://rh-images-switch.xiaoyaoyou.com/input/openapi/741ec52db318bb1f978da92f711997a59e2109c5d4a01af14974f7a082b0ebd9.png",
+        "dimensions": {
+          "width": 250,
+          "height": 375
+        },
+        "prompt": "Hand-drawn, bold sketch, a young girl wearing a yellow vest and denim shorts, with bangs and long black straight hair. Asian. Cool expression, cute style, exaggerated thick brushstrokes. Standing beside her is a man wearing a black short-sleeved shirt and black wide-leg cropped wide pants, medium-long hair, wearing thick black square-framed glasses.",
+        "settings": {
+          "params": {
+            "ratio": "2:3",
+            "resolution": "2K"
+          }
+        }
+      }
+    },
+    {
+      "id": "e5f3d02ee734490b810ce718d94df8bd",
+      "kind": "image",
+      "title": "Ref 68",
+      "x": 636.43,
+      "y": 674.43,
+      "width": 250,
+      "height": 333,
+      "meta": {
+        "mediaUrl": "https://rh-images-switch.xiaoyaoyou.com/input/openapi/760690d88319d9f63b8d053227bdad3d318209b302232665f72e10ff05ad9bbc.png",
+        "dimensions": {
+          "width": 250,
+          "height": 333
+        },
+        "prompt": "Japanese 2D manga style, character sheet, 2D flat comic, a 16-year-old girl wearing a yellow vest and denim shorts, long black straight hair. Asian. Cool expression, slightly exaggerated cute art style, expressive artistic brushstrokes.",
+        "settings": {
+          "params": {
+            "ratio": "3:4",
+            "resolution": "1K"
+          }
+        }
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "959c9edc0f0e4102af8ad11634a8704f",
+      "to": "dfa24f2e862f460ba9540936c0fcdf8a"
+    },
+    {
+      "from": "fdeac45c270f4335bee7d5cd54c039fc",
+      "to": "18df51420569423798394de2918462e9"
+    },
+    {
+      "from": "7cbea0356d9846e0a13df30389905949",
+      "to": "18df51420569423798394de2918462e9"
+    },
+    {
+      "from": "f3f79a63751748b0a1d46bf478343898",
+      "to": "44b2968415a447b9be91dd27fd6dcadd"
+    },
+    {
+      "from": "c8368b52d8de4a119ca8fda2be3a562f",
+      "to": "44b2968415a447b9be91dd27fd6dcadd"
+    },
+    {
+      "from": "e21b2e8b675940b3a3338474e2a93851",
+      "to": "3fc4ebea6de54c829d97f3b098e50507"
+    },
+    {
+      "from": "2d500759b4014ddf90b3597d15e33270",
+      "to": "7cbea0356d9846e0a13df30389905949"
+    },
+    {
+      "from": "f876d5b0f3254c1289491a7fa3cd8c17",
+      "to": "ee3ba2c56c4f4a08ba82a5247e1960c7"
+    },
+    {
+      "from": "d38444a804ad42ec90c4355f24fe0f16",
+      "to": "dfa24f2e862f460ba9540936c0fcdf8a"
+    },
+    {
+      "from": "2fded7e571ea40be9780ec2587b508e0",
+      "to": "bbd7567670304f219a281b0ed666bc80"
+    },
+    {
+      "from": "0ee79b80d8994f86b9708a97889b447d",
+      "to": "d4dfe5f72f3a41c3be025215555de678"
+    },
+    {
+      "from": "95ebd649c55d4013947b335edae44d3c",
+      "to": "10585b2b65cc43d58e8187be60f148c7"
+    },
+    {
+      "from": "a2b5a721826e4dc5b59fb3250639dae0",
+      "to": "55e5d0eb9b354e25ba04595811f35022"
+    },
+    {
+      "from": "dcfb8e72d2c541c3bc58546a4f1cd50f",
+      "to": "4277ea38f49d438c93c170941555579d"
+    },
+    {
+      "from": "a691560321d64610b50d9d4bad3e9f45",
+      "to": "4277ea38f49d438c93c170941555579d"
+    },
+    {
+      "from": "f3a68d1a4a0b401b956c7900add32d16",
+      "to": "0dae6e422b3949028064a5a63e39d6ef"
+    },
+    {
+      "from": "7ab0c3a605b64f489e32372ea9d0dc1c",
+      "to": "f37d7209f1374b079af75f64f6054385"
+    },
+    {
+      "from": "f54afe0d41784d9d9b75e95a579f657e",
+      "to": "e7b39847c1c64d31bfc78f24b9c674fb"
+    },
+    {
+      "from": "d90d45cd608f461ea863769635075312",
+      "to": "8d9b24285e7e47a09a086dfd6e3be655"
+    },
+    {
+      "from": "0ba113cd33214bec9ffb74e37ab032c9",
+      "to": "fdfef38231ff492797c9962ee681684e"
+    },
+    {
+      "from": "99b87b39bc054719b1de7a994c344378",
+      "to": "c71901c8393a450bb232a6d62d844f81"
+    },
+    {
+      "from": "3293765319f743cbb007f21870b2726d",
+      "to": "922e219e5cde4ad3b521419e84898e5c"
+    },
+    {
+      "from": "b60a4c6348144d24acbe5c58c20ecae4",
+      "to": "5546b9eb05094db8b97e543e8acc35e3"
+    },
+    {
+      "from": "65fe57e1db8c4ced9bc45c303a16a10f",
+      "to": "fdfef38231ff492797c9962ee681684e"
+    },
+    {
+      "from": "26d241280ebc4ebcba400e0483257f1b",
+      "to": "84d14d8e7edb474997d15712be705a75"
+    },
+    {
+      "from": "1a6f3136ded042b9b8752ded1c3c39de",
+      "to": "84d14d8e7edb474997d15712be705a75"
+    },
+    {
+      "from": "4231deb3625249488733bd3069e4e5f3",
+      "to": "d2e918c4f3dc42d68a6c484cdda31cf8"
+    },
+    {
+      "from": "301065e469a64e99ba583e8761ea4383",
+      "to": "3dd587ac9c2144268e9a531dd90df975"
+    },
+    {
+      "from": "743592c6ee774e79af5e2318202148b3",
+      "to": "3dd587ac9c2144268e9a531dd90df975"
+    },
+    {
+      "from": "296aec5494414eb19a3828f997427a6c",
+      "to": "dd5937979a3346efa9ee9ce5edc34803"
+    },
+    {
+      "from": "fe7b56cba0ee4c6d838978295c151717",
+      "to": "dd5937979a3346efa9ee9ce5edc34803"
+    },
+    {
+      "from": "6f2929431c1040c58f548d3547070d62",
+      "to": "fe7b56cba0ee4c6d838978295c151717"
+    },
+    {
+      "from": "296aec5494414eb19a3828f997427a6c",
+      "to": "654242a30eae4115b7cbc4039ea6d8f2"
+    },
+    {
+      "from": "6f2929431c1040c58f548d3547070d62",
+      "to": "654242a30eae4115b7cbc4039ea6d8f2"
+    },
+    {
+      "from": "ea41d03d0a6341f0a83f4467ea3ac4c5",
+      "to": "6f2929431c1040c58f548d3547070d62"
+    }
+  ],
+  "stickers": [
+    {
+      "id": "sticker-vietnam-start-note",
+      "x": 0,
+      "y": 0,
+      "width": 250,
+      "height": 250,
+      "title": "Start Here",
+      "html": "<p>Click <b>Fit View</b> in the bottom-left to inspect all storyboards, and follow the edges to trace characters and scenes.</p><p>After cloning into your workspace, edit any prompt and start generating from a single shot.</p>"
+    }
+  ]
+};
+
+export const VIETNAM_TRAVEL_VLOG_PROJECT = convertDaAiCanvasToProject(VIETNAM_TRAVEL_VLOG_RAW_CANVAS_JSON, {
+  id: 'proj-vietnam-travel-journal',
+  category: 'video',
+  name: 'Vietnam Roaming Journal — 2D Sketch x Real Photo (16:9)',
+  description:
+    'Phim du ký kết hợp nhân vật vẽ tay 2D & ảnh thực tế (16:9): Bảng thiết kế nhân vật & bối cảnh du lịch Việt Nam - Tokyo → 14 phân cảnh Video kể chuyện chuyển động mượt mà (5s–10s/cảnh).',
+  badge: '2D Sketch x Real (16:9)',
+  techTag: '2D-REAL-V1',
+  previewVideo:
+    'https://rh-images-switch.xiaoyaoyou.com/input/openapi/fcff809f12cd79f4bd11e57b376496623ddfee70160ca59bcf9f2f244fdeaaca.mp4',
+  previewImage:
+    'https://rh-images-switch.xiaoyaoyou.com/input/openapi/306d2593e1e92d624bd929ab29ab9bb107aeab8dd9395607287820851804c214.png'
+});
