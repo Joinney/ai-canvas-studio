@@ -553,20 +553,6 @@ export default function HomeDashboard({
               <Zap className="w-3.5 h-3.5 text-amber-500" />
               <span>Test Ping AI Engine</span>
             </button>
-
-            {/* Nút Hướng Dẫn Sử Dụng QuanTV */}
-            <a
-              href="https://ai17.quantv.com/dashboard"
-              target="_blank"
-              rel="noreferrer"
-              className="box box-hover px-3.5 py-1.5 text-xs font-extrabold flex items-center gap-1.5 cursor-pointer"
-              style={{ '--r': '999px', width: 'auto' }}
-            >
-              <div className="circle-overlay" />
-              <BookOpen className="w-3.5 h-3.5 text-sky-600" />
-              <span>QuanTV Dashboard</span>
-              <ExternalLink className="w-3 h-3 opacity-60" />
-            </a>
           </div>
         </header>
 
