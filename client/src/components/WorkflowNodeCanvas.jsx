@@ -21,7 +21,8 @@ import {
   ChevronDown,
   ChevronUp,
   ExternalLink,
-  PanelRight
+  PanelRight,
+  BoxSelect
 } from 'lucide-react';
 import axios from 'axios';
 import { executeGoogleFlowNode, getFlowPoolStatus, resetFlowWorkers } from '../services/flowBridge';
@@ -114,6 +115,9 @@ export default function WorkflowNodeCanvas({ project, onSaveProject }) {
     }))
   );
   const [selectedNodeId, setSelectedNodeId] = useState(null);
+  const [selectedNodeIds, setSelectedNodeIds] = useState([]);
+  const [isMarqueeMode, setIsMarqueeMode] = useState(false);
+  const [selectionBox, setSelectionBox] = useState(null); // { startX, startY, currentX, currentY }
 
   const [pan, setPan] = useState({ x: 60, y: 40 });
   const [zoom, setZoom] = useState(() => ((project?.nodes?.length || 0) > 5 ? 0.45 : 0.92));
@@ -126,6 +130,8 @@ export default function WorkflowNodeCanvas({ project, onSaveProject }) {
   zoomRef.current = zoom;
 
   const panStartRef = useRef({ x: 0, y: 0 });
+  const panClickOriginRef = useRef({ x: 0, y: 0 });
+  const marqueeStartRef = useRef(null); // { startX, startY, additive, initialSelectedIds }
   const draggingNodeRef = useRef(null); // { nodeId, startMouseX, startMouseY, startNodeX, startNodeY }
   const draggingStickerRef = useRef(null); // { stickerId, startMouseX, startMouseY, startX, startY }
 
@@ -354,6 +360,7 @@ export default function WorkflowNodeCanvas({ project, onSaveProject }) {
     setNodes((prev) => prev.filter((n) => n.id !== nodeId));
     setEdges((prev) => prev.filter((e) => e.source !== nodeId && e.target !== nodeId));
     if (selectedNodeId === nodeId) setSelectedNodeId(null);
+    setSelectedNodeIds((prev) => prev.filter((id) => id !== nodeId));
   };
 
   const handleDeleteEdge = (edgeId) => {
@@ -374,17 +381,39 @@ export default function WorkflowNodeCanvas({ project, onSaveProject }) {
     });
   };
 
-  // Bắt sự kiện kéo bàn vẽ (Pan) khi bấm vào vùng trống
+  // Bắt sự kiện kéo bàn vẽ (Pan) hoặc quét khung chọn nhiều Node (Marquee) khi bấm vào vùng trống
   const handleCanvasMouseDown = (e) => {
-    // Nếu bấm vào phần tử không nằm trong thẻ .workflow-node-card hoặc .workflow-sticker-card thì bắt đầu Pan bàn vẽ
     if (
       !e.target.closest('.workflow-node-card') &&
       !e.target.closest('.workflow-sticker-card') &&
       !e.target.closest('.edge-delete-btn')
     ) {
-      setSelectedNodeId(null);
       setConnectingFromNodeId(null);
+
+      // Chế độ quét chọn (nút Quét chọn đang bật hoặc giữ Shift + kéo chuột trái)
+      if ((isMarqueeMode || e.shiftKey) && e.button === 0) {
+        const rect = containerRef.current?.getBoundingClientRect();
+        if (!rect) return;
+        const startX = e.clientX - rect.left;
+        const startY = e.clientY - rect.top;
+        const additive = e.shiftKey || e.ctrlKey || e.metaKey;
+        marqueeStartRef.current = {
+          startX,
+          startY,
+          additive,
+          initialSelectedIds: additive ? selectedNodeIds : []
+        };
+        setSelectionBox({ startX, startY, currentX: startX, currentY: startY });
+        if (!additive) {
+          setSelectedNodeIds([]);
+          setSelectedNodeId(null);
+        }
+        return;
+      }
+
+      setSelectedNodeId(null);
       setIsPanning(true);
+      panClickOriginRef.current = { x: e.clientX, y: e.clientY };
       panStartRef.current = {
         x: e.clientX - panRef.current.x,
         y: e.clientY - panRef.current.y
@@ -392,9 +421,38 @@ export default function WorkflowNodeCanvas({ project, onSaveProject }) {
     }
   };
 
-  // Lắng nghe di chuyển chuột trên toàn window để kéo Node / Sticker / Pan không bao giờ bị tuột chuột
+  // Lắng nghe di chuyển chuột trên toàn window để kéo Node / Sticker / Pan / Marquee không bao giờ bị tuột chuột
   useEffect(() => {
     const handleGlobalMouseMove = (e) => {
+      if (marqueeStartRef.current) {
+        const rect = containerRef.current?.getBoundingClientRect();
+        if (!rect) return;
+        const currentX = Math.max(0, Math.min(rect.width, e.clientX - rect.left));
+        const currentY = Math.max(0, Math.min(rect.height, e.clientY - rect.top));
+        const { startX, startY, additive, initialSelectedIds } = marqueeStartRef.current;
+        setSelectionBox({ startX, startY, currentX, currentY });
+
+        const boxLeft = rect.left + Math.min(startX, currentX);
+        const boxRight = rect.left + Math.max(startX, currentX);
+        const boxTop = rect.top + Math.min(startY, currentY);
+        const boxBottom = rect.top + Math.max(startY, currentY);
+
+        const hitIds = [];
+        const cardEls = containerRef.current?.querySelectorAll('.workflow-node-card[data-node-id]') || [];
+        cardEls.forEach((el) => {
+          const r = el.getBoundingClientRect();
+          if (r.right >= boxLeft && r.left <= boxRight && r.bottom >= boxTop && r.top <= boxBottom) {
+            const nid = el.getAttribute('data-node-id');
+            if (nid) hitIds.push(nid);
+          }
+        });
+
+        setSelectedNodeIds(
+          additive ? Array.from(new Set([...initialSelectedIds, ...hitIds])) : hitIds
+        );
+        return;
+      }
+
       if (isPanning) {
         setPan({
           x: e.clientX - panStartRef.current.x,
@@ -436,8 +494,22 @@ export default function WorkflowNodeCanvas({ project, onSaveProject }) {
       }
     };
 
-    const handleGlobalMouseUp = () => {
-      if (isPanning) setIsPanning(false);
+    const handleGlobalMouseUp = (e) => {
+      if (marqueeStartRef.current) {
+        marqueeStartRef.current = null;
+        setSelectionBox(null);
+      }
+      if (isPanning) {
+        const movedDist = Math.hypot(
+          e.clientX - panClickOriginRef.current.x,
+          e.clientY - panClickOriginRef.current.y
+        );
+        // Chỉ bỏ chọn nhiều Node khi click nhẹ vào khoảng trống (không phải kéo di chuyển bàn vẽ)
+        if (movedDist < 5 && !e.shiftKey && !e.ctrlKey && !e.metaKey) {
+          setSelectedNodeIds([]);
+        }
+        setIsPanning(false);
+      }
       if (draggingNodeRef.current) draggingNodeRef.current = null;
       if (draggingStickerRef.current) draggingStickerRef.current = null;
       if (connectingFromNodeId) {
@@ -455,7 +527,7 @@ export default function WorkflowNodeCanvas({ project, onSaveProject }) {
       window.removeEventListener('mousemove', handleGlobalMouseMove);
       window.removeEventListener('mouseup', handleGlobalMouseUp);
     };
-  }, [isPanning, connectingFromNodeId, hoveredTargetNodeId, nodes, screenToCanvas]);
+  }, [isPanning, isMarqueeMode, selectedNodeIds, connectingFromNodeId, hoveredTargetNodeId, nodes, screenToCanvas]);
 
   // Lăn chuột Zoom mượt ngay tại vị trí con trỏ chuột (không cần giữ Ctrl)
   const handleWheel = (e) => {
@@ -694,24 +766,42 @@ export default function WorkflowNodeCanvas({ project, onSaveProject }) {
     [project?.id, project?.title, project?.name, pushWorkflowLog]
   );
 
-  const handleRunFullWorkflow = async () => {
+  const runWorkflowNodes = async (targetNodeIds = null) => {
+    const isSubsetRun = Array.isArray(targetNodeIds) && targetNodeIds.length > 0;
+    const targetSet = isSubsetRun ? new Set(targetNodeIds) : null;
+
+    const isSourceInputNode = (n) => {
+      if (n.type === 'IMAGE_INPUT') return true;
+      if (n.type === 'FFMPEG_POST') {
+        const hasIncoming = edges.some((e) => e.target === n.id);
+        const hasMedia = Boolean(n.data?.resultUrl || n.data?.fallbackUrl || n.data?.imageUrl);
+        return !hasIncoming && hasMedia;
+      }
+      return false;
+    };
+
+    const isNodeTargeted = (n) => !targetSet || targetSet.has(n.id);
+
+    if (isSubsetRun) {
+      const targetedExecutable = nodes.filter((n) => !isSourceInputNode(n) && targetSet.has(n.id));
+      if (targetedExecutable.length === 0) {
+        setStatusBanner('⚠️ Các Node đã chọn đều là Node đầu vào (Ảnh gốc), không có Node tạo ảnh/video nào để chạy.');
+        setTimeout(() => setStatusBanner(''), 4000);
+        return;
+      }
+    }
+
     isCancelledRef.current = false;
     resetFlowWorkers();
     setIsRunningAll(true);
-    setStatusBanner('🚀 Bắt đầu chạy Workflow theo đúng sơ đồ dây nối (DAG)...');
+    setStatusBanner(
+      isSubsetRun
+        ? `🎯 Bắt đầu chạy ${nodes.filter((n) => !isSourceInputNode(n) && targetSet.has(n.id)).length} Node đã chọn theo sơ đồ dây nối (DAG)...`
+        : '🚀 Bắt đầu chạy Workflow theo đúng sơ đồ dây nối (DAG)...'
+    );
 
     try {
       // 1. Chuẩn bị danh sách Node: giữ nguyên fallbackUrl, reset status các node cần sinh
-      const isSourceInputNode = (n) => {
-        if (n.type === 'IMAGE_INPUT') return true;
-        if (n.type === 'FFMPEG_POST') {
-          const hasIncoming = edges.some((e) => e.target === n.id);
-          const hasMedia = Boolean(n.data?.resultUrl || n.data?.fallbackUrl || n.data?.imageUrl);
-          return !hasIncoming && hasMedia;
-        }
-        return false;
-      };
-
       const preparedNodes = nodes.map((n) => {
         const savedFallback = n.data?.fallbackUrl || n.data?.resultUrl || '';
         if (isSourceInputNode(n)) {
@@ -719,6 +809,9 @@ export default function WorkflowNodeCanvas({ project, onSaveProject }) {
             ...n,
             data: { ...n.data, status: 'done', error: null }
           };
+        }
+        if (!isNodeTargeted(n)) {
+          return n;
         }
         return {
           ...n,
@@ -736,7 +829,7 @@ export default function WorkflowNodeCanvas({ project, onSaveProject }) {
       const runtimeOutputs = {};
       const usedOutputsSet = new Set();
 
-      // Nạp toàn bộ các node nguồn (IMAGE_INPUT hoặc Video đầu vào gốc) vào runtimeOutputs
+      // Nạp toàn bộ các node nguồn (IMAGE_INPUT hoặc Video đầu vào gốc) và các node không được chọn nhưng đã có kết quả sẵn
       for (const n of preparedNodes) {
         if (isSourceInputNode(n)) {
           const srcMedia = n.data?.imageUrl || n.data?.resultUrl || n.data?.fallbackUrl;
@@ -744,13 +837,19 @@ export default function WorkflowNodeCanvas({ project, onSaveProject }) {
             runtimeOutputs[n.id] = srcMedia;
             usedOutputsSet.add(srcMedia);
           }
+        } else if (isSubsetRun && !targetSet.has(n.id)) {
+          const existingMedia = n.data?.resultUrl || n.data?.fallbackUrl || n.data?.imageUrl;
+          if (existingMedia) {
+            runtimeOutputs[n.id] = existingMedia;
+            usedOutputsSet.add(existingMedia);
+          }
         }
       }
 
       // 2. Thuật toán Sắp xếp Tô-pô (Topological Sort / DAG) theo đúng từng dây nối (edges):
       // Một Node CHỈ ĐƯỢC CHẠY khi TẤT CẢ các Node nguồn trỏ dây vào nó đã chạy xong và có kết quả!
       const adjList = {};
-      const executableNodes = preparedNodes.filter((n) => !isSourceInputNode(n));
+      const executableNodes = preparedNodes.filter((n) => !isSourceInputNode(n) && isNodeTargeted(n));
 
       for (const n of preparedNodes) {
         adjList[n.id] = [];
@@ -879,6 +978,7 @@ export default function WorkflowNodeCanvas({ project, onSaveProject }) {
         const readyImmediateChildren = [];
 
         for (const targetId of outgoingTargets) {
+          if (targetSet && !targetSet.has(targetId)) continue;
           if (executedSet.has(targetId) || executionQueue.includes(targetId)) continue;
 
           // Kiểm tra xem TẤT CẢ các node nguồn của targetId đã chạy xong chưa
@@ -914,6 +1014,9 @@ export default function WorkflowNodeCanvas({ project, onSaveProject }) {
       setIsRunningAll(false);
     }
   };
+
+  const handleRunFullWorkflow = () => runWorkflowNodes(null);
+  const handleRunSelectedWorkflow = () => runWorkflowNodes(selectedNodeIds);
 
   const runFullWorkflowRef = useRef(handleRunFullWorkflow);
   runFullWorkflowRef.current = handleRunFullWorkflow;
@@ -1028,6 +1131,20 @@ export default function WorkflowNodeCanvas({ project, onSaveProject }) {
             </button>
           </div>
 
+          <button
+            type="button"
+            onClick={() => setIsMarqueeMode((v) => !v)}
+            className={`box box-hover px-3.5 py-2 text-xs font-extrabold flex items-center gap-1.5 cursor-pointer ${
+              isMarqueeMode ? 'active-pill ring-2 ring-sky-400/70' : ''
+            }`}
+            style={{ '--r': '999px', width: 'auto' }}
+            title="Bật / Tắt chế độ quét khung chọn nhiều Node để chạy (Mẹo: giữ Shift + kéo chuột bất kỳ lúc nào)"
+          >
+            <div className="circle-overlay" />
+            <BoxSelect className={`w-3.5 h-3.5 ${isMarqueeMode ? 'text-sky-600' : 'text-slate-600'}`} />
+            <span>{isMarqueeMode ? 'Đang Quét Chọn' : 'Quét Chọn'}</span>
+          </button>
+
           {isRunningAll ? (
             <div className="flex items-center gap-2">
               <button
@@ -1048,15 +1165,38 @@ export default function WorkflowNodeCanvas({ project, onSaveProject }) {
               </button>
             </div>
           ) : (
-            <button
-              onClick={handleRunFullWorkflow}
-              className="box box-hover active-pill px-5 py-2 text-xs font-extrabold flex items-center gap-2 cursor-pointer"
-              style={{ '--r': '999px', width: 'auto' }}
-            >
-              <div className="circle-overlay" />
-              <Play className="w-4 h-4 fill-current text-sky-600" />
-              Chạy Toàn Bộ Workflow
-            </button>
+            <div className="flex items-center gap-2">
+              {selectedNodeIds.length > 0 && (
+                <>
+                  <button
+                    onClick={handleRunSelectedWorkflow}
+                    className="px-4 py-2 text-xs font-extrabold bg-sky-600 hover:bg-sky-500 text-white rounded-full flex items-center gap-1.5 shadow-md shadow-sky-900/25 transition-all cursor-pointer"
+                    title="Chỉ chạy các Node đã quét chọn theo đúng thứ tự dây nối (các Node trước đó đã có kết quả sẽ được giữ nguyên)"
+                  >
+                    <Play className="w-3.5 h-3.5 fill-current" />
+                    <span>Chạy Đã Chọn ({selectedNodeIds.length})</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setSelectedNodeIds([])}
+                    className="box box-hover px-2.5 py-2 text-xs font-bold flex items-center gap-1 cursor-pointer text-slate-600"
+                    style={{ '--r': '999px', width: 'auto' }}
+                    title="Bỏ chọn các Node"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                </>
+              )}
+              <button
+                onClick={handleRunFullWorkflow}
+                className="box box-hover active-pill px-5 py-2 text-xs font-extrabold flex items-center gap-2 cursor-pointer"
+                style={{ '--r': '999px', width: 'auto' }}
+              >
+                <div className="circle-overlay" />
+                <Play className="w-4 h-4 fill-current text-sky-600" />
+                Chạy Toàn Bộ Workflow
+              </button>
+            </div>
           )}
         </div>
 
@@ -1137,9 +1277,26 @@ export default function WorkflowNodeCanvas({ project, onSaveProject }) {
         ref={containerRef}
         onMouseDown={handleCanvasMouseDown}
         onWheel={handleWheel}
-        className="flex-1 relative overflow-hidden"
-        style={{ cursor: isPanning ? 'grabbing' : connectingFromNodeId ? 'crosshair' : 'grab' }}
+        className="flex-1 relative overflow-hidden select-none"
+        style={{
+          cursor: isPanning
+            ? 'grabbing'
+            : isMarqueeMode || connectingFromNodeId || selectionBox
+            ? 'crosshair'
+            : 'grab'
+        }}
       >
+        {selectionBox && (
+          <div
+            className="pointer-events-none absolute z-40 rounded-lg border-2 border-sky-500 bg-sky-400/15 shadow-[0_0_0_1px_rgba(255,255,255,0.35)]"
+            style={{
+              left: `${Math.min(selectionBox.startX, selectionBox.currentX)}px`,
+              top: `${Math.min(selectionBox.startY, selectionBox.currentY)}px`,
+              width: `${Math.abs(selectionBox.currentX - selectionBox.startX)}px`,
+              height: `${Math.abs(selectionBox.currentY - selectionBox.startY)}px`
+            }}
+          />
+        )}
         <div
           style={{
             transform: `translate3d(${pan.x}px, ${pan.y}px, 0) scale(${zoom})`,
@@ -1324,7 +1481,8 @@ export default function WorkflowNodeCanvas({ project, onSaveProject }) {
           {/* Danh sách các Node Kính Quang Học (Kính Lấy Kính - Glass on Glass) */}
           {nodes.map((node) => {
             const meta = NODE_TYPES_META[node.type] || NODE_TYPES_META.FLOW_IMAGE_GEN;
-            const isSelected = selectedNodeId === node.id;
+            const isMultiSelected = selectedNodeIds.includes(node.id);
+            const isSelected = selectedNodeId === node.id || isMultiSelected;
             const isDropTarget =
               connectingFromNodeId &&
               connectingFromNodeId !== node.id &&
@@ -1334,6 +1492,7 @@ export default function WorkflowNodeCanvas({ project, onSaveProject }) {
             return (
               <div
                 key={node.id}
+                data-node-id={node.id}
                 onMouseEnter={() => {
                   if (connectingFromNodeId && connectingFromNodeId !== node.id && meta.hasInput) {
                     setHoveredTargetNodeId(node.id);
@@ -1347,6 +1506,11 @@ export default function WorkflowNodeCanvas({ project, onSaveProject }) {
                 onMouseDown={(e) => {
                   e.stopPropagation();
                   setSelectedNodeId(node.id);
+                  if (isMarqueeMode || e.ctrlKey || e.metaKey || e.shiftKey) {
+                    setSelectedNodeIds((prev) =>
+                      prev.includes(node.id) ? prev.filter((id) => id !== node.id) : [...prev, node.id]
+                    );
+                  }
                 }}
                 style={{
                   width: `${NODE_WIDTH}px`,
@@ -1415,11 +1579,22 @@ export default function WorkflowNodeCanvas({ project, onSaveProject }) {
                       ? 'ring-4 ring-sky-400/90 scale-[1.01]'
                       : isDropTarget
                       ? 'ring-4 ring-emerald-400/60 scale-[1.02]'
+                      : isMultiSelected
+                      ? 'ring-4 ring-sky-500/85 shadow-[0_0_24px_rgba(14,165,233,0.35)]'
                       : isSelected
                       ? 'ring-2 ring-sky-400/60'
                       : '')
                   }
                 >
+                  {isMultiSelected && (
+                    <div
+                      className="absolute -top-2.5 -left-2.5 z-30 flex items-center gap-1 px-2 py-0.5 rounded-full bg-sky-600 text-white text-[10px] font-extrabold shadow-md"
+                      title="Node đang được chọn để chạy"
+                    >
+                      <CheckCircle2 className="w-3 h-3" />
+                      <span>Đã chọn</span>
+                    </div>
+                  )}
                   <div className="circle-overlay" />
 
                   {/* Thanh tiêu đề Node Kính (Nơi giữ chuột để kéo di chuyển Node) */}
@@ -1887,26 +2062,18 @@ export default function WorkflowNodeCanvas({ project, onSaveProject }) {
         </button>
       </div>
 
-      {/* Modal Popup trượt từ phải sang trái hiển thị Kết quả Dự án (Đồng bộ Kính Quang Học) */}
+      {/* Modal Popup trượt từ phải sang trái hiển thị Kết quả Dự án */}
       <div
-        className={`absolute top-16 bottom-3 right-3 z-40 w-[390px] max-w-[92vw] box flex flex-col overflow-hidden shadow-2xl transition-all duration-300 ease-out ${
-          showResultsDrawer ? 'translate-x-0 opacity-100' : 'translate-x-[110%] opacity-0 pointer-events-none'
+        className={`absolute inset-y-0 right-0 z-40 w-[400px] max-w-[92vw] flex flex-col bg-slate-950/92 backdrop-blur-xl border-l border-white/15 shadow-2xl transition-transform duration-300 ease-out ${
+          showResultsDrawer ? 'translate-x-0' : 'translate-x-full pointer-events-none'
         }`}
-        style={{ '--r': '28px' }}
       >
-        <div className="circle-overlay" />
-        <div className="relative z-10 flex items-center justify-between px-4 py-3.5 border-b border-white/40 dark:border-white/10">
-          <div className="flex items-center gap-2.5">
-            <div
-              className="box w-8 h-8 flex items-center justify-center shrink-0"
-              style={{ '--r': '50%' }}
-            >
-              <div className="circle-overlay" />
-              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-            </div>
+        <div className="flex items-center justify-between px-4 py-3.5 border-b border-white/10">
+          <div className="flex items-center gap-2">
+            <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
             <div>
-              <div className="text-sm font-black text-slate-800 dark:text-slate-100">Kết quả Dự án</div>
-              <div className="text-[11px] font-bold text-slate-500 dark:text-slate-400">
+              <div className="text-sm font-extrabold text-white">Kết quả Dự án</div>
+              <div className="text-[11px] text-slate-400">
                 {generatedResultNodes.length} sản phẩm đã hoàn thành
               </div>
             </div>
@@ -1914,18 +2081,16 @@ export default function WorkflowNodeCanvas({ project, onSaveProject }) {
           <button
             type="button"
             onClick={() => setShowResultsDrawer(false)}
-            className="box box-hover w-8 h-8 flex items-center justify-center cursor-pointer"
-            style={{ '--r': '50%' }}
+            className="p-1.5 rounded-full bg-white/10 hover:bg-white/20 text-slate-200 transition cursor-pointer"
             title="Đóng bảng kết quả"
           >
-            <div className="circle-overlay" />
-            <X className="w-4 h-4 text-slate-700 dark:text-slate-200" />
+            <X className="w-4 h-4" />
           </button>
         </div>
 
-        <div className="relative z-10 flex-1 overflow-y-auto p-3.5 space-y-3.5">
+        <div className="flex-1 overflow-y-auto p-4 space-y-4">
           {generatedResultNodes.length === 0 ? (
-            <div className="text-center text-slate-500 dark:text-slate-400 text-xs font-semibold py-12">
+            <div className="text-center text-slate-400 text-xs py-12">
               Chưa có kết quả nào được tạo. Hãy bấm <b>Chạy Toàn Bộ Workflow</b> để bắt đầu.
             </div>
           ) : (
@@ -1939,62 +2104,56 @@ export default function WorkflowNodeCanvas({ project, onSaveProject }) {
               return (
                 <div
                   key={resNode.id}
-                  className="box p-3 flex flex-col gap-2.5"
-                  style={{ '--r': '20px' }}
+                  className="rounded-2xl bg-white/5 border border-white/10 overflow-hidden shadow-lg"
                 >
-                  <div className="circle-overlay" />
-                  <div className="relative z-10 flex items-center justify-between gap-2 min-w-0">
+                  <div className="flex items-center justify-between px-3 py-2 bg-white/5 border-b border-white/10">
                     <div className="flex items-center gap-2 min-w-0">
                       <span
-                        className={`px-2.5 py-0.5 rounded-full text-[10px] font-extrabold border shrink-0 ${
+                        className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold shrink-0 ${
                           isVideoNode
-                            ? 'bg-teal-500/15 text-teal-800 dark:text-teal-300 border-teal-500/35'
-                            : 'bg-sky-500/15 text-sky-700 dark:text-sky-300 border-sky-500/35'
+                            ? 'bg-teal-500/20 text-teal-300 border border-teal-400/30'
+                            : 'bg-sky-500/20 text-sky-300 border border-sky-400/30'
                         }`}
                       >
                         {isVideoNode ? 'VIDEO' : 'ẢNH'} #{idx + 1}
                       </span>
-                      <span className="text-xs font-extrabold text-slate-800 dark:text-slate-100 truncate">
+                      <span className="text-xs font-bold text-slate-100 truncate">
                         {resNode.data?.title || resNode.id}
                       </span>
                     </div>
                   </div>
 
-                  <div className="relative z-10 rounded-2xl bg-white/45 dark:bg-black/30 border border-white/60 dark:border-white/10 flex items-center justify-center max-h-[320px] overflow-hidden">
+                  <div className="bg-black/50 flex items-center justify-center max-h-[340px] overflow-hidden">
                     {isVideoNode ? (
                       <video
                         src={url}
                         controls
                         playsInline
-                        className="w-full max-h-[320px] object-contain"
+                        className="w-full max-h-[340px] object-contain"
                       />
                     ) : (
                       <img
                         src={url}
                         alt={resNode.data?.title || 'Result'}
-                        className="w-full max-h-[320px] object-contain"
+                        className="w-full max-h-[340px] object-contain"
                       />
                     )}
                   </div>
 
-                  <div className="relative z-10 flex items-center justify-end gap-2">
+                  <div className="flex items-center justify-end gap-2 px-3 py-2 bg-white/5">
                     <a
                       href={url}
                       target="_blank"
                       rel="noreferrer"
-                      className="box box-hover px-3 py-1.5 text-[11px] font-extrabold text-slate-700 dark:text-slate-200 flex items-center gap-1 cursor-pointer"
-                      style={{ '--r': '999px', width: 'auto' }}
+                      className="px-2.5 py-1 rounded-lg bg-white/10 hover:bg-white/20 text-[11px] font-bold text-slate-200 flex items-center gap-1 transition"
                     >
-                      <div className="circle-overlay" />
-                      <ExternalLink className="w-3 h-3 text-sky-600" /> Mở tab
+                      <ExternalLink className="w-3 h-3" /> Mở tab
                     </a>
                     <a
                       href={url}
                       download
-                      className="box box-hover active-pill px-3.5 py-1.5 text-[11px] font-extrabold text-emerald-700 dark:text-emerald-300 flex items-center gap-1 cursor-pointer"
-                      style={{ '--r': '999px', width: 'auto' }}
+                      className="px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-[11px] font-bold text-white flex items-center gap-1 transition"
                     >
-                      <div className="circle-overlay" />
                       <Download className="w-3 h-3" /> Tải xuống
                     </a>
                   </div>
