@@ -1958,3 +1958,324 @@ export const MIDDLE_AGED_FASHION_TVC_PROJECT = convertDaAiCanvasToProject(MIDDLE
   previewVideo: 'https://cdn.quantv.com/canvas/featured/1789435139239_8lr4r8hr0jn.mp4',
   previewImage: 'https://cdn.quantv.com/canvas/featured/1789435139304_yloekj2hikd.png'
 });
+
+// Chuyển đổi định dạng JSON "soratk.workflow-template.v1" sang Dự Án Workflow Kính Quang Học
+export function convertSoraTkTemplateToProject(rawJson, options = {}) {
+  if (!rawJson || !Array.isArray(rawJson.nodes)) {
+    throw new Error('JSON SoraTK không hợp lệ (thiếu danh sách nodes)!');
+  }
+
+  const opt = typeof options === 'string' ? { name: options } : options || {};
+  const rawEdges = Array.isArray(rawJson.edges) ? rawJson.edges : [];
+
+  const allX = rawJson.nodes.map((n) => Number(n.position?.x ?? n.x) || 0);
+  const allY = rawJson.nodes.map((n) => Number(n.position?.y ?? n.y) || 0);
+  const minX = allX.length > 0 ? Math.min(...allX) : 0;
+  const minY = allY.length > 0 ? Math.min(...allY) : 0;
+
+  const normX = (x) => Math.round((Number(x) - minX) * 1.05 + 40);
+  const normY = (y) => Math.round((Number(y) - minY) * 1.15 + 40);
+
+  const convertedNodes = rawJson.nodes.map((n) => {
+    const d = n.data || {};
+    const isVideo = n.type === 'videoNode';
+    const mediaUrl = isVideo ? d.resultVideo || '' : d.imageUrl || d.previewUrl || d.resultImage || '';
+    const duration = String(d.duration || '8s').replace(/[^0-9]/g, '') || '8';
+
+    return {
+      id: n.id,
+      type: isVideo ? 'FLOW_VIDEO_GEN' : 'IMAGE_INPUT',
+      x: normX(n.position?.x ?? n.x ?? 0),
+      y: normY(n.position?.y ?? n.y ?? 0),
+      data: {
+        title: d.title || (isVideo ? 'Video Node' : 'Input Image'),
+        imageUrl: isVideo ? '' : mediaUrl,
+        resultUrl: isVideo ? mediaUrl : '',
+        fallbackUrl: isVideo ? mediaUrl : '',
+        prompt: d.prompt || '',
+        aspectRatio: d.ratio || '16:9',
+        resolution: d.resolution || '720p',
+        duration,
+        status: mediaUrl ? 'done' : 'idle'
+      }
+    };
+  });
+
+  const convertedEdges = rawEdges.map((e) => ({
+    id: e.id || `edge-${e.source}-${e.target}`,
+    source: e.source || e.from,
+    target: e.target || e.to
+  }));
+
+  return {
+    id: opt.id || 'proj-soratk-template',
+    category: opt.category || 'video',
+    name: opt.name || rawJson.title || 'SoraTK Workflow Template',
+    description: opt.description || 'Workflow chuyển đổi từ SoraTK Template v1.',
+    badge: opt.badge || 'SoraTK V1',
+    techTag: opt.techTag || 'STK-V1',
+    workspaceMode: 'workflow',
+    previewVideo: opt.previewVideo || '',
+    previewImage: opt.previewImage || '',
+    nodes: convertedNodes,
+    edges: convertedEdges,
+    stickers: opt.stickers || [],
+    updatedAt: new Date().toISOString()
+  };
+}
+
+const WUXIA_BAGUAZHANG_RAW_JSON = {
+  schema: 'soratk.workflow-template.v1',
+  kind: 'workflow-template',
+  title: 'Wuxia Baguazhang — 6-Shot Action Cinema (16:9)',
+  nodes: [
+    {
+      id: 'aiVideoNode-1776004059816',
+      type: 'videoNode',
+      position: { x: -204, y: -161.23561077447783 },
+      data: {
+        title: 'Video Shot 1 (Opening Gate Intrusion 8s)',
+        prompt:
+          '[Slow Zoom In] The camera slowly pushes forward. Autumn leaves drift through the air while the female martial artist sits calmly motionless. Suddenly, the wooden gate in the background is kicked open and fierce bandits stride in aggressively, kicking up dust. Sharp contrast between stillness and sudden motion.',
+        resolution: '720p',
+        ratio: '16:9',
+        duration: '8s',
+        resultVideo: 'https://pub-a95b3e2bac2442f582b4e3792df8b515.r2.dev/workflow-templates/creatok/creatok-14304/06420c53daaf587f.mp4'
+      }
+    },
+    {
+      id: 'aiVideoNode-1776004117516-1a08n',
+      type: 'videoNode',
+      position: { x: 254, y: 717 },
+      data: {
+        title: 'Video Shot 6 (Closing Sunset Departure 8s)',
+        prompt:
+          '[Pull Back, Fade Out] The camera slowly pulls back. The heroine gently lowers her palms with steady breath and turns her back to the camera to walk away. The setting sun stretches her silhouette across the courtyard strewn with fallen leaves and defeated bandits as the scene gradually fades to dark.',
+        resolution: '720p',
+        ratio: '16:9',
+        duration: '8s',
+        resultVideo: 'https://pub-a95b3e2bac2442f582b4e3792df8b515.r2.dev/workflow-templates/creatok/creatok-14304/f40917127b0697ac.mp4'
+      }
+    },
+    {
+      id: 'aiVideoNode-1776004118585-25ydyd',
+      type: 'videoNode',
+      position: { x: -192, y: 686 },
+      data: {
+        title: 'Video Shot 5 (Explosive Palm Impact 8s)',
+        prompt:
+          '[Push In, Explosive Impact] Rapid camera push-in. The heroine lands a decisive palm strike squarely on the bandit chest, unleashing a burst of intense cyan Qi shockwaves. The bandit is blasted backward out of frame like a snapped kite, his giant axe flying from his grip as the stone tiles crack beneath.',
+        resolution: '720p',
+        ratio: '16:9',
+        duration: '8s',
+        resultVideo: 'https://pub-a95b3e2bac2442f582b4e3792df8b515.r2.dev/workflow-templates/creatok/creatok-14304/b709e36bcaec101c.mp4'
+      }
+    },
+    {
+      id: 'aiVideoNode-1776004120223-hl6xkr',
+      type: 'videoNode',
+      position: { x: -651, y: 674 },
+      data: {
+        title: 'Video Shot 4 (Baguazhang Palm Barrage 8s)',
+        prompt:
+          '[Orbit Camera, Dynamic] The camera orbits dynamically around the protagonist. The heroine palms weave rapidly in Baguazhang strikes, trailing ink-cyan spiritual Qi ribbons. Under the relentless palm strikes, the bandit staggers and loses balance as cyan Qi collides with dark blades in luminous sparks.',
+        resolution: '720p',
+        ratio: '16:9',
+        duration: '8s',
+        resultVideo: 'https://pub-a95b3e2bac2442f582b4e3792df8b515.r2.dev/workflow-templates/creatok/creatok-14304/502a8cc224da6858.mp4'
+      }
+    },
+    {
+      id: 'aiVideoNode-1776004120735-gt0adt',
+      type: 'videoNode',
+      position: { x: 1039, y: -204 },
+      data: {
+        title: 'Video Shot 3 (Bagua Footwork Dodge 8s)',
+        prompt:
+          '[Pan Right, Fast Action] Fast tracking pan to the right. The bandit giant axe slams down and shatters the stone ground, sending debris flying. The heroine moves with fluid agility, gliding sideways with Bagua mud-stepping footwork as her robes billow and faint cyan Bagua light runes shimmer beneath her feet.',
+        resolution: '720p',
+        ratio: '16:9',
+        duration: '8s',
+        resultVideo: 'https://pub-a95b3e2bac2442f582b4e3792df8b515.r2.dev/workflow-templates/creatok/creatok-14304/b86b48ada5dfef7e.mp4'
+      }
+    },
+    {
+      id: 'aiVideoNode-1776004121142-yvj6f',
+      type: 'videoNode',
+      position: { x: 297, y: -223 },
+      data: {
+        title: 'Video Shot 2 (Cold Gaze Close-Up 8s)',
+        prompt:
+          '[Extreme Close-up, Slow Motion] Extreme close-up in slow motion. The female martial artist slowly opens her eyes with a cold, sharp gaze. A few stray strands of hair brush across her cheek in the gentle breeze. In the blurred background, a bandit swinging a giant axe charges forward rapidly.',
+        resolution: '720p',
+        ratio: '16:9',
+        duration: '8s',
+        resultVideo: 'https://pub-a95b3e2bac2442f582b4e3792df8b515.r2.dev/workflow-templates/creatok/creatok-14304/aa98e6acd98b1977.mp4'
+      }
+    },
+    {
+      id: 'imageNode-startFrame-1776004249659',
+      type: 'imageAssetNode',
+      position: { x: -613, y: -94 },
+      data: {
+        title: 'Shot 1 Start Frame',
+        imageUrl: 'https://pub-a95b3e2bac2442f582b4e3792df8b515.r2.dev/workflow-templates/creatok/creatok-14304/9382db53f7936798.png'
+      }
+    },
+    {
+      id: 'imageNode-endFrame-1776004251628',
+      type: 'imageAssetNode',
+      position: { x: -624, y: 220 },
+      data: {
+        title: 'Shot 1 End Frame',
+        imageUrl: 'https://pub-a95b3e2bac2442f582b4e3792df8b515.r2.dev/workflow-templates/creatok/creatok-14304/a037f254a4c0a8af.png'
+      }
+    },
+    {
+      id: 'imageNode-1776004427927',
+      type: 'imageAssetNode',
+      position: { x: 294, y: -686 },
+      data: {
+        title: 'Shot 2 Reference 2',
+        imageUrl: 'https://pub-a95b3e2bac2442f582b4e3792df8b515.r2.dev/workflow-templates/creatok/creatok-14304/20e0ce5926e92b28.png'
+      }
+    },
+    {
+      id: 'imageNode-1776004430695',
+      type: 'imageAssetNode',
+      position: { x: -100, y: -690 },
+      data: {
+        title: 'Shot 2 Reference 1',
+        imageUrl: 'https://pub-a95b3e2bac2442f582b4e3792df8b515.r2.dev/workflow-templates/creatok/creatok-14304/3656cbce7688c74b.png'
+      }
+    },
+    {
+      id: 'imageNode-1776004430904',
+      type: 'imageAssetNode',
+      position: { x: 704, y: -669 },
+      data: {
+        title: 'Shot 2 Reference 3',
+        imageUrl: 'https://pub-a95b3e2bac2442f582b4e3792df8b515.r2.dev/workflow-templates/creatok/creatok-14304/24d537243fc50345.png'
+      }
+    },
+    {
+      id: 'imageNode-startFrame-1776004784167',
+      type: 'imageAssetNode',
+      position: { x: -1201, y: 594 },
+      data: {
+        title: 'Shot 4 Start Frame',
+        imageUrl: 'https://pub-a95b3e2bac2442f582b4e3792df8b515.r2.dev/workflow-templates/creatok/creatok-14304/c1ff01abb3eb7f64.png'
+      }
+    },
+    {
+      id: 'imageNode-endFrame-1776004799732',
+      type: 'imageAssetNode',
+      position: { x: -1127, y: 942 },
+      data: {
+        title: 'Shot 4 End Frame',
+        imageUrl: 'https://pub-a95b3e2bac2442f582b4e3792df8b515.r2.dev/workflow-templates/creatok/creatok-14304/10f9178b22c4fbb6.png'
+      }
+    },
+    {
+      id: 'imageNode-startFrame-1776005005930',
+      type: 'imageAssetNode',
+      position: { x: -489, y: 1724 },
+      data: {
+        title: 'Shot 5 Start Frame',
+        imageUrl: 'https://pub-a95b3e2bac2442f582b4e3792df8b515.r2.dev/workflow-templates/creatok/creatok-14304/2890f47dd487d826.png'
+      }
+    },
+    {
+      id: 'imageNode-endFrame-1776005030294',
+      type: 'imageAssetNode',
+      position: { x: -74, y: 1791 },
+      data: {
+        title: 'Shot 5 End Frame',
+        imageUrl: 'https://pub-a95b3e2bac2442f582b4e3792df8b515.r2.dev/workflow-templates/creatok/creatok-14304/8c55caccad4322d1.png'
+      }
+    },
+    {
+      id: 'imageNode-startFrame-1776005240811',
+      type: 'imageAssetNode',
+      position: { x: 657, y: 578 },
+      data: {
+        title: 'Shot 6 Start Frame',
+        imageUrl: 'https://pub-a95b3e2bac2442f582b4e3792df8b515.r2.dev/workflow-templates/creatok/creatok-14304/fe3243a3a14737b4.png'
+      }
+    },
+    {
+      id: 'imageNode-endFrame-1776005258204',
+      type: 'imageAssetNode',
+      position: { x: 661, y: 936 },
+      data: {
+        title: 'Shot 6 End Frame',
+        imageUrl: 'https://pub-a95b3e2bac2442f582b4e3792df8b515.r2.dev/workflow-templates/creatok/creatok-14304/fb810709910aeb54.png'
+      }
+    },
+    {
+      id: 'imageNode-1776005522654',
+      type: 'imageAssetNode',
+      position: { x: 1674, y: 187 },
+      data: {
+        title: 'Shot 3 Reference 3',
+        imageUrl: 'https://pub-a95b3e2bac2442f582b4e3792df8b515.r2.dev/workflow-templates/creatok/creatok-14304/85c7b35c2522fab9.png'
+      }
+    },
+    {
+      id: 'imageNode-1776005535448',
+      type: 'imageAssetNode',
+      position: { x: 1640, y: -336 },
+      data: {
+        title: 'Shot 3 Reference 1',
+        imageUrl: 'https://pub-a95b3e2bac2442f582b4e3792df8b515.r2.dev/workflow-templates/creatok/creatok-14304/9cdb3bfa4ccdea7d.png'
+      }
+    },
+    {
+      id: 'imageNode-1776005546328',
+      type: 'imageAssetNode',
+      position: { x: 1654, y: -77 },
+      data: {
+        title: 'Shot 3 Reference 2',
+        imageUrl: 'https://pub-a95b3e2bac2442f582b4e3792df8b515.r2.dev/workflow-templates/creatok/creatok-14304/b23cea3a607a14d4.png'
+      }
+    },
+    {
+      id: 'imageNode-1776005867262',
+      type: 'imageAssetNode',
+      position: { x: -146, y: 1451 },
+      data: {
+        title: 'Shot 5 Action Reference',
+        imageUrl: 'https://pub-a95b3e2bac2442f582b4e3792df8b515.r2.dev/workflow-templates/creatok/creatok-14304/5994ad048328184c.png'
+      }
+    }
+  ],
+  edges: [
+    { source: 'imageNode-startFrame-1776004249659', target: 'aiVideoNode-1776004059816' },
+    { source: 'imageNode-endFrame-1776004251628', target: 'aiVideoNode-1776004059816' },
+    { source: 'imageNode-1776004427927', target: 'aiVideoNode-1776004121142-yvj6f' },
+    { source: 'imageNode-1776004430695', target: 'aiVideoNode-1776004121142-yvj6f' },
+    { source: 'imageNode-1776004430904', target: 'aiVideoNode-1776004121142-yvj6f' },
+    { source: 'imageNode-startFrame-1776004784167', target: 'aiVideoNode-1776004120223-hl6xkr' },
+    { source: 'imageNode-endFrame-1776004799732', target: 'aiVideoNode-1776004120223-hl6xkr' },
+    { source: 'imageNode-startFrame-1776005005930', target: 'aiVideoNode-1776004118585-25ydyd' },
+    { source: 'imageNode-endFrame-1776005030294', target: 'aiVideoNode-1776004118585-25ydyd' },
+    { source: 'imageNode-1776005867262', target: 'aiVideoNode-1776004118585-25ydyd' },
+    { source: 'imageNode-startFrame-1776005240811', target: 'aiVideoNode-1776004117516-1a08n' },
+    { source: 'imageNode-endFrame-1776005258204', target: 'aiVideoNode-1776004117516-1a08n' },
+    { source: 'imageNode-1776005522654', target: 'aiVideoNode-1776004120735-gt0adt' },
+    { source: 'imageNode-1776005535448', target: 'aiVideoNode-1776004120735-gt0adt' },
+    { source: 'imageNode-1776005546328', target: 'aiVideoNode-1776004120735-gt0adt' }
+  ]
+};
+
+export const WUXIA_BAGUAZHANG_PROJECT = convertSoraTkTemplateToProject(WUXIA_BAGUAZHANG_RAW_JSON, {
+  id: 'proj-wuxia-baguazhang',
+  category: 'video',
+  name: 'Wuxia Baguazhang — 6-Shot Action Cinema (16:9)',
+  description:
+    'Template phim hành động Võ Hiệp Bát Quái Chưởng (16:9): 15 ảnh Keyframe & Tham chiếu kết nối 6 phân cảnh Video hành động 8 giây (720p).',
+  badge: 'Dự Án Võ Hiệp (16:9)',
+  techTag: 'STK-V1',
+  previewVideo: 'https://pub-a95b3e2bac2442f582b4e3792df8b515.r2.dev/workflow-templates/creatok/creatok-14304/b709e36bcaec101c.mp4',
+  previewImage: 'https://pub-a95b3e2bac2442f582b4e3792df8b515.r2.dev/workflow-templates/creatok/creatok-14304/9382db53f7936798.png'
+});

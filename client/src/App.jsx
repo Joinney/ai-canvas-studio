@@ -29,7 +29,8 @@ import {
   BLUSH_LIVESTREAM_PROJECT,
   ECOM_TRYON_OUTFIT_PROJECT,
   MAHJONG_SILHOUETTE_VFX_PROJECT,
-  MIDDLE_AGED_FASHION_TVC_PROJECT
+  MIDDLE_AGED_FASHION_TVC_PROJECT,
+  WUXIA_BAGUAZHANG_PROJECT
 } from './utils/daCanvasConverter';
 
 const cloneProjectSafe = (proj) => {
@@ -49,6 +50,7 @@ const ALL_BUILTIN_PRESETS = [
   ECOM_TRYON_OUTFIT_PROJECT,
   MAHJONG_SILHOUETTE_VFX_PROJECT,
   MIDDLE_AGED_FASHION_TVC_PROJECT,
+  WUXIA_BAGUAZHANG_PROJECT,
   WINTER_FUR_PROJECT
 ];
 const BUILTIN_PRESET_IDS = new Set(ALL_BUILTIN_PRESETS.map((p) => p.id));
@@ -114,6 +116,7 @@ export default function App() {
     if (projId === ECOM_TRYON_OUTFIT_PROJECT.id) return ECOM_TRYON_OUTFIT_PROJECT;
     if (projId === MAHJONG_SILHOUETTE_VFX_PROJECT.id) return cloneProjectSafe(MAHJONG_SILHOUETTE_VFX_PROJECT);
     if (projId === MIDDLE_AGED_FASHION_TVC_PROJECT.id) return cloneProjectSafe(MIDDLE_AGED_FASHION_TVC_PROJECT);
+    if (projId === WUXIA_BAGUAZHANG_PROJECT.id) return cloneProjectSafe(WUXIA_BAGUAZHANG_PROJECT);
     return null;
   });
   const [isDarkMode, setIsDarkMode] = useState(false);
