@@ -244,7 +244,7 @@ export default function HomeDashboard({
           <div className="flex items-center justify-between gap-2 px-1 py-1">
             <div className="flex items-center gap-2.5 min-w-0">
               <div
-                className="box w-11 h-11 flex items-center justify-center shrink-0 cursor-pointer shadow-lg shadow-sky-500/20"
+                className="box w-11 h-11 flex items-center justify-center shrink-0 cursor-pointer shadow-lg shadow-sky-500/20 overflow-hidden p-0.5"
                 style={{ '--r': '16px' }}
                 onClick={() => {
                   setCurrentModule('dashboard');
@@ -252,9 +252,11 @@ export default function HomeDashboard({
                 }}
               >
                 <div className="circle-overlay" />
-                <div className="w-7 h-7 rounded-xl bg-gradient-to-br from-cyan-400 via-sky-500 to-indigo-600 flex items-center justify-center shadow-inner">
-                  <Sparkles className="w-4 h-4 text-white" />
-                </div>
+                <img
+                  src="/logo.jpg"
+                  alt="AI Canvas Studio Logo"
+                  className="w-full h-full rounded-[14px] object-cover shadow-inner"
+                />
               </div>
               <div className="flex flex-col min-w-0">
                 <span className="font-black text-sm tracking-tight leading-tight truncate">AI CANVAS STUDIO</span>
@@ -456,9 +458,11 @@ export default function HomeDashboard({
           <div className="box p-3 flex items-center justify-between" style={{ '--r': '16px' }}>
             <div className="circle-overlay" />
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-sky-400 to-indigo-600 flex items-center justify-center text-white text-xs font-black shadow-sm">
-                AI
-              </div>
+              <img
+                src="/logo.jpg"
+                alt="Pro Creator"
+                className="w-8 h-8 rounded-full object-cover shadow-sm ring-1 ring-white/40"
+              />
               <div className="flex flex-col">
                 <span className="text-xs font-black leading-tight">Pro Creator</span>
                 <span className="text-[10px] font-bold text-amber-500 flex items-center gap-1">
