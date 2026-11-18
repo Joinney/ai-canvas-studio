@@ -401,15 +401,184 @@ export const WINTER_FUR_RAW_CANVAS_JSON = {
   ]
 };
 
+export function detectWorkflowJsonFormat(rawJson) {
+  if (!rawJson || !Array.isArray(rawJson.nodes)) return 'unknown';
+  if (rawJson.nodes.some((n) => ['IMAGE_INPUT', 'FLOW_IMAGE_GEN', 'FLOW_VIDEO_GEN', 'FFMPEG_POST'].includes(n.type))) {
+    return 'ai-canvas-studio';
+  }
+  if (
+    rawJson.schema === 'soratk.workflow-template.v1' ||
+    rawJson.nodes.some((n) => n.type === 'imageAssetNode' || n.type === 'imageNode' || n.type === 'videoNode')
+  ) {
+    return 'soratk.workflow-template.v1';
+  }
+  if (
+    rawJson.type === 'newapi-canvas' ||
+    rawJson.nodes.some((n) => n.position && n.data && ('current_output' in n.data || 'layout_version' in n.data))
+  ) {
+    return 'newapi-canvas';
+  }
+  return 'da-ai-canvas';
+}
+
+function normalizeToDaCanvasInput(rawJson) {
+  const fmt = detectWorkflowJsonFormat(rawJson);
+
+  if (fmt === 'soratk.workflow-template.v1') {
+    const stickers = [];
+    const nodes = [];
+    const skippedIds = new Set();
+
+    for (const n of rawJson.nodes) {
+      const d = n.data || {};
+      const t = String(n.type || '').toLowerCase();
+      if (t.includes('text') || t.includes('vision') || t.includes('assistant')) {
+        skippedIds.add(n.id);
+        stickers.push({
+          id: `sticker-${n.id}`,
+          x: n.position?.x ?? n.x ?? 0,
+          y: n.position?.y ?? n.y ?? 0,
+          width: 280,
+          height: 150,
+          title: d.title || 'Note',
+          html: `<p>${String(d.text || d.prompt || '').replace(/\n/g, '<br/>')}</p>`
+        });
+        continue;
+      }
+      const isVideo = t.includes('video');
+      const mediaUrl = isVideo
+        ? d.resultVideo || d.videoUrl || d.resultUrl || ''
+        : d.resultImage || d.imageUrl || d.previewUrl || d.resultUrl || '';
+      nodes.push({
+        id: n.id,
+        kind: isVideo ? 'video' : 'image',
+        title: d.title || (isVideo ? 'AI Video' : 'AI Image'),
+        x: n.position?.x ?? n.x ?? 0,
+        y: n.position?.y ?? n.y ?? 0,
+        meta: {
+          mediaUrl,
+          prompt: d.prompt || '',
+          settings: {
+            params: {
+              ratio: d.ratio || (isVideo ? '16:9' : '9:16'),
+              resolution: d.resolution || (isVideo ? '720p' : '1K'),
+              duration: d.duration || '5s'
+            }
+          }
+        }
+      });
+    }
+
+    const edges = (rawJson.edges || [])
+      .filter((e) => !skippedIds.has(e.source || e.from) && !skippedIds.has(e.target || e.to))
+      .map((e) => ({
+        id: e.id,
+        from: e.source || e.from,
+        to: e.target || e.to
+      }));
+
+    return { ...rawJson, nodes, edges, stickers: stickers.length > 0 ? stickers : rawJson.stickers };
+  }
+
+  if (fmt === 'newapi-canvas') {
+    const stickers = [];
+    const nodes = [];
+    const skippedIds = new Set();
+
+    for (const n of rawJson.nodes) {
+      const d = n.data || {};
+      if (n.type === 'text') {
+        skippedIds.add(n.id);
+        stickers.push({
+          id: `sticker-${n.id}`,
+          x: n.position?.x ?? n.x ?? 0,
+          y: n.position?.y ?? n.y ?? 0,
+          width: n.measured?.width || 250,
+          height: n.measured?.height || 180,
+          title: d.label || 'Note',
+          html: `<p>${String(d.text || '').replace(/\n/g, '<br/>')}</p>`
+        });
+        continue;
+      }
+      const isVideo = n.type === 'video' || d.current_output?.media_type === 'video';
+      const mediaUrl = d.current_output?.content_url || '';
+      const params = d.params || {};
+      nodes.push({
+        id: n.id,
+        kind: isVideo ? 'video' : 'image',
+        title: d.label || (isVideo ? 'AI Video' : 'AI Image'),
+        x: n.position?.x ?? n.x ?? 0,
+        y: n.position?.y ?? n.y ?? 0,
+        meta: {
+          mediaUrl,
+          prompt: d.prompt || '',
+          dimensions: n.measured ? { width: n.measured.width, height: n.measured.height } : '',
+          settings: {
+            params: isVideo
+              ? {
+                  ratio: params['metadata.ratio'] || '16:9',
+                  resolution: params['metadata.resolution'] || '720p',
+                  duration: params.duration ? `${params.duration}s` : '5s'
+                }
+              : {
+                  ratio: params.size || '9:16',
+                  resolution: params['metadata.resolution'] ? String(params['metadata.resolution']).toUpperCase() : '1K'
+                }
+          }
+        }
+      });
+    }
+
+    const edges = (rawJson.edges || [])
+      .filter((e) => !skippedIds.has(e.source || e.from) && !skippedIds.has(e.target || e.to))
+      .map((e) => ({
+        id: e.id,
+        from: e.source || e.from,
+        to: e.target || e.to
+      }));
+
+    return { ...rawJson, nodes, edges, stickers: stickers.length > 0 ? stickers : rawJson.stickers };
+  }
+
+  return rawJson;
+}
+
 /**
- * Hàm chuyển đổi JSON "__canvas": "da-ai-canvas" bất kỳ sang định dạng Project của AI Canvas Studio
+ * Hàm chuyển đổi JSON ("da-ai-canvas", "soratk.workflow-template.v1", "newapi-canvas" hoặc AI Canvas Studio) sang định dạng Project
  */
-export function convertDaAiCanvasToProject(rawJson, options = {}) {
-  if (!rawJson || !Array.isArray(rawJson.nodes)) {
+export function convertDaAiCanvasToProject(rawInput, options = {}) {
+  if (!rawInput || !Array.isArray(rawInput.nodes)) {
     throw new Error('JSON không hợp lệ (thiếu danh sách nodes)!');
   }
 
   const opt = typeof options === 'string' ? { name: options } : options || {};
+  const fmt = detectWorkflowJsonFormat(rawInput);
+
+  if (fmt === 'ai-canvas-studio') {
+    const convertedEdges = (Array.isArray(rawInput.edges) ? rawInput.edges : []).map((e) => ({
+      id: e.id || `edge-${e.source || e.from}-${e.target || e.to}`,
+      source: e.source || e.from,
+      target: e.target || e.to
+    }));
+    return {
+      ...rawInput,
+      id: opt.id || rawInput.id || 'proj-imported-' + Date.now(),
+      name: opt.name || rawInput.name || rawInput.title || 'Dự án nhập từ JSON',
+      nodes: rawInput.nodes.map((n) => ({
+        ...n,
+        x: Math.round(Number(n.x ?? n.position?.x) || 40),
+        y: Math.round(Number(n.y ?? n.position?.y) || 40),
+        data: {
+          status: n.data?.resultUrl || n.data?.imageUrl ? 'done' : 'idle',
+          ...n.data
+        }
+      })),
+      edges: convertedEdges,
+      stickers: Array.isArray(rawInput.stickers) ? rawInput.stickers : []
+    };
+  }
+
+  const rawJson = normalizeToDaCanvasInput(rawInput);
 
   const rawEdges = Array.isArray(rawJson.edges) ? rawJson.edges : [];
   const rawStickers =

@@ -27,7 +27,7 @@ import {
 } from 'lucide-react';
 import axios from 'axios';
 import { executeGoogleFlowNode, getFlowPoolStatus, resetFlowWorkers } from '../services/flowBridge';
-import { convertDaAiCanvasToProject } from '../utils/daCanvasConverter';
+import { convertDaAiCanvasToProject, detectWorkflowJsonFormat } from '../utils/daCanvasConverter';
 
 const api = axios.create({ baseURL: 'http://localhost:5001/api/ai' });
 
@@ -147,6 +147,12 @@ export default function WorkflowNodeCanvas({ project, onSaveProject }) {
   const [statusBanner, setStatusBanner] = useState('');
   const [showNodeToolbar, setShowNodeToolbar] = useState(false);
   const [showResultsDrawer, setShowResultsDrawer] = useState(false);
+  const [showImportModal, setShowImportModal] = useState(false);
+  const [importJsonText, setImportJsonText] = useState('');
+  const [importJsonError, setImportJsonError] = useState('');
+  const [importReplaceCanvas, setImportReplaceCanvas] = useState(true);
+  const [importAutoSpread, setImportAutoSpread] = useState(true);
+  const importFileInputRef = useRef(null);
 
   const containerRef = useRef(null);
   const saveTimerRef = useRef(null);
@@ -260,23 +266,279 @@ export default function WorkflowNodeCanvas({ project, onSaveProject }) {
     setStickers((prev) => [...prev, newSticker]);
   };
 
-  const handleImportDaCanvasJson = () => {
-    const rawText = window.prompt(
-      'Dán nội dung JSON định dạng {"__canvas": "da-ai-canvas", "nodes": [...], "edges": [...]} vào đây:'
-    );
-    if (!rawText || !rawText.trim()) return;
+  const openImportJsonModal = () => {
+    setImportJsonError('');
+    setShowImportModal(true);
+  };
+
+  const handleImportDaCanvasJson = openImportJsonModal;
+
+  const getImportPreview = () => {
+    const trimmed = importJsonText.trim();
+    if (!trimmed) return null;
     try {
-      const parsed = JSON.parse(rawText);
+      const parsed = JSON.parse(trimmed);
+      const format = detectWorkflowJsonFormat(parsed);
       const converted = convertDaAiCanvasToProject(parsed);
-      setNodes(converted.nodes);
-      setEdges(converted.edges);
-      setStickers(converted.stickers || []);
-      setZoom(0.45);
-      setPan({ x: 50, y: 30 });
-      setStatusBanner('✅ Đã nạp thành công dự án da-ai-canvas (' + converted.nodes.length + ' Nodes)!');
-      setTimeout(() => setStatusBanner(''), 4000);
+      return {
+        valid: true,
+        format,
+        nodeCount: converted.nodes.length,
+        edgeCount: converted.edges.length,
+        stickerCount: (converted.stickers || []).length
+      };
     } catch (err) {
-      alert('Lỗi đọc JSON: ' + err.message);
+      return { valid: false, error: err.message };
+    }
+  };
+
+  const handleImportJsonFile = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      setImportJsonText(String(ev.target?.result || ''));
+      setImportJsonError('');
+    };
+    reader.readAsText(file);
+    e.target.value = '';
+  };
+
+  const handlePasteFromClipboard = async () => {
+    try {
+      const text = await navigator.clipboard.readText();
+      if (text) {
+        setImportJsonText(text);
+        setImportJsonError('');
+      }
+    } catch {
+      setImportJsonError('Trình duyệt không cấp quyền đọc clipboard tự động — hãy bấm Ctrl+V vào ô bên dưới.');
+    }
+  };
+
+  const computeSpreadPositions = (targetNodes, targetEdges, getNodeHeight) => {
+    const nodeById = new Map(targetNodes.map((n) => [n.id, n]));
+    const undirectedAdj = new Map(targetNodes.map((n) => [n.id, []]));
+    const outEdgesMap = new Map(targetNodes.map((n) => [n.id, []]));
+
+    for (const e of targetEdges) {
+      if (!nodeById.has(e.source) || !nodeById.has(e.target)) continue;
+      undirectedAdj.get(e.source).push(e.target);
+      undirectedAdj.get(e.target).push(e.source);
+      outEdgesMap.get(e.source).push(e.target);
+    }
+
+    const visited = new Set();
+    const components = [];
+    for (const n of targetNodes) {
+      if (visited.has(n.id)) continue;
+      const queue = [n.id];
+      const compIds = [];
+      visited.add(n.id);
+      while (queue.length > 0) {
+        const cur = queue.shift();
+        compIds.push(cur);
+        for (const nb of undirectedAdj.get(cur) || []) {
+          if (!visited.has(nb)) {
+            visited.add(nb);
+            queue.push(nb);
+          }
+        }
+      }
+      components.push(compIds);
+    }
+
+    const COL_GAP = 100;
+    const ROW_GAP = 48;
+    const COMP_GAP_X = 120;
+    const COMP_GAP_Y = 72;
+
+    const layoutComponent = (compIds) => {
+      const compSet = new Set(compIds);
+      const level = new Map();
+      for (const id of compIds) level.set(id, 0);
+
+      for (let pass = 0; pass < compIds.length; pass++) {
+        let changed = false;
+        for (const id of compIds) {
+          const curLvl = level.get(id) || 0;
+          for (const tgt of outEdgesMap.get(id) || []) {
+            if (!compSet.has(tgt)) continue;
+            if ((level.get(tgt) || 0) < curLvl + 1) {
+              level.set(tgt, curLvl + 1);
+              changed = true;
+            }
+          }
+        }
+        if (!changed) break;
+      }
+
+      const byLevel = new Map();
+      for (const id of compIds) {
+        const lvl = level.get(id) || 0;
+        if (!byLevel.has(lvl)) byLevel.set(lvl, []);
+        byLevel.get(lvl).push(nodeById.get(id));
+      }
+
+      const relPositions = new Map();
+      let maxH = 0;
+      let maxW = 0;
+      const sortedLevels = Array.from(byLevel.keys()).sort((a, b) => a - b);
+
+      for (const lvl of sortedLevels) {
+        const colNodes = byLevel.get(lvl).sort((a, b) => a.y - b.y || a.x - b.x);
+        const colX = lvl * (NODE_WIDTH + COL_GAP);
+        let curY = 0;
+        for (const cn of colNodes) {
+          relPositions.set(cn.id, { x: colX, y: curY });
+          curY += getNodeHeight(cn.id) + ROW_GAP;
+        }
+        const colH = Math.max(0, curY - ROW_GAP);
+        if (colH > maxH) maxH = colH;
+        if (colX + NODE_WIDTH > maxW) maxW = colX + NODE_WIDTH;
+      }
+
+      const origMinY = Math.min(...compIds.map((id) => nodeById.get(id).y));
+      const origMinX = Math.min(...compIds.map((id) => nodeById.get(id).x));
+      return { compIds, relPositions, width: maxW, height: maxH, origMinX, origMinY };
+    };
+
+    const laidOutComps = components.map(layoutComponent);
+    const connectedComps = laidOutComps
+      .filter((c) => c.compIds.length > 1)
+      .sort((a, b) => a.origMinY - b.origMinY || a.origMinX - b.origMinX);
+    const standaloneComps = laidOutComps
+      .filter((c) => c.compIds.length === 1)
+      .sort((a, b) => a.origMinY - b.origMinY || a.origMinX - b.origMinX);
+
+    const nextPositions = new Map();
+    const MAX_COL_HEIGHT = 2400;
+    let cursorX = 60;
+    let cursorY = 60;
+    let currentStripMaxW = 0;
+
+    for (const comp of connectedComps) {
+      if (cursorY > 60 && cursorY + comp.height > MAX_COL_HEIGHT) {
+        cursorX += currentStripMaxW + COMP_GAP_X;
+        cursorY = 60;
+        currentStripMaxW = 0;
+      }
+      for (const [id, rel] of comp.relPositions.entries()) {
+        nextPositions.set(id, { x: Math.round(cursorX + rel.x), y: Math.round(cursorY + rel.y) });
+      }
+      cursorY += comp.height + COMP_GAP_Y;
+      if (comp.width > currentStripMaxW) currentStripMaxW = comp.width;
+    }
+
+    if (standaloneComps.length > 0) {
+      const gridStartX = connectedComps.length > 0 ? cursorX + currentStripMaxW + COMP_GAP_X : 60;
+      const colsCount = Math.min(4, Math.max(2, Math.ceil(Math.sqrt(standaloneComps.length))));
+      const colHeights = new Array(colsCount).fill(60);
+
+      for (let i = 0; i < standaloneComps.length; i++) {
+        const comp = standaloneComps[i];
+        let bestCol = 0;
+        for (let c = 1; c < colsCount; c++) {
+          if (colHeights[c] < colHeights[bestCol]) bestCol = c;
+        }
+        const x = gridStartX + bestCol * (NODE_WIDTH + 64);
+        const y = colHeights[bestCol];
+        const id = comp.compIds[0];
+        nextPositions.set(id, { x: Math.round(x), y: Math.round(y) });
+        colHeights[bestCol] += getNodeHeight(id) + ROW_GAP;
+      }
+    }
+
+    return targetNodes.map((n) => {
+      const pos = nextPositions.get(n.id);
+      return pos ? { ...n, x: pos.x, y: pos.y } : n;
+    });
+  };
+
+  const handleConfirmImportJson = () => {
+    const trimmed = importJsonText.trim();
+    if (!trimmed) {
+      setImportJsonError('Vui lòng dán nội dung JSON hoặc chọn file .json trước.');
+      return;
+    }
+
+    try {
+      const parsed = JSON.parse(trimmed);
+      const converted = convertDaAiCanvasToProject(parsed);
+
+      const normalizedNodes = (converted.nodes || []).map((n) => ({
+        ...n,
+        data: {
+          ...n.data,
+          title: normalizeChineseTitle(n.data?.title || ''),
+          prompt: normalizeChinesePrompt(n.data?.prompt || '')
+        }
+      }));
+      const normalizedEdges = converted.edges || [];
+      const normalizedStickers = (converted.stickers || []).map((s) => ({
+        ...s,
+        title: normalizeChineseTitle(s.title || '')
+      }));
+
+      let finalNodes = normalizedNodes;
+      let finalEdges = normalizedEdges;
+      let finalStickers = normalizedStickers;
+
+      if (!importReplaceCanvas && nodes.length > 0) {
+        const suffix = '-' + Date.now().toString(36);
+        const idMap = new Map();
+        const existingMaxX = Math.max(...nodes.map((n) => (n.x || 0) + NODE_WIDTH));
+        const offsetX = existingMaxX + 160;
+
+        const appendedNodes = normalizedNodes.map((n) => {
+          const newId = `${n.id}${suffix}`;
+          idMap.set(n.id, newId);
+          return { ...n, id: newId, x: n.x + offsetX };
+        });
+        const appendedEdges = normalizedEdges.map((e) => ({
+          ...e,
+          id: `${e.id || 'edge'}${suffix}`,
+          source: idMap.get(e.source) || e.source,
+          target: idMap.get(e.target) || e.target
+        }));
+        const appendedStickers = normalizedStickers.map((s) => ({
+          ...s,
+          id: `${s.id}${suffix}`,
+          x: s.x + offsetX
+        }));
+
+        finalNodes = [...nodes, ...appendedNodes];
+        finalEdges = [...edges, ...appendedEdges];
+        finalStickers = [...stickers, ...appendedStickers];
+      }
+
+      if (importAutoSpread && finalNodes.length > 0) {
+        originalPositionsRef.current = finalNodes.reduce((acc, n) => {
+          acc[n.id] = { x: n.x, y: n.y };
+          return acc;
+        }, {});
+        finalNodes = computeSpreadPositions(finalNodes, finalEdges, () => 460);
+        setIsSpreadView(true);
+      } else {
+        originalPositionsRef.current = null;
+        setIsSpreadView(false);
+      }
+
+      setNodes(finalNodes);
+      setEdges(finalEdges);
+      setStickers(finalStickers);
+      setSelectedNodeIds([]);
+      setSelectedNodeId(null);
+      setShowImportModal(false);
+      setImportJsonText('');
+      setImportJsonError('');
+      setTimeout(() => handleFitView(finalNodes), 60);
+      setStatusBanner(
+        `✅ Đã nhập ${normalizedNodes.length} Nodes & tự động nối ${normalizedEdges.length} dây nối!`
+      );
+      setTimeout(() => setStatusBanner(''), 5000);
+    } catch (err) {
+      setImportJsonError('Lỗi đọc JSON: ' + err.message);
     }
   };
 
@@ -1352,6 +1614,18 @@ export default function WorkflowNodeCanvas({ project, onSaveProject }) {
 
           <button
             type="button"
+            onClick={openImportJsonModal}
+            className="box box-hover px-3.5 py-2 text-xs font-extrabold flex items-center gap-1.5 cursor-pointer"
+            style={{ '--r': '999px', width: 'auto' }}
+            title="Mở hộp thoại dán / nhập JSON để tự động tạo Node và nối dây"
+          >
+            <div className="circle-overlay" />
+            <FileJson className="w-3.5 h-3.5 text-indigo-600" />
+            <span>Nhập JSON</span>
+          </button>
+
+          <button
+            type="button"
             onClick={handleToggleSpreadView}
             className={`box box-hover px-3.5 py-2 text-xs font-extrabold flex items-center gap-1.5 cursor-pointer ${
               isSpreadView ? 'active-pill ring-2 ring-emerald-400/70' : ''
@@ -2396,6 +2670,175 @@ export default function WorkflowNodeCanvas({ project, onSaveProject }) {
           )}
         </div>
       </div>
+
+      {/* Modal Popup Nhập JSON Node Dự Án (Tự động tạo Node & nối dây) */}
+      {showImportModal && (() => {
+        const preview = getImportPreview();
+        return (
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 backdrop-blur-sm p-4"
+            onClick={() => setShowImportModal(false)}
+          >
+            <div
+              className="w-full max-w-2xl rounded-3xl border border-white/25 bg-white/95 dark:bg-slate-900/95 text-slate-900 dark:text-slate-100 shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="px-6 py-4 border-b border-slate-200/70 dark:border-white/10 flex items-center justify-between">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-9 h-9 rounded-2xl bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
+                    <FileJson className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-black">Nhập JSON Node Dự Án</h3>
+                    <p className="text-[11px] font-medium opacity-70">
+                      Hỗ trợ da-ai-canvas, soratk.workflow-template.v1, newapi-canvas — tự động tạo Node & nối dây
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowImportModal(false)}
+                  className="p-2 rounded-full hover:bg-slate-200/60 dark:hover:bg-white/10 cursor-pointer"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              <div className="p-6 flex flex-col gap-3.5 overflow-y-auto">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <div className="flex items-center gap-2">
+                    <input
+                      ref={importFileInputRef}
+                      type="file"
+                      accept=".json,application/json"
+                      onChange={handleImportJsonFile}
+                      className="hidden"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => importFileInputRef.current?.click()}
+                      className="px-3 py-1.5 rounded-full text-xs font-bold bg-slate-100 hover:bg-slate-200 dark:bg-white/10 dark:hover:bg-white/20 flex items-center gap-1.5 cursor-pointer transition"
+                    >
+                      <Upload className="w-3.5 h-3.5 text-sky-600" />
+                      <span>Chọn file .json</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handlePasteFromClipboard}
+                      className="px-3 py-1.5 rounded-full text-xs font-bold bg-slate-100 hover:bg-slate-200 dark:bg-white/10 dark:hover:bg-white/20 flex items-center gap-1.5 cursor-pointer transition"
+                    >
+                      <Link2 className="w-3.5 h-3.5 text-indigo-600" />
+                      <span>Dán từ Clipboard</span>
+                    </button>
+                  </div>
+                  {importJsonText && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setImportJsonText('');
+                        setImportJsonError('');
+                      }}
+                      className="text-xs font-bold text-rose-500 hover:underline cursor-pointer"
+                    >
+                      Xóa nội dung
+                    </button>
+                  )}
+                </div>
+
+                <textarea
+                  value={importJsonText}
+                  onChange={(e) => {
+                    setImportJsonText(e.target.value);
+                    setImportJsonError('');
+                  }}
+                  placeholder={'Dán chuỗi JSON dự án vào đây...\nVí dụ: {"type": "newapi-canvas", "nodes": [...], "edges": [...]} hoặc {"schema": "soratk.workflow-template.v1", ...}'}
+                  rows={10}
+                  className="w-full rounded-2xl border border-slate-300 dark:border-white/15 bg-slate-50 dark:bg-slate-950/70 p-3.5 font-mono text-xs leading-relaxed focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-y"
+                />
+
+                {preview && (
+                  <div
+                    className={`px-3.5 py-2.5 rounded-2xl text-xs font-bold flex items-center gap-2 ${
+                      preview.valid
+                        ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30'
+                        : 'bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/30'
+                    }`}
+                  >
+                    {preview.valid ? (
+                      <>
+                        <CheckCircle2 className="w-4 h-4 shrink-0" />
+                        <span>
+                          Nhận diện định dạng <b>{preview.format}</b> • {preview.nodeCount} Nodes • {preview.edgeCount} Dây nối
+                          {preview.stickerCount > 0 ? ` • ${preview.stickerCount} Ghi chú` : ''}
+                        </span>
+                      </>
+                    ) : (
+                      <span>⚠️ JSON chưa hoàn chỉnh: {preview.error}</span>
+                    )}
+                  </div>
+                )}
+
+                {importJsonError && (
+                  <div className="px-3.5 py-2 rounded-2xl bg-rose-500/15 border border-rose-500/30 text-xs font-bold text-rose-600 dark:text-rose-300">
+                    ❌ {importJsonError}
+                  </div>
+                )}
+
+                <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
+                  <div className="flex items-center gap-4 text-xs font-bold">
+                    <label className="flex items-center gap-1.5 cursor-pointer">
+                      <input
+                        type="radio"
+                        name="importMode"
+                        checked={importReplaceCanvas}
+                        onChange={() => setImportReplaceCanvas(true)}
+                      />
+                      <span>Thay thế sơ đồ hiện tại</span>
+                    </label>
+                    <label className="flex items-center gap-1.5 cursor-pointer">
+                      <input
+                        type="radio"
+                        name="importMode"
+                        checked={!importReplaceCanvas}
+                        onChange={() => setImportReplaceCanvas(false)}
+                      />
+                      <span>Thêm vào sơ đồ hiện tại</span>
+                    </label>
+                  </div>
+
+                  <label className="flex items-center gap-1.5 text-xs font-bold cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={importAutoSpread}
+                      onChange={(e) => setImportAutoSpread(e.target.checked)}
+                    />
+                    <span>Tự động tách đều Node (chống chồng)</span>
+                  </label>
+                </div>
+              </div>
+
+              <div className="px-6 py-4 border-t border-slate-200/70 dark:border-white/10 flex items-center justify-end gap-2.5 bg-slate-50/70 dark:bg-white/5">
+                <button
+                  type="button"
+                  onClick={() => setShowImportModal(false)}
+                  className="px-4 py-2 rounded-full text-xs font-bold bg-slate-200/80 hover:bg-slate-300 dark:bg-white/10 dark:hover:bg-white/20 cursor-pointer transition"
+                >
+                  Hủy
+                </button>
+                <button
+                  type="button"
+                  onClick={handleConfirmImportJson}
+                  disabled={!preview?.valid}
+                  className="px-5 py-2 rounded-full text-xs font-extrabold bg-indigo-600 hover:bg-indigo-500 disabled:opacity-45 text-white flex items-center gap-1.5 shadow-md shadow-indigo-900/25 cursor-pointer transition"
+                >
+                  <Sparkles className="w-3.5 h-3.5" />
+                  <span>Tạo Node &amp; Nối Dây</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
     </div>
   );
 }
