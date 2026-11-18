@@ -2868,3 +2868,133 @@ export const OUTDOOR_STREETWEAR_LOOKBOOK_PROJECT = convertSoraTkTemplateToProjec
   previewImage:
     'https://pub-a95b3e2bac2442f582b4e3792df8b515.r2.dev/workflow-templates/creatok/creatok-5682/395e0c90ce74a854.jpg'
 });
+
+const MATURE_FASHION_COMMERCE_RAW_JSON = {
+  schema: 'soratk.workflow-template.v1',
+  kind: 'workflow-template',
+  title: 'Mature Lifestyle Fashion Commerce — 3-Video Lookbook (9:16)',
+  nodes: [
+    {
+      id: '1782457447751',
+      type: 'imageAssetNode',
+      position: { x: 580, y: 532 },
+      data: {
+        title: 'Input Outfit Image',
+        ratio: '9:16',
+        imageUrl:
+          'https://pub-a95b3e2bac2442f582b4e3792df8b515.r2.dev/workflow-images/366a4095-ca79-4faf-a825-799411170a0a/wf_mqul52yd_jo2qyb/1782457447751_resultImage_1782457687602_4ur2lp.png'
+      }
+    },
+    {
+      id: '1782457452779',
+      type: 'imageNode',
+      position: { x: 1352, y: 80 },
+      data: {
+        title: 'Image Node (60yo Model Holding Outfit)',
+        prompt:
+          'Generate a realistic candid portrait of a 60-year-old middle-class mother wearing glasses and dressed in the outfit from @Image 1, holding a matching top in one hand and trousers in the other. Natural uneven outdoor lighting (dappled tree leaf shadows across the face, natural eye-socket and nose shadows, subtle environmental color bounce from greenery, matte realistic skin with slight T-zone sheen — no plastic glow), natural garment creases and realistic fabric drape, anatomically accurate hands with five clear fingers, relaxed slightly asymmetrical posture, subtle 35mm film grain and authentic street-photography framing (9:16).',
+        resolution: '1K',
+        ratio: '9:16',
+        resultImage:
+          'https://pub-a95b3e2bac2442f582b4e3792df8b515.r2.dev/workflow-images/366a4095-ca79-4faf-a825-799411170a0a/wf_mqul52yd_jo2qyb/1782457452779_resultImage_1782457689935_zkk99k.jpg'
+      }
+    },
+    {
+      id: '1782457458119',
+      type: 'imageNode',
+      position: { x: 1760, y: 92 },
+      data: {
+        title: 'Image Node (Riverside Stone Bench)',
+        prompt:
+          'The model from @Image 2 wearing the outfit from @Image 1, sitting happily on an urban riverside stone bench with stone pillars, a stone table, and a pavilion in the background, holding a folding paper fan with a warm smile. Photorealistic candid smartphone street photo: natural asymmetrical facial features, visible skin pores and subtle under-eye texture, dappled outdoor tree-shadow lighting, natural film grain, no over-smoothing, anatomically accurate hands, natural garment folds, subtle ambient color reflection (9:16).',
+        resolution: '1K',
+        ratio: '9:16',
+        resultImage:
+          'https://pub-a95b3e2bac2442f582b4e3792df8b515.r2.dev/workflow-images/366a4095-ca79-4faf-a825-799411170a0a/wf_mqul52yd_jo2qyb/1782457458119_resultImage_1782458336569_zdwn5w.jpg'
+      }
+    },
+    {
+      id: '1782457461071',
+      type: 'imageNode',
+      position: { x: 2176, y: 92 },
+      data: {
+        title: 'Image Node (Courtyard Stroll)',
+        prompt:
+          'The model from @Image 2 and @Image 3 wearing the outfit from @Image 1, strolling leisurely while gently fanning herself with a paper fan in an upscale residential courtyard with lush greenery. Photorealistic candid smartphone street photo: natural asymmetrical facial features, visible skin pores, dappled outdoor sunlight and tree shadows, natural film grain, no over-smoothing, anatomically accurate hands, natural fabric drape (9:16).',
+        resolution: '1K',
+        ratio: '9:16',
+        resultImage:
+          'https://pub-a95b3e2bac2442f582b4e3792df8b515.r2.dev/workflow-images/366a4095-ca79-4faf-a825-799411170a0a/wf_mqul52yd_jo2qyb/1782457461071_resultImage_1782458340004_e8xnno.jpg'
+      }
+    },
+    {
+      id: '1782457806793',
+      type: 'videoNode',
+      position: { x: 1324, y: 1680 },
+      data: {
+        title: 'Video 1 (Garment Detail Rotation 8s)',
+        prompt:
+          'Rotate smoothly around the outfit in @Image 1 to showcase the garment tailoring, fabric texture, and details. Subject stands still, ambient sound only, no spoken dialogue.',
+        resolution: '720p',
+        ratio: '9:16',
+        duration: '8s',
+        resultVideo:
+          'https://pub-a95b3e2bac2442f582b4e3792df8b515.r2.dev/workflow-videos/366a4095-ca79-4faf-a825-799411170a0a/wf_mqul52yd_jo2qyb/1782457806793_resultVideo_1782458340381_h33eof.mp4'
+      }
+    },
+    {
+      id: '1782457923071',
+      type: 'videoNode',
+      position: { x: 1804, y: 1696 },
+      data: {
+        title: 'Video 2 (Bench Smile & Fan Motion 8s)',
+        prompt:
+          'The model in @Image 1 looks toward the camera with a warm smile while gently fanning herself with the paper fan, one hand lightly touching the fabric of her outfit. Ambient sound only, no spoken dialogue.',
+        resolution: '720p',
+        ratio: '9:16',
+        duration: '8s',
+        resultVideo:
+          'https://pub-a95b3e2bac2442f582b4e3792df8b515.r2.dev/workflow-videos/366a4095-ca79-4faf-a825-799411170a0a/wf_mqul52yd_jo2qyb/1782457923071_resultVideo_1782458341360_4pfhyl.mp4'
+      }
+    },
+    {
+      id: '1782457984777',
+      type: 'videoNode',
+      position: { x: 2324, y: 1716 },
+      data: {
+        title: 'Video 3 (Leisurely Courtyard Walk 8s)',
+        prompt:
+          'The model in @Image 1 walks forward leisurely and naturally along the courtyard path. Ambient sound only, no spoken dialogue.',
+        resolution: '720p',
+        ratio: '9:16',
+        duration: '8s',
+        resultVideo:
+          'https://pub-a95b3e2bac2442f582b4e3792df8b515.r2.dev/workflow-videos/366a4095-ca79-4faf-a825-799411170a0a/wf_mqul52yd_jo2qyb/1782457984777_resultVideo_1782458342155_326cva.mp4'
+      }
+    }
+  ],
+  edges: [
+    { source: '1782457447751', target: '1782457452779' },
+    { source: '1782457447751', target: '1782457458119' },
+    { source: '1782457447751', target: '1782457461071' },
+    { source: '1782457452779', target: '1782457458119' },
+    { source: '1782457458119', target: '1782457461071' },
+    { source: '1782457452779', target: '1782457806793' },
+    { source: '1782457458119', target: '1782457923071' },
+    { source: '1782457461071', target: '1782457984777' }
+  ]
+};
+
+export const MATURE_FASHION_COMMERCE_PROJECT = convertSoraTkTemplateToProject(MATURE_FASHION_COMMERCE_RAW_JSON, {
+  id: 'proj-mature-fashion-commerce',
+  category: 'tryon',
+  name: 'Mature Lifestyle Fashion Commerce — 3-Video Lookbook (9:16)',
+  description:
+    'Template bán hàng thời trang trung niên (9:16): 1 Ảnh trang phục → 3 bối cảnh người mẫu chân thực (Cầm đồ, Ghế đá ven sông, Dạo khuôn viên) → 3 Video Lookbook 8s (720p).',
+  badge: 'Thời Trang Trung Niên (9:16)',
+  techTag: 'STK-V1',
+  previewVideo:
+    'https://pub-a95b3e2bac2442f582b4e3792df8b515.r2.dev/workflow-videos/366a4095-ca79-4faf-a825-799411170a0a/wf_mqul52yd_jo2qyb/1782457923071_resultVideo_1782458341360_4pfhyl.mp4',
+  previewImage:
+    'https://pub-a95b3e2bac2442f582b4e3792df8b515.r2.dev/workflow-images/366a4095-ca79-4faf-a825-799411170a0a/wf_mqul52yd_jo2qyb/1782457458119_resultImage_1782458336569_zdwn5w.jpg'
+});
