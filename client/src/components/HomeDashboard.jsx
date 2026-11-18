@@ -32,11 +32,26 @@ import {
   Film,
   Zap
 } from 'lucide-react';
-import { WINTER_FUR_PROJECT, MIRROR_SELFIE_PROJECT } from '../utils/daCanvasConverter';
+import {
+  WINTER_FUR_PROJECT,
+  MIRROR_SELFIE_PROJECT,
+  BEAUTY_MIST_PROJECT,
+  AUTUMN_OUTFIT_PROJECT,
+  BLUSH_LIVESTREAM_PROJECT,
+  ECOM_TRYON_OUTFIT_PROJECT,
+  MAHJONG_SILHOUETTE_VFX_PROJECT,
+  MIDDLE_AGED_FASHION_TVC_PROJECT
+} from '../utils/daCanvasConverter';
 
-// Danh sách các Mẫu Dự Án (Templates) dựng sẵn thực tế chuẩn da-ai-canvas
+// Danh sách các Mẫu Dự Án (Templates) dựng sẵn chuẩn da-ai-canvas (KHÔNG ĐƯỢC XÓA)
 export const PRESET_TEMPLATES = [
   MIRROR_SELFIE_PROJECT,
+  BEAUTY_MIST_PROJECT,
+  AUTUMN_OUTFIT_PROJECT,
+  BLUSH_LIVESTREAM_PROJECT,
+  ECOM_TRYON_OUTFIT_PROJECT,
+  MAHJONG_SILHOUETTE_VFX_PROJECT,
+  MIDDLE_AGED_FASHION_TVC_PROJECT,
   WINTER_FUR_PROJECT
 ];
 
@@ -45,6 +60,7 @@ export default function HomeDashboard({
   setActiveTab,
   userProjects,
   onOpenProject,
+  onUseTemplate,
   onCreateBlankProject,
   onDeleteProject,
   flowStatus,
@@ -123,28 +139,54 @@ export default function HomeDashboard({
     setShowNewModal(false);
   };
 
-  // Lọc danh sách dự án & templates theo tìm kiếm và danh mục QuanTV
-  const allDisplayItems = [
-    ...PRESET_TEMPLATES.map((p) => ({ ...p, isPreset: true })),
-    ...userProjects.filter((up) => !PRESET_TEMPLATES.some((pt) => pt.id === up.id)).map((p) => ({ ...p, isPreset: false }))
-  ];
+  const handleOpenTemplateCard = (tpl) => {
+    if (onUseTemplate) {
+      onUseTemplate(tpl);
+    } else {
+      onOpenProject(tpl);
+    }
+  };
 
-  const filteredItems = allDisplayItems.filter((item) => {
+  // Tách riêng hoàn toàn: Dự án Cá nhân / Lịch sử (có thể xóa) vs Dự án Mẫu (không thể xóa)
+  const personalProjects = userProjects
+    .filter((up) => up && up.id && !PRESET_TEMPLATES.some((pt) => pt.id === up.id) && !up.isPreset)
+    .filter((item) => {
+      const q = searchQuery.toLowerCase().trim();
+      return (
+        !q ||
+        (item.name || '').toLowerCase().includes(q) ||
+        (item.description || '').toLowerCase().includes(q)
+      );
+    });
+
+  const filteredTemplates = PRESET_TEMPLATES.filter((item) => {
     const q = searchQuery.toLowerCase().trim();
     const matchSearch =
       !q ||
       (item.name || '').toLowerCase().includes(q) ||
       (item.description || '').toLowerCase().includes(q);
-
     if (!matchSearch) return false;
 
-    if (categoryFilter === 'all') return true;
-    if (categoryFilter === 'my-projects') return !item.isPreset;
-    if (categoryFilter === 'featured') return item.isPreset;
+    if (categoryFilter === 'all' || categoryFilter === 'featured') return true;
     if (categoryFilter === 'video') return item.category === 'video' || item.name.toLowerCase().includes('video');
-    if (categoryFilter === 'image') return item.category === 'image' || item.name.toLowerCase().includes('thử đồ');
+    if (categoryFilter === 'image' || categoryFilter === 'tryon') {
+      return (
+        item.category === 'image' ||
+        item.category === 'tryon' ||
+        /try-on|thử đồ|lookbook|outfit/i.test(item.name || '')
+      );
+    }
+    if (categoryFilter === 'beauty') {
+      return /beauty|blush|mist|livestream|vfx|tvc/i.test(item.name || '');
+    }
     return true;
   });
+
+  const heroShowcaseTemplates = [
+    MIRROR_SELFIE_PROJECT,
+    BEAUTY_MIST_PROJECT,
+    AUTUMN_OUTFIT_PROJECT
+  ];
 
   return (
     <div className="flex h-screen w-screen overflow-hidden text-slate-900 dark:text-white select-none">
@@ -487,416 +529,393 @@ export default function HomeDashboard({
           </div>
         </header>
 
-        {/* Nội dung trang Dashboard cuộn */}
-        <div className="p-8 flex flex-col gap-8 max-w-7xl mx-auto w-full">
-          {/* ================= A. HERO BANNER QUANTV (LIQUID GLASS) ================= */}
+        {/* Nội dung trang Dashboard cuộn (SoraTK Flow Style + Kính Quang Học) */}
+        <div className="p-6 md:p-8 flex flex-col gap-9 max-w-7xl mx-auto w-full">
+          {/* ================= A. HERO BANNER 2 CỘT (SORATK FLOW + LIQUID GLASS) ================= */}
           <div
-            className="box relative p-8 flex flex-col gap-5 overflow-hidden shadow-2xl border border-white/40 dark:border-white/10"
+            className="box relative p-6 md:p-8 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center overflow-hidden shadow-2xl border border-white/40 dark:border-white/10"
             style={{
               '--r': '32px',
               background: isDarkMode
-                ? 'linear-gradient(135deg, rgba(14, 165, 233, 0.15) 0%, rgba(99, 102, 241, 0.12) 50%, rgba(15, 23, 42, 0.85) 100%)'
-                : 'linear-gradient(135deg, rgba(224, 242, 254, 0.85) 0%, rgba(238, 242, 255, 0.75) 50%, rgba(255, 255, 255, 0.9) 100%)'
+                ? 'linear-gradient(135deg, rgba(14, 165, 233, 0.14) 0%, rgba(16, 185, 129, 0.08) 50%, rgba(15, 23, 42, 0.88) 100%)'
+                : 'linear-gradient(135deg, rgba(224, 242, 254, 0.88) 0%, rgba(236, 253, 245, 0.78) 50%, rgba(255, 255, 255, 0.92) 100%)'
             }}
           >
             <div className="circle-overlay" />
 
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="text-[11px] font-black px-3 py-1 rounded-full bg-sky-500/20 text-sky-600 dark:text-sky-300 border border-sky-500/30 flex items-center gap-1.5">
-                <Sparkles className="w-3.5 h-3.5" /> AI Studio • ĐỘT PHÁ TỰ ĐỘNG HÓA WORKFLOW
-              </span>
-              <span className="text-[11px] font-extrabold px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-600 dark:text-emerald-300 border border-emerald-500/30">
-                AI Studio Auto-Piping
-              </span>
-            </div>
+            {/* Cột trái: Tiêu đề & CTA */}
+            <div className="lg:col-span-6 flex flex-col gap-4 z-10">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="text-[11px] font-black px-3 py-1 rounded-full bg-sky-500/15 text-sky-700 dark:text-sky-300 border border-sky-500/30 flex items-center gap-1.5">
+                  <Sparkles className="w-3.5 h-3.5" /> AI Studio • Workflow Tự Động
+                </span>
+                <span className="text-[11px] font-extrabold px-3 py-1 rounded-full bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30">
+                  {PRESET_TEMPLATES.length} Mẫu Chuẩn Sẵn Sàng
+                </span>
+              </div>
 
-            <div className="flex flex-col gap-2 max-w-2xl">
-              <h1 className="text-3xl font-black tracking-tight leading-tight">
-                AI Canvas Studio — Lookbook &amp; Video Runway 7s 9:16
+              <h1 className="text-2xl md:text-3xl font-black tracking-tight leading-tight text-slate-900 dark:text-white">
+                Từ Ảnh Sản Phẩm Đến Video Quảng Cáo — Chỉ Một Quy Trình
               </h1>
-              <p className="text-xs font-bold leading-relaxed opacity-80">
-                Quy trình nối dây đa nhánh tự động hóa từ Ảnh Người Mẫu gốc, Thử đồ 2K đến Video Chuyển động Tự nhiên trên
-                hệ thống AI Cloud. Thực thi tuần tự từng bước, đảm bảo an toàn dữ liệu và đồng bộ tức thì.
+              <p className="text-xs md:text-sm font-semibold leading-relaxed text-slate-700 dark:text-slate-300">
+                Chọn một quy trình mẫu bên dưới để tự động nhân bản vào kho cá nhân của bạn, hoặc tự tạo sơ đồ Node riêng biệt. Mọi chỉnh sửa và kết quả đều được lưu trữ tách biệt theo từng dự án.
               </p>
-            </div>
 
-            <div className="flex flex-wrap items-center gap-3 pt-2">
-              <button
-                onClick={() => onOpenProject(MIRROR_SELFIE_PROJECT)}
-                className="px-5 py-2.5 rounded-full text-xs font-black text-white bg-gradient-to-r from-sky-500 to-indigo-600 hover:brightness-110 transition-all flex items-center gap-2 shadow-lg shadow-sky-500/30 cursor-pointer"
-              >
-                <Play className="w-4 h-4 fill-current" />
-                <span>CHẠY NGAY WORKFLOW ĐỐI GƯƠNG 7S</span>
-              </button>
+              <div className="flex flex-wrap items-center gap-3 pt-1">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setNewProjectMode('workflow');
+                    setShowNewModal(true);
+                  }}
+                  className="px-5 py-2.5 rounded-full text-xs font-black text-white bg-gradient-to-r from-emerald-500 via-teal-500 to-sky-600 hover:brightness-110 transition-all flex items-center gap-2 shadow-lg shadow-emerald-500/25 cursor-pointer"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>Bắt đầu sáng tạo</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </button>
 
-              <button
-                onClick={() => {
-                  onCreateBlankProject({
-                    category: 'image',
-                    name: 'Bàn vẽ Vô cực (Canvas Inpaint)',
-                    workspaceMode: 'freeform'
-                  });
-                }}
-                className="box box-hover px-5 py-2.5 text-xs font-extrabold flex items-center gap-2 cursor-pointer"
-                style={{ '--r': '999px', width: 'auto' }}
-              >
-                <div className="circle-overlay" />
-                <Layers className="w-4 h-4 text-cyan-600" />
-                <span>Mở Bàn Vẽ Vô Cực</span>
-              </button>
-            </div>
-          </div>
-
-          {/* ================= B. KHỐI CÔNG CỤ NHANH QUANTV (4 FEATURE CARDS) ================= */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {/* Card 1: Thử Đồ AI */}
-            <div
-              onClick={() => {
-                setCategoryFilter('image');
-                onOpenProject(MIRROR_SELFIE_PROJECT);
-              }}
-              className="box box-hover p-5 flex flex-col justify-between gap-4 cursor-pointer group"
-              style={{ '--r': '24px' }}
-            >
-              <div className="circle-overlay" />
-              <div className="flex items-center justify-between">
-                <div className="w-10 h-10 rounded-2xl bg-teal-500/15 flex items-center justify-center text-teal-600 dark:text-teal-400">
-                  <ImageIcon className="w-5 h-5" />
-                </div>
-                <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-teal-500/10 text-teal-600 dark:text-teal-400">
-                  2K Try-On
-                </span>
-              </div>
-              <div className="flex flex-col gap-1">
-                <h3 className="text-sm font-black group-hover:text-teal-600 transition">
-                  Image Studio • Thử Đồ 2K
-                </h3>
-                <p className="text-[11px] font-bold opacity-70 leading-relaxed">
-                  Ghép người mẫu &amp; trang phục giữ nguyên dáng đứng đối gương và bối cảnh phòng thực tế.
-                </p>
-              </div>
-              <div className="flex items-center gap-1 text-[11px] font-black text-teal-600">
-                <span>Dùng ngay</span>
-                <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition" />
-              </div>
-            </div>
-
-            {/* Card 2: Tạo Video 9:16 */}
-            <div
-              onClick={() => {
-                setCategoryFilter('video');
-                onOpenProject(MIRROR_SELFIE_PROJECT);
-              }}
-              className="box box-hover p-5 flex flex-col justify-between gap-4 cursor-pointer group"
-              style={{ '--r': '24px' }}
-            >
-              <div className="circle-overlay" />
-              <div className="flex items-center justify-between">
-                <div className="w-10 h-10 rounded-2xl bg-indigo-500/15 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
-                  <Video className="w-5 h-5" />
-                </div>
-                <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-600 dark:text-indigo-400">
-                  9:16 Runway
-                </span>
-              </div>
-              <div className="flex flex-col gap-1">
-                <h3 className="text-sm font-black group-hover:text-indigo-600 transition">
-                  Video Studio • Video 9:16
-                </h3>
-                <p className="text-[11px] font-bold opacity-70 leading-relaxed">
-                  Sinh video chuyển động tự nhiên 7s mượt mà từ ảnh người mẫu đã thử đồ trên AI Studio.
-                </p>
-              </div>
-              <div className="flex items-center gap-1 text-[11px] font-black text-indigo-600">
-                <span>Dùng ngay</span>
-                <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition" />
-              </div>
-            </div>
-
-            {/* Card 3: Bàn Vẽ Vô Cực */}
-            <div
-              onClick={() => {
-                onCreateBlankProject({
-                  category: 'image',
-                  name: 'Bàn vẽ Vô cực (Inpaint)',
-                  workspaceMode: 'freeform'
-                });
-              }}
-              className="box box-hover p-5 flex flex-col justify-between gap-4 cursor-pointer group"
-              style={{ '--r': '24px' }}
-            >
-              <div className="circle-overlay" />
-              <div className="flex items-center justify-between">
-                <div className="w-10 h-10 rounded-2xl bg-cyan-500/15 flex items-center justify-center text-cyan-600 dark:text-cyan-400">
-                  <Layers className="w-5 h-5" />
-                </div>
-                <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-600 dark:text-cyan-400">
-                  Inpaint &amp; Mask
-                </span>
-              </div>
-              <div className="flex flex-col gap-1">
-                <h3 className="text-sm font-black group-hover:text-cyan-600 transition">
-                  Infinite Canvas • Bàn Vẽ Tự Do
-                </h3>
-                <p className="text-[11px] font-bold opacity-70 leading-relaxed">
-                  Bàn vẽ đa tầng không giới hạn, hỗ trợ kéo thả ảnh, tách nền AI, vẽ mask inpainting.
-                </p>
-              </div>
-              <div className="flex items-center gap-1 text-[11px] font-black text-cyan-600">
-                <span>Mở bàn vẽ</span>
-                <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition" />
-              </div>
-            </div>
-
-            {/* Card 4: Sơ Đồ Node DAG */}
-            <div
-              onClick={() => {
-                setCategoryFilter('featured');
-                onOpenProject(WINTER_FUR_PROJECT);
-              }}
-              className="box box-hover p-5 flex flex-col justify-between gap-4 cursor-pointer group"
-              style={{ '--r': '24px' }}
-            >
-              <div className="circle-overlay" />
-              <div className="flex items-center justify-between">
-                <div className="w-10 h-10 rounded-2xl bg-amber-500/15 flex items-center justify-center text-amber-600 dark:text-amber-400">
-                  <Workflow className="w-5 h-5" />
-                </div>
-                <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400">
-                  DAG Engine
-                </span>
-              </div>
-              <div className="flex flex-col gap-1">
-                <h3 className="text-sm font-black group-hover:text-amber-600 transition">
-                  Node Workflow • Sơ Đồ DAG
-                </h3>
-                <p className="text-[11px] font-bold opacity-70 leading-relaxed">
-                  Quy trình 4 cột tự động hóa: nối dây tuần tự, chờ kết quả từng bước, điều phối thông minh.
-                </p>
-              </div>
-              <div className="flex items-center gap-1 text-[11px] font-black text-amber-600">
-                <span>Khám phá</span>
-                <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition" />
-              </div>
-            </div>
-          </div>
-
-          {/* ================= C. THANH LỌC DANH MỤC QUANTV ================= */}
-          <div className="flex flex-wrap items-center justify-between gap-4 pt-2">
-            <div className="box p-1 flex items-center gap-1 text-xs font-extrabold" style={{ '--r': '999px', width: 'auto' }}>
-              <div className="circle-overlay" />
-              <button
-                onClick={() => setCategoryFilter('all')}
-                className={
-                  'box px-4 py-2 cursor-pointer transition ' +
-                  (categoryFilter === 'all' ? 'active-pill' : 'opacity-70')
-                }
-                style={{ '--r': '999px', width: 'auto' }}
-              >
-                <div className="circle-overlay" />
-                All • Tất Cả ({allDisplayItems.length})
-              </button>
-
-              <button
-                onClick={() => setCategoryFilter('video')}
-                className={
-                  'box px-4 py-2 cursor-pointer transition ' +
-                  (categoryFilter === 'video' ? 'active-pill' : 'opacity-70')
-                }
-                style={{ '--r': '999px', width: 'auto' }}
-              >
-                <div className="circle-overlay" />
-                🎬 Video Runway 9:16
-              </button>
-
-              <button
-                onClick={() => setCategoryFilter('image')}
-                className={
-                  'box px-4 py-2 cursor-pointer transition ' +
-                  (categoryFilter === 'image' ? 'active-pill' : 'opacity-70')
-                }
-                style={{ '--r': '999px', width: 'auto' }}
-              >
-                <div className="circle-overlay" />
-                👗 Thử Đồ &amp; Lookbook
-              </button>
-
-              <button
-                onClick={() => setCategoryFilter('featured')}
-                className={
-                  'box px-4 py-2 cursor-pointer transition ' +
-                  (categoryFilter === 'featured' ? 'active-pill' : 'opacity-70')
-                }
-                style={{ '--r': '999px', width: 'auto' }}
-              >
-                <div className="circle-overlay" />
-                🔥 Mẫu Thịnh Hành
-              </button>
-
-              <button
-                onClick={() => setCategoryFilter('my-projects')}
-                className={
-                  'box px-4 py-2 cursor-pointer transition ' +
-                  (categoryFilter === 'my-projects' ? 'active-pill' : 'opacity-70')
-                }
-                style={{ '--r': '999px', width: 'auto' }}
-              >
-                <div className="circle-overlay" />
-                📁 Dự Án Của Tôi ({userProjects.length})
-              </button>
-            </div>
-
-            <div className="text-xs font-bold opacity-60">
-              Đang hiển thị <b>{filteredItems.length}</b> dự án &amp; quy trình
-            </div>
-          </div>
-
-          {/* ================= D. LƯỚI CARDS DỰ ÁN & MẪU (LIQUID GLASS GRID) ================= */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredItems.map((item) => {
-              const { videoUrl, imageUrl } = extractCardMedia(item);
-              const isHovered = hoveredCardId === item.id;
-              const isUnmuted = unmutedCardId === item.id;
-              const hasVideo = Boolean(videoUrl);
-
-              return (
-                <div
-                  key={item.id}
-                  onMouseEnter={() => setHoveredCardId(item.id)}
-                  onMouseLeave={() => setHoveredCardId(null)}
-                  className="box box-hover p-4 flex flex-col justify-between gap-4 group cursor-pointer border border-white/30 dark:border-white/10"
-                  style={{ '--r': '28px' }}
+                <button
+                  type="button"
+                  onClick={() => {
+                    onCreateBlankProject({
+                      category: 'image',
+                      name: 'Bàn vẽ Vô cực (Canvas Inpaint)',
+                      workspaceMode: 'freeform'
+                    });
+                  }}
+                  className="box box-hover px-5 py-2.5 text-xs font-extrabold flex items-center gap-2 cursor-pointer"
+                  style={{ '--r': '999px', width: 'auto' }}
                 >
                   <div className="circle-overlay" />
+                  <Layers className="w-4 h-4 text-cyan-600 dark:text-cyan-400" />
+                  <span>Mở Bàn Vẽ Vô Cực</span>
+                </button>
+              </div>
+            </div>
 
-                  {/* Vùng Media Preview (Kính lồng kính) */}
+            {/* Cột phải: 3 Thẻ Showcase Dọc 3:4 So Le (SoraTK Style) */}
+            <div className="lg:col-span-6 grid grid-cols-3 gap-3 items-center z-10">
+              {heroShowcaseTemplates.map((tpl, idx) => {
+                const { videoUrl, imageUrl } = extractCardMedia(tpl);
+                return (
                   <div
-                    onClick={() => onOpenProject(item)}
-                    className="box relative w-full h-52 flex items-center justify-center overflow-hidden bg-slate-900/10 dark:bg-black/30"
+                    key={tpl.id}
+                    onClick={() => handleOpenTemplateCard(tpl)}
+                    className={`box box-hover relative aspect-[3/4] rounded-2xl overflow-hidden cursor-pointer group border border-white/40 dark:border-white/15 shadow-xl ${
+                      idx === 1 ? '-translate-y-3' : idx === 2 ? 'translate-y-2' : ''
+                    }`}
                     style={{ '--r': '20px' }}
+                    title={`Dùng mẫu: ${tpl.name}`}
                   >
                     <div className="circle-overlay" />
-
-                    {hasVideo ? (
+                    {videoUrl ? (
                       <video
                         src={videoUrl}
-                        playsInline
+                        poster={imageUrl || undefined}
+                        muted
                         loop
-                        muted={!isUnmuted}
-                        autoPlay={isHovered}
-                        className="w-full h-full object-cover transition duration-300 group-hover:scale-105"
+                        playsInline
+                        autoPlay
+                        className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                       />
                     ) : imageUrl ? (
                       <img
                         src={imageUrl}
-                        alt={item.name}
-                        className="w-full h-full object-cover transition duration-300 group-hover:scale-105"
+                        alt={tpl.name}
+                        className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                       />
-                    ) : (
-                      <div className="flex flex-col items-center gap-2 opacity-50">
-                        <Workflow className="w-8 h-8 text-sky-600" />
-                        <span className="text-[11px] font-bold">Quy trình sơ đồ Node</span>
-                      </div>
-                    )}
+                    ) : null}
+                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/20 to-transparent" />
+                    <div className="absolute top-2 left-2 z-10">
+                      <span className="px-2 py-0.5 rounded-full text-[9px] font-black bg-emerald-500/90 text-white shadow">
+                        ▶ Video
+                      </span>
+                    </div>
+                    <div className="absolute bottom-2.5 left-2.5 right-2.5 z-10">
+                      <p className="text-[11px] font-black text-white line-clamp-2 leading-snug drop-shadow">
+                        {tpl.name}
+                      </p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
 
-                    {/* Badge Nhãn Trên Cùng */}
-                    <div className="absolute top-3 left-3 flex items-center gap-1.5 z-10">
-                      {item.isPreset ? (
-                        <span className="text-[10px] font-black px-2.5 py-1 rounded-full bg-amber-500/90 text-white shadow-sm flex items-center gap-1">
-                          <Flame className="w-3 h-3 fill-current" /> MẪU THỊNH HÀNH
-                        </span>
+          {/* ================= B. TIẾP TỤC CHỈNH SỬA • DỰ ÁN CÁ NHÂN & LỊCH SỬ (CÓ THỂ XÓA) ================= */}
+          <section className="flex flex-col gap-4">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div className="flex flex-wrap items-center gap-3">
+                <h2 className="text-lg font-black tracking-tight flex items-center gap-2">
+                  <FolderKanban className="w-5 h-5 text-sky-600 dark:text-sky-400" />
+                  <span>Tiếp tục chỉnh sửa • Dự án Cá nhân</span>
+                </h2>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setNewProjectMode('workflow');
+                    setShowNewModal(true);
+                  }}
+                  className="box box-hover px-3 py-1 text-[11px] font-extrabold flex items-center gap-1 cursor-pointer"
+                  style={{ '--r': '999px', width: 'auto' }}
+                >
+                  <div className="circle-overlay" />
+                  <Plus className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400" />
+                  <span>Tạo dự án mới</span>
+                </button>
+              </div>
+
+              <span className="box px-3 py-1 text-[11px] font-extrabold opacity-80" style={{ '--r': '999px', width: 'auto' }}>
+                <div className="circle-overlay" />
+                {personalProjects.length > 0
+                  ? `${personalProjects.length} dự án cá nhân đã lưu`
+                  : 'Chưa có dự án cá nhân — Hãy bấm vào 1 Mẫu bên dưới để tạo bản sao!'}
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {/* Thẻ Ngang "+ Tạo Dự Án Mới" (SoraTK Continue Editing Style) */}
+              <button
+                type="button"
+                onClick={() => {
+                  setNewProjectMode('workflow');
+                  setShowNewModal(true);
+                }}
+                className="box box-hover h-28 p-4 flex items-center justify-center gap-3 cursor-pointer border-2 border-dashed border-sky-500/35 hover:border-sky-500/70 transition group"
+                style={{ '--r': '20px' }}
+              >
+                <div className="circle-overlay" />
+                <div className="w-10 h-10 rounded-full bg-sky-500/15 text-sky-600 dark:text-sky-400 flex items-center justify-center group-hover:scale-110 transition">
+                  <Plus className="w-5 h-5" />
+                </div>
+                <div className="flex flex-col items-start text-left">
+                  <span className="text-xs font-black">New Project</span>
+                  <span className="text-[11px] font-semibold opacity-70">Tạo dự án mới từ đầu</span>
+                </div>
+              </button>
+
+              {/* Danh sách Dự án Cá nhân / Lịch sử đã nhân bản hoặc tự tạo */}
+              {personalProjects.map((proj) => {
+                const { videoUrl, imageUrl } = extractCardMedia(proj);
+                const updatedLabel = proj.updatedAt
+                  ? new Date(proj.updatedAt).toLocaleString('vi-VN', {
+                      hour: '2-digit',
+                      minute: '2-digit',
+                      day: '2-digit',
+                      month: '2-digit'
+                    })
+                  : 'Vừa lưu';
+
+                return (
+                  <div
+                    key={proj.id}
+                    onClick={() => onOpenProject(proj)}
+                    className="box box-hover h-28 p-3 flex items-center gap-3 cursor-pointer group relative border border-white/30 dark:border-white/10"
+                    style={{ '--r': '20px' }}
+                  >
+                    <div className="circle-overlay" />
+
+                    {/* Thumbnail vuông gọn bên trái */}
+                    <div className="w-20 h-20 rounded-xl overflow-hidden bg-slate-900/15 dark:bg-slate-950/60 shrink-0 relative">
+                      {videoUrl ? (
+                        <video
+                          src={videoUrl}
+                          poster={imageUrl || undefined}
+                          muted
+                          playsInline
+                          className="w-full h-full object-cover"
+                        />
+                      ) : imageUrl ? (
+                        <img src={imageUrl} alt={proj.name} className="w-full h-full object-cover" />
                       ) : (
-                        <span className="text-[10px] font-black px-2.5 py-1 rounded-full bg-sky-600/90 text-white shadow-sm flex items-center gap-1">
-                          <ShieldCheck className="w-3 h-3" /> DỰ ÁN CỦA BẠN
-                        </span>
+                        <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-sky-500/20 to-indigo-500/20">
+                          <Workflow className="w-6 h-6 text-sky-600 dark:text-sky-400" />
+                        </div>
                       )}
                     </div>
 
-                    {/* Nút Bật/Tắt Tiếng Video Khi Hover */}
+                    {/* Thông tin & Nút xóa dự án cá nhân */}
+                    <div className="flex-1 min-w-0 flex flex-col justify-between h-full py-0.5 pr-6">
+                      <h3 className="text-xs font-black line-clamp-2 leading-snug group-hover:text-sky-600 dark:group-hover:text-sky-400 transition" title={proj.name}>
+                        {proj.name}
+                      </h3>
+                      <div className="flex items-center justify-between text-[10px] font-bold opacity-70">
+                        <span>{proj.nodes?.length || 0} Nodes</span>
+                        <span className="flex items-center gap-1">
+                          <Clock className="w-3 h-3" /> {updatedLabel}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Nút Xóa (CHỈ hiện trên Dự án Cá nhân) */}
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (window.confirm(`Xóa dự án cá nhân "${proj.name}" khỏi lịch sử?`)) {
+                          onDeleteProject(proj.id);
+                        }
+                      }}
+                      className="absolute top-2.5 right-2.5 z-20 w-7 h-7 rounded-full bg-rose-500/15 hover:bg-rose-500 text-rose-600 hover:text-white flex items-center justify-center transition cursor-pointer"
+                      title="Xóa dự án cá nhân này"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          </section>
+
+          {/* ================= C. KHO DỰ ÁN MẪU (TEMPLATES 3:4 - KHÔNG ĐƯỢC XÓA) ================= */}
+          <section className="flex flex-col gap-5 pb-6">
+            <div className="flex flex-wrap items-center justify-between gap-4">
+              <div className="flex flex-wrap items-center gap-3">
+                <h2 className="text-lg font-black tracking-tight flex items-center gap-2">
+                  <Flame className="w-5 h-5 text-amber-500" />
+                  <span>Dự án Mẫu (Templates)</span>
+                </h2>
+
+                <div className="box p-1 flex flex-wrap items-center gap-1 text-xs font-extrabold" style={{ '--r': '999px', width: 'auto' }}>
+                  <div className="circle-overlay" />
+                  <button
+                    type="button"
+                    onClick={() => setCategoryFilter('all')}
+                    className={'box px-3.5 py-1.5 cursor-pointer transition ' + (categoryFilter === 'all' ? 'active-pill' : 'opacity-75')}
+                    style={{ '--r': '999px', width: 'auto' }}
+                  >
+                    <div className="circle-overlay" />
+                    Tất cả ({PRESET_TEMPLATES.length})
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setCategoryFilter('video')}
+                    className={'box px-3.5 py-1.5 cursor-pointer transition ' + (categoryFilter === 'video' ? 'active-pill' : 'opacity-75')}
+                    style={{ '--r': '999px', width: 'auto' }}
+                  >
+                    <div className="circle-overlay" />
+                    🎬 Video Quảng Cáo
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setCategoryFilter('tryon')}
+                    className={'box px-3.5 py-1.5 cursor-pointer transition ' + (categoryFilter === 'tryon' ? 'active-pill' : 'opacity-75')}
+                    style={{ '--r': '999px', width: 'auto' }}
+                  >
+                    <div className="circle-overlay" />
+                    👗 Thử Đồ &amp; Lookbook
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setCategoryFilter('beauty')}
+                    className={'box px-3.5 py-1.5 cursor-pointer transition ' + (categoryFilter === 'beauty' ? 'active-pill' : 'opacity-75')}
+                    style={{ '--r': '999px', width: 'auto' }}
+                  >
+                    <div className="circle-overlay" />
+                    ✨ Mỹ Phẩm &amp; VFX
+                  </button>
+                </div>
+              </div>
+
+              <span className="box px-3.5 py-1.5 text-[11px] font-extrabold text-emerald-700 dark:text-emerald-300" style={{ '--r': '999px', width: 'auto' }}>
+                <div className="circle-overlay" />
+                🔒 {filteredTemplates.length} mẫu cố định • Bấm để nhân bản vào Dự án Cá nhân
+              </span>
+            </div>
+
+            {/* Lưới 4 cột Thẻ Dọc 3:4 chuẩn SoraTK Flow */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+              {filteredTemplates.map((tpl) => {
+                const { videoUrl, imageUrl } = extractCardMedia(tpl);
+                const isHovered = hoveredCardId === tpl.id;
+                const isUnmuted = unmutedCardId === tpl.id;
+                const hasVideo = Boolean(videoUrl);
+
+                return (
+                  <div
+                    key={tpl.id}
+                    onClick={() => handleOpenTemplateCard(tpl)}
+                    onMouseEnter={() => setHoveredCardId(tpl.id)}
+                    onMouseLeave={() => setHoveredCardId(null)}
+                    className="box box-hover relative aspect-[3/4] rounded-[24px] overflow-hidden cursor-pointer group border border-white/35 dark:border-white/10 shadow-xl"
+                    style={{ '--r': '24px' }}
+                  >
+                    <div className="circle-overlay" />
+
+                    {/* Ảnh / Video nền tràn khung 3:4 */}
+                    {hasVideo ? (
+                      <video
+                        src={videoUrl}
+                        poster={imageUrl || undefined}
+                        muted={!isUnmuted}
+                        loop
+                        playsInline
+                        autoPlay={isHovered}
+                        className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+                      />
+                    ) : imageUrl ? (
+                      <img
+                        src={imageUrl}
+                        alt={tpl.name}
+                        className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+                      />
+                    ) : (
+                      <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-sky-500/20 to-indigo-500/20">
+                        <Workflow className="w-10 h-10 text-sky-500 opacity-50" />
+                      </div>
+                    )}
+
+                    {/* Lớp phủ tối phía dưới để chữ luôn nổi bật trên cả Sáng & Tối */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950/92 via-slate-950/30 to-black/15 pointer-events-none" />
+
+                    {/* Nhãn góc trên trái */}
+                    <div className="absolute top-3 left-3 z-10 flex items-center gap-1.5">
+                      <span className="px-2.5 py-1 rounded-full text-[10px] font-black bg-emerald-500/90 text-white shadow backdrop-blur-md">
+                        {tpl.badge || 'Mẫu Chuẩn'}
+                      </span>
+                    </div>
+
+                    {/* Nút Loa góc trên phải (nếu có video) */}
                     {hasVideo && (
                       <button
                         type="button"
                         onClick={(e) => {
                           e.stopPropagation();
-                          setUnmutedCardId(isUnmuted ? null : item.id);
+                          setUnmutedCardId(isUnmuted ? null : tpl.id);
                         }}
-                        className="box absolute top-3 right-3 w-8 h-8 flex items-center justify-center text-white z-10 cursor-pointer shadow-md bg-black/50"
-                        style={{ '--r': '50%', width: '32px', height: '32px' }}
+                        className="absolute top-3 right-3 z-20 w-8 h-8 rounded-full bg-black/45 hover:bg-black/70 text-white flex items-center justify-center backdrop-blur-md transition cursor-pointer"
                         title={isUnmuted ? 'Tắt tiếng' : 'Bật tiếng'}
                       >
-                        <div className="circle-overlay" />
-                        {isUnmuted ? <Volume2 className="w-4 h-4 text-emerald-400" /> : <VolumeX className="w-4 h-4" />}
+                        {isUnmuted ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
                       </button>
                     )}
 
-                    {/* Nút Play Overlay */}
-                    <div className="absolute inset-0 bg-black/25 opacity-0 group-hover:opacity-100 transition flex items-center justify-center z-10">
-                      <div className="w-12 h-12 rounded-full bg-white/90 text-sky-600 flex items-center justify-center shadow-lg group-hover:scale-110 transition">
-                        <Play className="w-5 h-5 fill-current ml-0.5" />
+                    {/* Footer bo tròn dưới đáy thẻ (SoraTK Flow Card Footer) */}
+                    <div className="absolute bottom-3 left-3 right-3 z-10 p-3 rounded-[18px] bg-slate-950/65 backdrop-blur-md border border-white/15 flex flex-col gap-2">
+                      <h3 className="text-xs font-black text-white line-clamp-2 leading-snug" title={tpl.name}>
+                        {tpl.name}
+                      </h3>
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-1.5 text-[10px] font-bold text-slate-300">
+                          <span className="px-2 py-0.5 rounded-full bg-white/10">
+                            {tpl.nodes?.length || 0} Nodes
+                          </span>
+                          <span className="px-2 py-0.5 rounded-full bg-white/10">
+                            {tpl.edges?.length || 0} Dây
+                          </span>
+                        </div>
+                        <span className="px-2.5 py-1 rounded-full bg-gradient-to-r from-emerald-500 to-sky-500 text-white text-[10px] font-black flex items-center gap-1 shadow">
+                          <span>Dùng mẫu</span>
+                          <ArrowRight className="w-3 h-3" />
+                        </span>
                       </div>
                     </div>
                   </div>
-
-                  {/* Thông Tin & Tiêu Đề Card */}
-                  <div className="flex flex-col gap-1.5 px-1">
-                    <h3
-                      onClick={() => onOpenProject(item)}
-                      className="font-black text-sm tracking-tight line-clamp-1 group-hover:text-sky-600 transition"
-                      title={item.name}
-                    >
-                      {item.name}
-                    </h3>
-                    <p className="text-[11px] font-semibold opacity-70 line-clamp-2 leading-relaxed">
-                      {item.description || 'Quy trình tự động hóa thử đồ người mẫu và tạo video runway 9:16.'}
-                    </p>
-                  </div>
-
-                  {/* Footer Card: Số Node, Dây Nối & Nút Hành Động */}
-                  <div className="flex items-center justify-between pt-2 border-t border-white/20 dark:border-white/5">
-                    <div className="flex items-center gap-2 text-[10px] font-black opacity-75">
-                      <span className="px-2 py-0.5 rounded-md bg-sky-500/10 text-sky-600 dark:text-sky-400">
-                        {item.nodes?.length || 0} Nodes
-                      </span>
-                      <span className="px-2 py-0.5 rounded-md bg-teal-500/10 text-teal-600 dark:text-teal-400">
-                        {item.edges?.length || 0} Dây nối
-                      </span>
-                    </div>
-
-                    <div className="flex items-center gap-1.5">
-                      {!item.isPreset && (
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            if (window.confirm(`Bạn có chắc chắn muốn xóa dự án "${item.name}"?`)) {
-                              onDeleteProject(item.id);
-                            }
-                          }}
-                          className="box box-hover w-7 h-7 flex items-center justify-center text-rose-500 cursor-pointer"
-                          style={{ '--r': '50%', width: '28px', height: '28px' }}
-                          title="Xóa dự án này"
-                        >
-                          <div className="circle-overlay" />
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
-                      )}
-
-                      <button
-                        type="button"
-                        onClick={() => onOpenProject(item)}
-                        className="box box-hover px-3 py-1.5 text-xs font-black text-sky-700 dark:text-sky-300 flex items-center gap-1 cursor-pointer"
-                        style={{ '--r': '999px', width: 'auto' }}
-                      >
-                        <div className="circle-overlay" />
-                        <span>Mở Dự Án</span>
-                        <ArrowRight className="w-3 h-3" />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+                );
+              })}
+            </div>
+          </section>
         </div>
       </main>
 

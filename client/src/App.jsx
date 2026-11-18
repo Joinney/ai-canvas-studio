@@ -40,6 +40,18 @@ const cloneProjectSafe = (proj) => {
     return { ...proj };
   }
 };
+
+const ALL_BUILTIN_PRESETS = [
+  MIRROR_SELFIE_PROJECT,
+  BEAUTY_MIST_PROJECT,
+  AUTUMN_OUTFIT_PROJECT,
+  BLUSH_LIVESTREAM_PROJECT,
+  ECOM_TRYON_OUTFIT_PROJECT,
+  MAHJONG_SILHOUETTE_VFX_PROJECT,
+  MIDDLE_AGED_FASHION_TVC_PROJECT,
+  WINTER_FUR_PROJECT
+];
+const BUILTIN_PRESET_IDS = new Set(ALL_BUILTIN_PRESETS.map((p) => p.id));
 import { useCanvasStore } from './store/useCanvasStore';
 import { getAIConfig, saveAIConfig } from './services/api';
 import {
@@ -124,68 +136,18 @@ export default function App() {
       if (raw) {
         const parsed = JSON.parse(raw);
         if (Array.isArray(parsed)) {
-          const map = new Map(parsed.map((p) => [p.id, cloneProjectSafe(p)]));
-          if (!map.has(MIRROR_SELFIE_PROJECT.id)) {
-            map.set(MIRROR_SELFIE_PROJECT.id, cloneProjectSafe(MIRROR_SELFIE_PROJECT));
-          }
-          if (!map.has(WINTER_FUR_PROJECT.id)) {
-            map.set(WINTER_FUR_PROJECT.id, cloneProjectSafe(WINTER_FUR_PROJECT));
-          }
-          if (!map.has(BEAUTY_MIST_PROJECT.id)) {
-            map.set(BEAUTY_MIST_PROJECT.id, cloneProjectSafe(BEAUTY_MIST_PROJECT));
-          }
-          if (!map.has(AUTUMN_OUTFIT_PROJECT.id)) {
-            map.set(AUTUMN_OUTFIT_PROJECT.id, cloneProjectSafe(AUTUMN_OUTFIT_PROJECT));
-          }
-          if (!map.has(BLUSH_LIVESTREAM_PROJECT.id)) {
-            map.set(BLUSH_LIVESTREAM_PROJECT.id, cloneProjectSafe(BLUSH_LIVESTREAM_PROJECT));
-          }
-          if (!map.has(ECOM_TRYON_OUTFIT_PROJECT.id)) {
-            map.set(ECOM_TRYON_OUTFIT_PROJECT.id, cloneProjectSafe(ECOM_TRYON_OUTFIT_PROJECT));
-          }
-          const existingMahjong = map.get(MAHJONG_SILHOUETTE_VFX_PROJECT.id);
-          if (!existingMahjong || !existingMahjong.nodes?.some((n) => n.id === 'node-1792750922750-0')) {
-            map.set(MAHJONG_SILHOUETTE_VFX_PROJECT.id, cloneProjectSafe(MAHJONG_SILHOUETTE_VFX_PROJECT));
-            try {
-              const savedStateKey = `ai_canvas_workflow_state_${MAHJONG_SILHOUETTE_VFX_PROJECT.id}`;
-              const savedStateRaw = localStorage.getItem(savedStateKey);
-              if (savedStateRaw && !savedStateRaw.includes('node-1792750922750-0')) {
-                localStorage.removeItem(savedStateKey);
-              }
-            } catch (e) {}
-          }
-          const existingMature = map.get(MIDDLE_AGED_FASHION_TVC_PROJECT.id);
-          if (!existingMature || !existingMature.nodes?.some((n) => n.id === 'node-1789366823140-0')) {
-            map.set(MIDDLE_AGED_FASHION_TVC_PROJECT.id, cloneProjectSafe(MIDDLE_AGED_FASHION_TVC_PROJECT));
-          }
-          const merged = Array.from(map.values());
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
-          return merged;
+          // Chỉ giữ Dự án Cá nhân / Lịch sử (tách biệt hoàn toàn khỏi Dự án Mẫu)
+          const personalOnly = parsed
+            .filter((p) => p && p.id && !BUILTIN_PRESET_IDS.has(p.id) && !p.isPreset)
+            .map((p) => cloneProjectSafe({ ...p, isPreset: false }));
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(personalOnly));
+          return personalOnly;
         }
       }
-      const initial = [
-        cloneProjectSafe(MIRROR_SELFIE_PROJECT),
-        cloneProjectSafe(BEAUTY_MIST_PROJECT),
-        cloneProjectSafe(AUTUMN_OUTFIT_PROJECT),
-        cloneProjectSafe(BLUSH_LIVESTREAM_PROJECT),
-        cloneProjectSafe(ECOM_TRYON_OUTFIT_PROJECT),
-        cloneProjectSafe(MAHJONG_SILHOUETTE_VFX_PROJECT),
-        cloneProjectSafe(MIDDLE_AGED_FASHION_TVC_PROJECT),
-        cloneProjectSafe(WINTER_FUR_PROJECT)
-      ];
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(initial));
-      return initial;
+      localStorage.setItem(STORAGE_KEY, JSON.stringify([]));
+      return [];
     } catch (e) {
-      return [
-        cloneProjectSafe(MIRROR_SELFIE_PROJECT),
-        cloneProjectSafe(BEAUTY_MIST_PROJECT),
-        cloneProjectSafe(AUTUMN_OUTFIT_PROJECT),
-        cloneProjectSafe(BLUSH_LIVESTREAM_PROJECT),
-        cloneProjectSafe(ECOM_TRYON_OUTFIT_PROJECT),
-        cloneProjectSafe(MAHJONG_SILHOUETTE_VFX_PROJECT),
-        cloneProjectSafe(MIDDLE_AGED_FASHION_TVC_PROJECT),
-        cloneProjectSafe(WINTER_FUR_PROJECT)
-      ];
+      return [];
     }
   });
 
@@ -339,9 +301,34 @@ export default function App() {
     }).catch(() => {});
   };
 
+  // Khi bấm vào Dự án Mẫu -> Tự động nhân bản thành Dự án Cá nhân (lưu lịch sử) và mở ra
+  const handleUseTemplate = (template) => {
+    if (!template) return;
+    const nowIso = new Date().toISOString();
+    const cloned = cloneProjectSafe(template);
+    cloned.id = `proj-user-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
+    cloned.isPreset = false;
+    cloned.sourceTemplateId = template.id;
+    cloned.createdAt = nowIso;
+    cloned.updatedAt = nowIso;
+
+    persistProjects([cloned, ...userProjects]);
+    navigateToProject(cloned);
+    fetch('http://localhost:5001/api/ai/projects', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(cloned)
+    }).catch(() => {});
+  };
+
   const handleDeleteProject = (projId) => {
+    // Tuyệt đối không cho xóa Dự án Mẫu
+    if (!projId || BUILTIN_PRESET_IDS.has(projId)) return;
     const next = userProjects.filter((p) => p.id !== projId);
     persistProjects(next);
+    try {
+      localStorage.removeItem(`ai_canvas_workflow_state_${projId}`);
+    } catch (e) {}
     fetch(`http://localhost:5001/api/ai/projects/${projId}`, {
       method: 'DELETE'
     }).catch(() => {});
@@ -374,105 +361,33 @@ export default function App() {
   };
 
   useEffect(() => {
-    // Tải danh sách dự án trên ổ cứng và đảm bảo các mẫu dự án chuẩn luôn sẵn sàng
+    // Tải danh sách Dự án Cá nhân / Lịch sử trên ổ cứng (tách riêng khỏi Dự án Mẫu)
     fetch('http://localhost:5001/api/ai/projects')
       .then((r) => r.json())
       .then((data) => {
         const list = data && Array.isArray(data.projects) ? data.projects : [];
-        const map = new Map(list.map((p) => [p.id, p]));
+        const personalFromServer = list
+          .filter((p) => p && p.id && !BUILTIN_PRESET_IDS.has(p.id) && !p.isPreset)
+          .map((p) => cloneProjectSafe({ ...p, isPreset: false }));
 
-        if (!map.has(MIRROR_SELFIE_PROJECT.id)) {
-          map.set(MIRROR_SELFIE_PROJECT.id, MIRROR_SELFIE_PROJECT);
-          fetch('http://localhost:5001/api/ai/projects', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(MIRROR_SELFIE_PROJECT)
-          }).catch(() => {});
-        }
-
-        if (!map.has(WINTER_FUR_PROJECT.id)) {
-          map.set(WINTER_FUR_PROJECT.id, cloneProjectSafe(WINTER_FUR_PROJECT));
-          fetch('http://localhost:5001/api/ai/projects', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(WINTER_FUR_PROJECT)
-          }).catch(() => {});
-        }
-
-        const existingBeauty = map.get(BEAUTY_MIST_PROJECT.id);
-        const beautyNeedsUpgrade = existingBeauty?.nodes?.some(
-          (n) =>
-            (n.id === 'node-1783071172789' && n.type !== 'IMAGE_INPUT') ||
-            (n.id === 'node-1783085862187' && !String(n.data?.prompt || '').includes('Vietnamese Voiceover'))
-        );
-        if (!existingBeauty || beautyNeedsUpgrade) {
-          map.set(BEAUTY_MIST_PROJECT.id, cloneProjectSafe(BEAUTY_MIST_PROJECT));
-          fetch('http://localhost:5001/api/ai/projects', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(BEAUTY_MIST_PROJECT)
-          }).catch(() => {});
-        }
-
-        if (!map.has(AUTUMN_OUTFIT_PROJECT.id)) {
-          map.set(AUTUMN_OUTFIT_PROJECT.id, cloneProjectSafe(AUTUMN_OUTFIT_PROJECT));
-          fetch('http://localhost:5001/api/ai/projects', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(AUTUMN_OUTFIT_PROJECT)
-          }).catch(() => {});
-        }
-
-        if (!map.has(BLUSH_LIVESTREAM_PROJECT.id)) {
-          map.set(BLUSH_LIVESTREAM_PROJECT.id, cloneProjectSafe(BLUSH_LIVESTREAM_PROJECT));
-          fetch('http://localhost:5001/api/ai/projects', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(BLUSH_LIVESTREAM_PROJECT)
-          }).catch(() => {});
-        }
-
-        if (!map.has(ECOM_TRYON_OUTFIT_PROJECT.id)) {
-          map.set(ECOM_TRYON_OUTFIT_PROJECT.id, cloneProjectSafe(ECOM_TRYON_OUTFIT_PROJECT));
-          fetch('http://localhost:5001/api/ai/projects', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(ECOM_TRYON_OUTFIT_PROJECT)
-          }).catch(() => {});
-        }
-
-        const existingMahjongBackend = map.get(MAHJONG_SILHOUETTE_VFX_PROJECT.id);
-        if (!existingMahjongBackend || !existingMahjongBackend.nodes?.some((n) => n.id === 'node-1792750922750-0')) {
-          map.set(MAHJONG_SILHOUETTE_VFX_PROJECT.id, cloneProjectSafe(MAHJONG_SILHOUETTE_VFX_PROJECT));
-          setCurrentProject((prev) =>
-            prev?.id === MAHJONG_SILHOUETTE_VFX_PROJECT.id && !prev.nodes?.some((n) => n.id === 'node-1792750922750-0')
-              ? cloneProjectSafe(MAHJONG_SILHOUETTE_VFX_PROJECT)
-              : prev
-          );
-          fetch('http://localhost:5001/api/ai/projects', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(MAHJONG_SILHOUETTE_VFX_PROJECT)
-          }).catch(() => {});
-        }
-
-        const existingMatureBackend = map.get(MIDDLE_AGED_FASHION_TVC_PROJECT.id);
-        if (!existingMatureBackend || !existingMatureBackend.nodes?.some((n) => n.id === 'node-1789366823140-0')) {
-          map.set(MIDDLE_AGED_FASHION_TVC_PROJECT.id, cloneProjectSafe(MIDDLE_AGED_FASHION_TVC_PROJECT));
-          setCurrentProject((prev) =>
-            prev?.id === MIDDLE_AGED_FASHION_TVC_PROJECT.id && !prev.nodes?.some((n) => n.id === 'node-1789366823140-0')
-              ? cloneProjectSafe(MIDDLE_AGED_FASHION_TVC_PROJECT)
-              : prev
-          );
-          fetch('http://localhost:5001/api/ai/projects', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(MIDDLE_AGED_FASHION_TVC_PROJECT)
-          }).catch(() => {});
-        }
-
-        const merged = Array.from(map.values());
-        persistProjects(merged);
+        setUserProjects((prevLocal) => {
+          const map = new Map();
+          for (const p of prevLocal) {
+            if (p && p.id && !BUILTIN_PRESET_IDS.has(p.id) && !p.isPreset) {
+              map.set(p.id, p);
+            }
+          }
+          for (const p of personalFromServer) {
+            if (!map.has(p.id)) {
+              map.set(p.id, p);
+            }
+          }
+          const merged = Array.from(map.values());
+          try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
+          } catch (e) {}
+          return merged;
+        });
       })
       .catch(() => {});
 
@@ -663,6 +578,7 @@ export default function App() {
           setActiveTab={setActiveTab}
           userProjects={userProjects}
           onOpenProject={(proj) => navigateToProject(proj)}
+          onUseTemplate={handleUseTemplate}
           onCreateBlankProject={handleCreateBlankProject}
           onDeleteProject={handleDeleteProject}
           flowStatus={flowStatus}
