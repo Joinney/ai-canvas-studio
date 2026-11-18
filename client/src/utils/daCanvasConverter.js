@@ -4981,3 +4981,782 @@ export const VIETNAM_TRAVEL_VLOG_PROJECT = convertDaAiCanvasToProject(VIETNAM_TR
   previewImage:
     'https://rh-images-switch.xiaoyaoyou.com/input/openapi/306d2593e1e92d624bd929ab29ab9bb107aeab8dd9395607287820851804c214.png'
 });
+
+
+// Feibo Instant Hot & Sour Noodles — Office Drama & Food TVC (16:9)
+export const HOT_SOUR_NOODLES_TVC_RAW_CANVAS_JSON = {
+  "__canvas": "da-ai-canvas",
+  "version": 2,
+  "nodes": [
+    {
+      "id": "node-1791872392365-42",
+      "kind": "image",
+      "title": "Female Lead 3-View (Office)",
+      "x": 1589,
+      "y": 329.609375,
+      "width": 244,
+      "height": 158,
+      "meta": {
+        "dimensions": "1672 x 941",
+        "content": "双击画布添加的新节点",
+        "imageTone": "soft",
+        "settings": {
+          "modelId": "cmotfqnds0000gwg7q4dtt5u3",
+          "params": {
+            "ratio": "16:9",
+            "resolution": "1K"
+          }
+        },
+        "prompt": "35mm film photography, soft natural light, natural and delicate, high contrast, high saturation, ultra-high detail, realistic human face with pores, subtle skin grain, fine lines, matte non-oily skin, straight-out-of-camera cinematic lighting. Character sheet three-view layout (half-body close-up, full-body front, full-body back, and ID badge close-up) isolated on pure white background. Subject: young East Asian office woman with slightly wavy dark brown long hair, thin gold-rimmed glasses, standing with arms crossed. Outfit: white V-neck blouse, black high-waisted pencil skirt, sheer black stockings, black stiletto heels, black lanyard ID badge.",
+        "promptHidden": false,
+        "generationStatus": "completed",
+        "mediaUrl": "https://cdn.quantv.com/canvas/featured/1791963187468_g8ho7zghegq.png",
+        "objectFit": "contain"
+      }
+    },
+    {
+      "id": "node-1791873222078-43",
+      "kind": "image",
+      "title": "Male Lead 3-View (Office)",
+      "x": 1583,
+      "y": 597.609375,
+      "width": 244,
+      "height": 158,
+      "meta": {
+        "dimensions": "1672 x 941",
+        "content": "双击画布添加的新节点",
+        "imageTone": "soft",
+        "settings": {
+          "modelId": "cmotfqnds0000gwg7q4dtt5u3",
+          "params": {
+            "ratio": "16:9",
+            "resolution": "1K"
+          }
+        },
+        "prompt": "35mm film photography, soft natural light, ultra-high detail, realistic human face with pores and natural matte skin texture, cinematic lighting. Three-view lookbook layout (left: half-body close-up, center: full-body front with hands in pockets, right: full-body back). Subject: 25-30yo East Asian young man, short black hair, sharp business elite posture. Outfit: slim-fit crisp white dress shirt with rolled sleeves, slim navy tie, dark tailored trousers, black leather belt, derby shoes. Lighting: standard e-commerce studio softbox, seamless light gray background.",
+        "promptHidden": false,
+        "generationStatus": "completed",
+        "mediaUrl": "https://cdn.quantv.com/canvas/featured/1791963187468_24i6pz525v9.png",
+        "objectFit": "contain"
+      }
+    },
+    {
+      "id": "node-1791873948405-44",
+      "kind": "image",
+      "title": "Male Lead — Chef Outfit (feibo)",
+      "x": 1597,
+      "y": 852.609375,
+      "width": 244,
+      "height": 158,
+      "meta": {
+        "dimensions": "1672 x 941",
+        "content": "双击画布添加的新节点",
+        "imageTone": "soft",
+        "settings": {
+          "modelId": "cmotfqnds0000gwg7q4dtt5u3",
+          "params": {
+            "ratio": "16:9",
+            "resolution": "1K"
+          }
+        },
+        "prompt": "Put the lead character in @Image 1 into a luxury chef uniform with the logo \"feibo\" printed on the chest. Keep the character's facial features and composition unchanged.",
+        "promptHidden": false,
+        "generationStatus": "completed",
+        "mediaUrl": "https://cdn.quantv.com/canvas/featured/1791963187469_e1awu9jmqij.png",
+        "objectFit": "contain"
+      }
+    },
+    {
+      "id": "node-1791874046565-46",
+      "kind": "image",
+      "title": "Product Packaging & Seasoning Packets",
+      "x": 1608,
+      "y": 1159.609375,
+      "width": 244,
+      "height": 155,
+      "meta": {
+        "dimensions": "2048 x 1136",
+        "content": "双击画布添加的新节点",
+        "imageTone": "soft",
+        "settings": {
+          "modelId": "cmotfqnds0000gwg7q4dtt5u3",
+          "params": {
+            "ratio": "16:9",
+            "resolution": "2K"
+          }
+        },
+        "prompt": "Design an instant brewed hot & sour noodle cup product under brand name \"feibo\". Display outer packaging, inner packaging, and seasoning packets separately, keeping outer packaging details consistent on a pure white background.",
+        "promptHidden": false,
+        "generationStatus": "completed",
+        "mediaUrl": "https://cdn.quantv.com/canvas/featured/1791963187469_hqcd9cs7d98.jpg",
+        "objectFit": "contain"
+      }
+    },
+    {
+      "id": "node-1791874490717-47",
+      "kind": "image",
+      "title": "Prepared Hot & Sour Noodles Close-up",
+      "x": 2074.6798304832164,
+      "y": 981.7684805106803,
+      "width": 244,
+      "height": 158,
+      "meta": {
+        "dimensions": "1672 x 941",
+        "content": "双击画布添加的新节点",
+        "imageTone": "soft",
+        "settings": {
+          "modelId": "cmotfqnds0000gwg7q4dtt5u3",
+          "params": {
+            "ratio": "16:9",
+            "resolution": "1K"
+          }
+        },
+        "prompt": "Display close-up details of freshly brewed instant hot & sour vermicelli noodles on a pure white background.",
+        "promptHidden": false,
+        "generationStatus": "completed",
+        "mediaUrl": "https://cdn.quantv.com/canvas/featured/1791963187544_cxkrink2ezf.png",
+        "objectFit": "contain"
+      }
+    },
+    {
+      "id": "node-1791875047429-52",
+      "kind": "image",
+      "title": "Modern Open-Plan Office Scene",
+      "x": 1628.254619376834,
+      "y": 1454.076491935347,
+      "width": 244,
+      "height": 158,
+      "meta": {
+        "dimensions": "1672 x 941",
+        "content": "双击画布添加的新节点",
+        "imageTone": "soft",
+        "settings": {
+          "modelId": "cmotfqnds0000gwg7q4dtt5u3",
+          "params": {
+            "ratio": "16:9",
+            "resolution": "1K"
+          }
+        },
+        "prompt": "Modern upscale open-plan office, neat partitioned workstations, walnut desk with black ergonomic chair, monitor, keyboard, and desk lamp. Floor-to-ceiling glass windows showing city skyline, warm-lit glass display cabinet and aisle on the right, indoor potted plants. Cool-warm dual color temperature lighting, hidden linear LED strips, low-saturation luxury gray palette, realistic metal, wood, and glass reflections. Negative: clutter, distortion, watermarks, oversaturated text, blur, low-res, cartoon.",
+        "promptHidden": false,
+        "generationStatus": "completed",
+        "mediaUrl": "https://cdn.quantv.com/canvas/featured/1791963187558_or8qyzj55xb.png",
+        "objectFit": "contain"
+      }
+    },
+    {
+      "id": "node-1791875363110-53",
+      "kind": "video",
+      "title": "TVC Shot 01 — Office Walk & Approach",
+      "x": 2716.2756094699175,
+      "y": 333.44837970639475,
+      "width": 244,
+      "height": 170,
+      "meta": {
+        "dimensions": "864 x 496",
+        "content": "双击画布添加的新节点",
+        "imageTone": "soft",
+        "settings": {
+          "modelId": "cmqw6oyyi09d3x5s3poavwdnw",
+          "params": {
+            "ratio": "16:9",
+            "duration": "4",
+            "resolution": "480p"
+          }
+        },
+        "prompt": "Scene @Image 3: Male lead @Image 2 works at the foreground desk while female lead @Image 1 walks toward him from the right office aisle. Other coworkers are busy in the background. 0-2s: tracking zoom-out from medium close-up of the female lead walking toward camera with confident eyes, blinking and turning her head toward the male lead with a natural smile, flipping her hair gracefully in high heels. 2-4s: fixed wide shot with shallow depth of field; she deepens her smile, walks to his desk, and gracefully perches on the right edge of his desk with legs crossed while he turns to look at her. Real-life cinematic texture, natural skin pores, indoor lighting. No CG look, no stiff motion, no BGM, no subtitles.",
+        "promptHidden": false,
+        "generationStatus": "completed",
+        "mediaStatus": "ready",
+        "mediaProgress": 100,
+        "objectFit": "contain",
+        "mediaUrl": "https://cdn.quantv.com/canvas/featured/1791963187569_2kgt4u96adi.mp4",
+        "originalMediaUrl": "https://cdn.quantv.com/canvas/featured/1791963187569_2kgt4u96adi.mp4",
+        "mediaStage": "completed"
+      }
+    },
+    {
+      "id": "node-1791875811886-57",
+      "kind": "video",
+      "title": "TVC Shot 02 — Desk Dialogue & Overtime",
+      "x": 2753.7587917493224,
+      "y": 832.4319531375681,
+      "width": 244,
+      "height": 170,
+      "meta": {
+        "dimensions": "864 x 496",
+        "content": "双击画布添加的新节点",
+        "imageTone": "soft",
+        "settings": {
+          "modelId": "cmqw6oyyi09d3x5s3poavwdnw",
+          "params": {
+            "ratio": "16:9",
+            "duration": "6",
+            "resolution": "480p"
+          }
+        },
+        "prompt": "Fixed camera, medium close-up, shallow depth of field, shooting from front-left toward front-right using @Image 3 composition. Female lead @Image 1 sits perched on the edge of male lead @Image 2's desk, legs crossed, leaning back on her hands. She sweeps her long hair behind her neck and asks gently: \"Are you free tonight?\" He glances at the screen shyly: \"Yes.\" She blinks slowly with a charming smile: \"Let's grab dinner together?\" He nods shyly twice: \"Sure.\" Instantly she drops her smile, stands up briskly, faces away, and calls out coolly: \"Manager Wang, add one more dinner box — he's working overtime tonight.\" Cinematic lighting, authentic skin texture, natural breathing. No BGM, no subtitles.",
+        "promptHidden": false,
+        "generationStatus": "completed",
+        "mediaStatus": "ready",
+        "mediaProgress": 100,
+        "objectFit": "contain",
+        "mediaUrl": "https://cdn.quantv.com/canvas/featured/1791963187607_cjiuugj87we.mp4",
+        "originalMediaUrl": "https://cdn.quantv.com/canvas/featured/1791963187607_cjiuugj87we.mp4",
+        "mediaStage": "completed"
+      }
+    },
+    {
+      "id": "node-1791878995819-61",
+      "kind": "image",
+      "title": "Shot 01 End Frame Reference",
+      "x": 2721.9775629912865,
+      "y": 588.3521162758585,
+      "width": 244,
+      "height": 141,
+      "meta": {
+        "mediaUrl": "https://cdn.quantv.com/canvas/featured/1791963187632_0zkldgogqgg.png",
+        "objectFit": "contain",
+        "imageTone": "soft",
+        "dimensions": "791 x 391",
+        "settings": {
+          "modelId": "cmroohfag2msfrykqadspaznz"
+        }
+      }
+    },
+    {
+      "id": "node-1791881091775-63",
+      "kind": "video",
+      "title": "TVC Shot 03 — Spotlight Product Reveal",
+      "x": 2753.7587917493215,
+      "y": 1140.0742475153481,
+      "width": 180,
+      "height": 190,
+      "meta": {
+        "dimensions": "1024 x 1024",
+        "content": "双击画布添加的新节点",
+        "imageTone": "soft",
+        "settings": {
+          "modelId": "cmqw6oyyi09d3x5s3poavwdnw",
+          "params": {
+            "ratio": "16:9",
+            "duration": "5",
+            "resolution": "480p"
+          }
+        },
+        "prompt": "@Image 1 is the male lead, @Image 2 is the product. 0-2s: In a dark studio under a single overhead spotlight, the male lead slumps exhausted in a chair, medium front close-up as his smile fades into drained fatigue. 2-5s: Cut to fixed wide front shot; a hand emerges from the darkness holding the glowing product in front of him; his eyes light up in joy as the camera rapidly pushes into his eye. Encouraging 30yo male voiceover: \"Don't be down, have this tonight.\" Cinematic lighting, hyper-realistic skin texture. No BGM, no subtitles.",
+        "promptHidden": false,
+        "generationStatus": "completed",
+        "mediaStatus": "ready",
+        "mediaProgress": 100,
+        "objectFit": "contain",
+        "mediaUrl": "https://cdn.quantv.com/canvas/featured/1791963187639_xm3fkz8voj8.mp4",
+        "originalMediaUrl": "https://cdn.quantv.com/canvas/featured/1791963187639_xm3fkz8voj8.mp4",
+        "mediaStage": "completed"
+      }
+    },
+    {
+      "id": "node-1791881529551-66",
+      "kind": "image",
+      "title": "Product Multi-View Packaging (White BG)",
+      "x": 2088.482759250704,
+      "y": 1295.3058241474778,
+      "width": 244,
+      "height": 156,
+      "meta": {
+        "dimensions": "1673 x 940",
+        "content": "双击画布添加的新节点",
+        "imageTone": "soft",
+        "settings": {
+          "modelId": "cmotfqnds0000gwg7q4dtt5u3",
+          "params": {
+            "ratio": "16:9",
+            "resolution": "1K"
+          }
+        },
+        "prompt": "Multi-angle showcase of the product outer packaging on a pure white background.",
+        "promptHidden": false,
+        "generationStatus": "completed",
+        "mediaUrl": "https://cdn.quantv.com/canvas/featured/1791963187645_90v970edu27.png",
+        "objectFit": "contain"
+      }
+    },
+    {
+      "id": "node-1791881686351-71",
+      "kind": "video",
+      "title": "TVC Shot 04 — Product & Packets Macro Hero",
+      "x": 2735.09884681364,
+      "y": 1425.5895877390976,
+      "width": 244,
+      "height": 170,
+      "meta": {
+        "dimensions": "864 x 496",
+        "content": "双击画布添加的新节点",
+        "imageTone": "soft",
+        "settings": {
+          "modelId": "cmqw6oyyi09d3x5s3poavwdnw",
+          "params": {
+            "ratio": "16:9",
+            "duration": "8",
+            "resolution": "480p"
+          }
+        },
+        "prompt": "Four-view product showcase (12cm top width, 9cm bottom width). Scene and product strictly follow @Image 1, @Image 2 (packets), and @Image 3 (color tone & kitchen background). TVC commercial close-up: 0-1s low-angle hero push-in on black-and-red \"feibo\" noodle cup; 1-2s front brand logo & mascot sweep; 2-3s macro lid sweep & front typography; 3-4s top-down spread of all 5 seasoning packets and white vermicelli noodles; 4-6s low-angle macro glide past chili oil, vinegar, seasoning powder, peanut-veg, pickled mustard, and sweet potato noodle packets; 6-8s hero group lockup with cup, tilted lid, packets, and noodles. No fork, no nutrition panel, no people, no CG look.",
+        "promptHidden": false,
+        "generationStatus": "completed",
+        "mediaStatus": "ready",
+        "mediaProgress": 100,
+        "objectFit": "contain",
+        "mediaUrl": "https://cdn.quantv.com/canvas/featured/1791963187654_szqxs0cdh8q.mp4",
+        "originalMediaUrl": "https://cdn.quantv.com/canvas/featured/1791963187654_szqxs0cdh8q.mp4",
+        "mediaStage": "completed"
+      }
+    },
+    {
+      "id": "node-1791881737752-74",
+      "kind": "image",
+      "title": "Dark Luxury Kitchen Countertop Scene",
+      "x": 1623.1561765356441,
+      "y": 1728.7981316830176,
+      "width": 244,
+      "height": 158,
+      "meta": {
+        "dimensions": "1672 x 941",
+        "content": "双击画布添加的新节点",
+        "imageTone": "soft",
+        "settings": {
+          "modelId": "cmotfqnds0000gwg7q4dtt5u3",
+          "params": {
+            "ratio": "16:9",
+            "resolution": "1K"
+          }
+        },
+        "prompt": "Dark luxury kitchen countertop display background. Expansive dark gray rough granite foreground lit by a soft warm central spotlight. Rustic ceramic pot with greenery, glass oil bottle, and small condiment dishes on the left; wooden knife block and utensils on the right; dark wood and black marble cabinets with subtle warm hidden LED strips in blurred background. Wabi-sabi modern luxury, 8K.",
+        "promptHidden": false,
+        "generationStatus": "completed",
+        "mediaUrl": "https://cdn.quantv.com/canvas/featured/1791963187685_ear07ix08sk.png",
+        "objectFit": "contain"
+      }
+    },
+    {
+      "id": "node-1791883431975-76",
+      "kind": "video",
+      "title": "TVC Shot 05 — Pouring & Brewing Macro",
+      "x": 2749.978044437702,
+      "y": 1749.9447612862098,
+      "width": 180,
+      "height": 190,
+      "meta": {
+        "dimensions": "1024 x 1024",
+        "content": "双击画布添加的新节点",
+        "imageTone": "soft",
+        "settings": {
+          "modelId": "cmqw6oyyi09d3x5s3poavwdnw",
+          "params": {
+            "ratio": "16:9",
+            "duration": "4",
+            "resolution": "480p"
+          }
+        },
+        "prompt": "@Image 1 is the product, @Image 3 is the scene, @Image 2 is the inner ingredients. Slightly top-down macro shot: opened empty cup receives steaming hot water, sweet potato vermicelli dropping in, and seasoning packets pouring in as broth & noodles begin transforming into rich hot & sour noodles; lid drops onto the cup and spins at high speed. Multi-angle 4s fast-paced TVC sequence set in @Image 3. Cinematic lighting, realistic physics. No BGM, no subtitles.",
+        "promptHidden": false,
+        "generationStatus": "completed",
+        "mediaStatus": "ready",
+        "mediaProgress": 100,
+        "objectFit": "contain",
+        "mediaUrl": "https://cdn.quantv.com/canvas/featured/1791963187709_olz1r8q9b9f.mp4",
+        "originalMediaUrl": "https://cdn.quantv.com/canvas/featured/1791963187709_olz1r8q9b9f.mp4",
+        "mediaStage": "completed"
+      }
+    },
+    {
+      "id": "node-1791883981103-80",
+      "kind": "video",
+      "title": "TVC Shot 06 — Chef Magic Product Reveal",
+      "x": 3298.8813027999977,
+      "y": 644.2514328317337,
+      "width": 244,
+      "height": 170,
+      "meta": {
+        "dimensions": "864 x 496",
+        "content": "双击画布添加的新节点",
+        "imageTone": "soft",
+        "settings": {
+          "modelId": "cmqw6oyyi09d3x5s3poavwdnw",
+          "params": {
+            "ratio": "16:9",
+            "duration": "5",
+            "resolution": "480p"
+          }
+        },
+        "prompt": "Scene @Image 3: prep counter in foreground, chef in midground, kitchen in background; @Image 2 is the product. 1s close-up of chef @Image 1 with eyes closed under butterfly lighting, then snaps eyes open, quick cut to \"feibo\" chest logo, quick cut to chef torso, then wide shot behind counter wearing black rubber gloves. He claps hands firmly at chest distance, then slowly parts his hands as a box of @Image 2 materializes spinning in mid-air between his palms (no magic VFX), then both hands and product drop crisply together in a joyful medium shot. TVC pacing, realistic skin texture. No BGM, no subtitles.",
+        "promptHidden": false,
+        "generationStatus": "completed",
+        "mediaStatus": "ready",
+        "mediaProgress": 100,
+        "objectFit": "contain",
+        "mediaUrl": "https://cdn.quantv.com/canvas/featured/1791963187714_n4pb4matvqk.mp4",
+        "originalMediaUrl": "https://cdn.quantv.com/canvas/featured/1791963187714_n4pb4matvqk.mp4",
+        "mediaStage": "completed"
+      }
+    },
+    {
+      "id": "node-1791884597767-84",
+      "kind": "video",
+      "title": "TVC Shot 07 — Chef Aroma & 5-Packet Fan",
+      "x": 3323.365957238339,
+      "y": 1057.2259376917643,
+      "width": 244,
+      "height": 170,
+      "meta": {
+        "dimensions": "864 x 496",
+        "content": "双击画布添加的新节点",
+        "imageTone": "soft",
+        "settings": {
+          "modelId": "cmqw6oyyi09d3x5s3poavwdnw",
+          "params": {
+            "ratio": "16:9",
+            "duration": "5",
+            "resolution": "480p"
+          }
+        },
+        "prompt": "@Image 2 is product multi-view (12cm top, 9cm bottom), @Image 1 is chef, @Image 3 is brewed steaming noodles, @Image 4 is kitchen scene, @Image 5 is seasoning packets. Fixed medium close-up, shallow DOF, Rembrandt lighting on chef @Image 1 leaning on counter in black rubber gloves holding steaming @Image 3. He lifts it to inhale the aroma with eyes closed, nods in satisfaction, then smiles and extends the steaming cup forward to hero position while fanning all 5 seasoning packets cleanly between the fingers of his left hand like playing cards. Dramatic product spotlight. Cinematic real-life photography. No BGM, no subtitles.",
+        "promptHidden": false,
+        "generationStatus": "completed",
+        "mediaStatus": "ready",
+        "mediaProgress": 100,
+        "objectFit": "contain",
+        "mediaUrl": "https://cdn.quantv.com/canvas/featured/1791963187724_uxv0a14g1q.mp4",
+        "originalMediaUrl": "https://cdn.quantv.com/canvas/featured/1791963187724_uxv0a14g1q.mp4",
+        "mediaStage": "completed"
+      }
+    },
+    {
+      "id": "node-1791963054101-99",
+      "kind": "video",
+      "title": "Final Edited TVC Master (16:9)",
+      "x": 3843.6881019163834,
+      "y": 834.9346562166074,
+      "width": 244,
+      "height": 170,
+      "meta": {
+        "mediaUrl": "https://cdn.quantv.com/canvas/featured/1791963187742_y37878xt6.mp4",
+        "objectFit": "contain",
+        "imageTone": "soft",
+        "originalMediaUrl": "https://cdn.quantv.com/canvas/featured/1791963187742_y37878xt6.mp4",
+        "mediaStatus": "ready",
+        "mediaProgress": 100,
+        "mediaStage": "completed",
+        "dimensions": "1283 x 736"
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "edge-1791873948405-45",
+      "from": "node-1791873222078-43",
+      "to": "node-1791873948405-44"
+    },
+    {
+      "id": "edge-1791874490717-48",
+      "from": "node-1791874046565-46",
+      "to": "node-1791874490717-47"
+    },
+    {
+      "id": "edge-1791875363110-54",
+      "from": "node-1791872392365-42",
+      "to": "node-1791875363110-53"
+    },
+    {
+      "id": "edge-1791875365602-55",
+      "from": "node-1791873222078-43",
+      "to": "node-1791875363110-53"
+    },
+    {
+      "id": "edge-1791875367585-56",
+      "from": "node-1791875047429-52",
+      "to": "node-1791875363110-53"
+    },
+    {
+      "id": "edge-1791875811886-58",
+      "from": "node-1791872392365-42",
+      "to": "node-1791875811886-57"
+    },
+    {
+      "id": "edge-1791875813993-59",
+      "from": "node-1791873222078-43",
+      "to": "node-1791875811886-57"
+    },
+    {
+      "id": "edge-1791879002083-62",
+      "from": "node-1791878995819-61",
+      "to": "node-1791875811886-57"
+    },
+    {
+      "id": "edge-1791881091775-64",
+      "from": "node-1791873222078-43",
+      "to": "node-1791881091775-63"
+    },
+    {
+      "id": "edge-1791881094937-65",
+      "from": "node-1791874046565-46",
+      "to": "node-1791881091775-63"
+    },
+    {
+      "id": "edge-1791881529551-67",
+      "from": "node-1791874046565-46",
+      "to": "node-1791881529551-66"
+    },
+    {
+      "id": "edge-1791881686351-72",
+      "from": "node-1791881529551-66",
+      "to": "node-1791881686351-71"
+    },
+    {
+      "id": "edge-1791881715209-73",
+      "from": "node-1791874046565-46",
+      "to": "node-1791881686351-71"
+    },
+    {
+      "id": "edge-1791881838914-75",
+      "from": "node-1791881737752-74",
+      "to": "node-1791881686351-71"
+    },
+    {
+      "id": "edge-1791883431976-77",
+      "from": "node-1791881529551-66",
+      "to": "node-1791883431975-76"
+    },
+    {
+      "id": "edge-1791883435263-78",
+      "from": "node-1791874046565-46",
+      "to": "node-1791883431975-76"
+    },
+    {
+      "id": "edge-1791883437744-79",
+      "from": "node-1791881737752-74",
+      "to": "node-1791883431975-76"
+    },
+    {
+      "id": "edge-1791883984120-81",
+      "from": "node-1791873948405-44",
+      "to": "node-1791883981103-80"
+    },
+    {
+      "id": "edge-1791883988400-82",
+      "from": "node-1791881529551-66",
+      "to": "node-1791883981103-80"
+    },
+    {
+      "id": "edge-1791883990392-83",
+      "from": "node-1791881737752-74",
+      "to": "node-1791883981103-80"
+    },
+    {
+      "id": "edge-1791884600607-86",
+      "from": "node-1791881529551-66",
+      "to": "node-1791884597767-84",
+      "order": 1
+    },
+    {
+      "id": "edge-1791884603592-87",
+      "from": "node-1791873948405-44",
+      "to": "node-1791884597767-84",
+      "order": 0
+    },
+    {
+      "id": "edge-1791884607902-88",
+      "from": "node-1791874490717-47",
+      "to": "node-1791884597767-84",
+      "order": 2
+    },
+    {
+      "id": "edge-1791884615062-89",
+      "from": "node-1791881737752-74",
+      "to": "node-1791884597767-84"
+    },
+    {
+      "id": "edge-1791884618711-90",
+      "from": "node-1791874046565-46",
+      "to": "node-1791884597767-84"
+    }
+  ],
+  "stickers": [
+    {
+      "id": "sticker-1791962572024-91",
+      "x": 1282.3211307064919,
+      "y": 512.6366849372812,
+      "width": 252.92798902817503,
+      "height": 104.87531116110375,
+      "targetType": "free",
+      "title": "Note",
+      "html": "<p>Generate 3-view character sheets for male and female leads (or swap in your own models).</p>",
+      "style": {
+        "theme": "yellow",
+        "opacity": 0.98,
+        "radius": 16
+      },
+      "zIndex": 10,
+      "locked": false,
+      "collapsed": false
+    },
+    {
+      "id": "sticker-1791962615008-92",
+      "x": 1270.1117103851882,
+      "y": 872.3685503585891,
+      "width": 276.4639945140875,
+      "height": 127.43064975176986,
+      "targetType": "free",
+      "title": "Note",
+      "html": "<p>Generate the male lead in a chef uniform based on his character sheet. Remember to update the chest logo to your own brand.</p>",
+      "style": {
+        "theme": "yellow",
+        "opacity": 0.98,
+        "radius": 16
+      },
+      "zIndex": 10,
+      "locked": false,
+      "collapsed": false
+    },
+    {
+      "id": "sticker-1791962656072-93",
+      "x": 1297.5703834520864,
+      "y": 1191.0852913136537,
+      "width": 284.3093296760583,
+      "height": 100.95264358011833,
+      "targetType": "free",
+      "title": "Note",
+      "html": "<p>Upload your product photo and generate multi-view sheets with clear inner ingredients.</p>",
+      "style": {
+        "theme": "yellow",
+        "opacity": 0.98,
+        "radius": 16
+      },
+      "zIndex": 10,
+      "locked": false,
+      "collapsed": false
+    },
+    {
+      "id": "sticker-1791962691951-94",
+      "x": 1334.8357254714479,
+      "y": 1609.8300555838464,
+      "width": 253.9086559234214,
+      "height": 100.95264358011833,
+      "targetType": "free",
+      "title": "Note",
+      "html": "<p>Use your own scene image or generate one with AI.</p>",
+      "style": {
+        "theme": "yellow",
+        "opacity": 0.98,
+        "radius": 16
+      },
+      "zIndex": 10,
+      "locked": false,
+      "collapsed": false
+    },
+    {
+      "id": "sticker-1791962718216-95",
+      "x": 2062.490561744242,
+      "y": 1164.6072851420022,
+      "width": 284.3093296760583,
+      "height": 105.8559780563501,
+      "targetType": "free",
+      "title": "Note",
+      "html": "<p>Generate inner ingredient details and multi-angle product views from your product photo.</p>",
+      "style": {
+        "theme": "yellow",
+        "opacity": 0.98,
+        "radius": 16
+      },
+      "zIndex": 10,
+      "locked": false,
+      "collapsed": false
+    },
+    {
+      "id": "sticker-1791962770992-96",
+      "x": 2695.0207091781394,
+      "y": 115.29370722840439,
+      "width": 300,
+      "height": 200,
+      "targetType": "free",
+      "title": "Note",
+      "html": "<p><b>Tips for multi-shot consistency:</b> Replace character and product details in prompts with your own. Use Pro or 720p for crisp packaging text.</p>",
+      "style": {
+        "theme": "yellow",
+        "opacity": 0.98,
+        "radius": 16
+      },
+      "zIndex": 10,
+      "locked": false,
+      "collapsed": false
+    },
+    {
+      "id": "sticker-1791962884472-97",
+      "x": 2420.43397850916,
+      "y": 627.2018265470008,
+      "width": 274.50266072359483,
+      "height": 80,
+      "targetType": "free",
+      "title": "Note",
+      "html": "<p>Extract the end-frame image from the previous video shot.</p>",
+      "style": {
+        "theme": "yellow",
+        "opacity": 0.98,
+        "radius": 16
+      },
+      "zIndex": 10,
+      "locked": false,
+      "collapsed": false
+    },
+    {
+      "id": "sticker-1791962908737-98",
+      "x": 2455.737986738029,
+      "y": 872.368550358589,
+      "width": 265.67665866637765,
+      "height": 92.12664152290115,
+      "targetType": "free",
+      "title": "Note",
+      "html": "<p>Reference the previous video's end-frame here to keep camera angle continuity consistent.</p>",
+      "style": {
+        "theme": "yellow",
+        "opacity": 0.98,
+        "radius": 16
+      },
+      "zIndex": 10,
+      "locked": false,
+      "collapsed": false
+    },
+    {
+      "id": "sticker-1791963066696-100",
+      "x": 3822.7876387114457,
+      "y": 675.2545044140721,
+      "width": 273.52199382834846,
+      "height": 143.1213200757115,
+      "targetType": "free",
+      "title": "Note",
+      "html": "<p>Assemble clips in your video editor (no heavy transitions needed; add BGM on product showcase shots).</p>",
+      "style": {
+        "theme": "yellow",
+        "opacity": 0.98,
+        "radius": 16
+      },
+      "zIndex": 10,
+      "locked": false,
+      "collapsed": false
+    }
+  ]
+};
+
+export const HOT_SOUR_NOODLES_TVC_PROJECT = convertDaAiCanvasToProject(HOT_SOUR_NOODLES_TVC_RAW_CANVAS_JSON, {
+  id: 'proj-hot-sour-noodles-tvc',
+  category: 'video',
+  name: 'Feibo Hot & Sour Noodles — Office Drama & Food TVC (16:9)',
+  description:
+    'Quy trình TVC 16:9 trọn bộ 17 Node (da-ai-canvas): Tạo mẫu nhân vật văn phòng & đầu bếp + Sản phẩm 5 gói gia vị + Bối cảnh → 7 phân cảnh Video TVC kịch tính & cận cảnh ẩm thực → Video Master hoàn chỉnh.',
+  badge: 'Food TVC 16:9 (17 Nodes)',
+  techTag: 'TVC-16:9',
+  previewVideo:
+    'https://cdn.quantv.com/canvas/featured/1791963187742_y37878xt6.mp4',
+  previewImage:
+    'https://cdn.quantv.com/canvas/featured/1791963187469_hqcd9cs7d98.jpg'
+});
