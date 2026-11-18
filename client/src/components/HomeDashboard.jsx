@@ -644,7 +644,7 @@ export default function HomeDashboard({
                       <HoverPreviewVideo
                         src={videoUrl}
                         poster={imageUrl}
-                        isHovered={isHeroHovered}
+                        isHovered={true}
                         isUnmuted={false}
                         className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                       />
