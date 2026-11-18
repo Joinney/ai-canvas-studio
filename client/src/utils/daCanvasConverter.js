@@ -2605,3 +2605,266 @@ export const ELEVATOR_FASHION_REF_PROJECT = convertSoraTkTemplateToProject(ELEVA
     }
   ]
 });
+
+const OUTDOOR_STREETWEAR_LOOKBOOK_RAW_JSON = {
+  schema: 'soratk.workflow-template.v1',
+  kind: 'workflow-template',
+  title: 'Outdoor Streetwear Lookbook — 3-Video Pipeline (9:16)',
+  nodes: [
+    {
+      id: 'imageNode-1773041204191',
+      type: 'imageAssetNode',
+      position: { x: 1920, y: 96 },
+      data: {
+        title: 'Input Scene Image',
+        imageUrl:
+          'https://pub-a95b3e2bac2442f582b4e3792df8b515.r2.dev/workflow-templates/creatok/creatok-5682/2ebdddc7d5bafa2a.png'
+      }
+    },
+    {
+      id: 'imageNode-1773042840232',
+      type: 'imageAssetNode',
+      position: { x: 2696, y: 96 },
+      data: {
+        title: 'Input Outfit / Product',
+        imageUrl:
+          'https://pub-a95b3e2bac2442f582b4e3792df8b515.r2.dev/workflow-templates/creatok/creatok-5682/f2390adac6ad1da6.jpg'
+      }
+    },
+    {
+      id: 'imageNode-1773042854278',
+      type: 'imageAssetNode',
+      position: { x: 2308, y: 96 },
+      data: {
+        title: 'Input Model Portrait',
+        imageUrl:
+          'https://pub-a95b3e2bac2442f582b4e3792df8b515.r2.dev/workflow-templates/creatok/creatok-5682/4e12d6da4f2e1146.jpg'
+      }
+    },
+    {
+      id: 'imageNode-1773132138687-zzsi1r',
+      type: 'imageAssetNode',
+      position: { x: 3084, y: 96 },
+      data: {
+        title: 'Input Pose Reference',
+        imageUrl:
+          'https://pub-a95b3e2bac2442f582b4e3792df8b515.r2.dev/workflow-templates/creatok/creatok-5682/2ebdddc7d5bafa2a.png'
+      }
+    },
+    {
+      id: 'aiImageNode-1773041389186',
+      type: 'imageNode',
+      position: { x: 4804, y: 96 },
+      data: {
+        title: 'Image Node (Clean Street Background 9:16)',
+        prompt:
+          'Extract a clean empty outdoor city sidewalk background from @Image 1 with all people and text removed: gray tiled pavement with yellow tactile paving, lush green summer trees, white metal road fence, blue square traffic sign on pole, soft natural daylight, photorealistic, 9:16 vertical, no people, no text.',
+        resolution: '1K',
+        ratio: '9:16',
+        resultImage:
+          'https://pub-a95b3e2bac2442f582b4e3792df8b515.r2.dev/workflow-templates/creatok/creatok-5682/e9c259e6ce4788d1.jpg'
+      }
+    },
+    {
+      id: 'aiImageNode-1773042955177',
+      type: 'imageNode',
+      position: { x: 3932, y: 96 },
+      data: {
+        title: 'Image Node (Extract Clothing Cutout 9:16)',
+        prompt:
+          'Identify the clothing worn by the person in @Image 1 and isolate it cleanly: remove the human body and background, keep only the clothing with preserved shape, fabric details, and clean edges on a clean neutral background.',
+        resolution: '1K',
+        ratio: '9:16',
+        resultImage:
+          'https://pub-a95b3e2bac2442f582b4e3792df8b515.r2.dev/workflow-templates/creatok/creatok-5682/563589448abbb791.jpg'
+      }
+    },
+    {
+      id: 'aiImageNode-1773107457307',
+      type: 'imageNode',
+      position: { x: 4368, y: 96 },
+      data: {
+        title: 'Image Node (Extract Full-Body Model 9:16)',
+        prompt:
+          'Extract the full-body human subject from @Image 1 keeping full body, clothing, accessories, and hair details while removing the entire background cleanly with no cropping.',
+        resolution: '1K',
+        ratio: '9:16',
+        resultImage:
+          'https://pub-a95b3e2bac2442f582b4e3792df8b515.r2.dev/workflow-templates/creatok/creatok-5682/cb343e6c11ac9998.jpg'
+      }
+    },
+    {
+      id: 'aiImageNode-1773131710609',
+      type: 'imageNode',
+      position: { x: 5240, y: 96 },
+      data: {
+        title: 'Image Node (Model Virtual Try-On 9:16)',
+        prompt:
+          'Dress the person from @Image 1 with the clothing from @Image 2, keeping the model identity, pose, and body shape unchanged, replacing original clothing naturally.',
+        resolution: '1K',
+        ratio: '9:16',
+        resultImage:
+          'https://pub-a95b3e2bac2442f582b4e3792df8b515.r2.dev/workflow-templates/creatok/creatok-5682/275014340590650e.jpg'
+      }
+    },
+    {
+      id: 'aiImageNode-1773045562764',
+      type: 'imageNode',
+      position: { x: 5676, y: 96 },
+      data: {
+        title: 'Image Node (Street Scene Composite 9:16)',
+        prompt:
+          'Place the dressed model from @Image 2 into the outdoor street background from @Image 1: keep the person unchanged, match natural daylight, color, perspective, scale, and add realistic ground shadows.',
+        resolution: '1K',
+        ratio: '9:16',
+        resultImage:
+          'https://pub-a95b3e2bac2442f582b4e3792df8b515.r2.dev/workflow-templates/creatok/creatok-5682/395e0c90ce74a854.jpg'
+      }
+    },
+    {
+      id: 'aiImageNode-1773047292950',
+      type: 'imageNode',
+      position: { x: 6112, y: 96 },
+      data: {
+        title: 'Image Node (Pose Frame 1 — Start)',
+        prompt: 'Create the starting natural outdoor street stance pose based on @Image 1.',
+        resolution: '1K',
+        ratio: '9:16',
+        resultImage:
+          'https://pub-a95b3e2bac2442f582b4e3792df8b515.r2.dev/workflow-templates/creatok/creatok-5682/cda89bef4ddf9b9e.jpg'
+      }
+    },
+    {
+      id: 'aiImageNode-1773049638672-54k32d',
+      type: 'imageNode',
+      position: { x: 6548, y: 96 },
+      data: {
+        title: 'Image Node (Pose Transfer Frame 2)',
+        prompt: 'Transfer the pose from @Image 2 onto the subject and outfit in @Image 1 seamlessly.',
+        resolution: '1K',
+        ratio: '9:16',
+        resultImage:
+          'https://pub-a95b3e2bac2442f582b4e3792df8b515.r2.dev/workflow-templates/creatok/creatok-5682/b0210dc20f005d78.jpg'
+      }
+    },
+    {
+      id: 'aiImageNode-1773049943070',
+      type: 'imageNode',
+      position: { x: 6984, y: 96 },
+      data: {
+        title: 'Image Node (Pose Frame 3 — Heart Gesture)',
+        prompt:
+          'Based on @Image 1: left hand holding phone in selfie pose, right hand on hip taking two steps forward, then bringing right hand in front of phone in a finger-heart gesture, slight side turn with legs naturally crossed.',
+        resolution: '1K',
+        ratio: '9:16',
+        resultImage:
+          'https://pub-a95b3e2bac2442f582b4e3792df8b515.r2.dev/workflow-templates/creatok/creatok-5682/c88601def83f1718.jpg'
+      }
+    },
+    {
+      id: 'aiImageNode-1773106353497',
+      type: 'imageNode',
+      position: { x: 7420, y: 96 },
+      data: {
+        title: 'Image Node (Pose Frame 4 — Close Forward)',
+        prompt: 'Based on @Image 1: the subject steps closer toward the camera foreground, leaning slightly forward.',
+        resolution: '1K',
+        ratio: '9:16',
+        resultImage:
+          'https://pub-a95b3e2bac2442f582b4e3792df8b515.r2.dev/workflow-templates/creatok/creatok-5682/1bf5e71733b68333.jpg'
+      }
+    },
+    {
+      id: 'aiImageNode-1773050084621',
+      type: 'imageNode',
+      position: { x: 7856, y: 96 },
+      data: {
+        title: 'Image Node (Pose Frame 5 — Peace Sign Walk)',
+        prompt:
+          'Based on @Image 1: left hand making a peace sign (V), continuing to walk forward sideways along the street while maintaining the natural handheld selfie pose with fluid, relaxed motion.',
+        resolution: '1K',
+        ratio: '9:16',
+        resultImage:
+          'https://pub-a95b3e2bac2442f582b4e3792df8b515.r2.dev/workflow-templates/creatok/creatok-5682/570f8360cc2fb1ce.jpg'
+      }
+    },
+    {
+      id: 'aiVideoNode-1773105897357',
+      type: 'videoNode',
+      position: { x: 80, y: 1470 },
+      data: {
+        title: 'Video 1 (Street Pose Transition 8s)',
+        prompt: 'Generate a smooth, coherent 9:16 street fashion transition video from @Image 1 to @Image 2.',
+        resolution: '720p',
+        ratio: '9:16',
+        duration: '8s',
+        resultVideo:
+          'https://pub-a95b3e2bac2442f582b4e3792df8b515.r2.dev/workflow-templates/creatok/creatok-5682/a14911ad0919bfd9.mp4'
+      }
+    },
+    {
+      id: 'aiVideoNode-1773106601726',
+      type: 'videoNode',
+      position: { x: 560, y: 1470 },
+      data: {
+        title: 'Video 2 (Close-Up Street Motion 8s)',
+        prompt: 'Generate a smooth, coherent 9:16 street fashion lookbook video transitioning from @Image 1 to @Image 2.',
+        resolution: '720p',
+        ratio: '9:16',
+        duration: '8s',
+        resultVideo:
+          'https://pub-a95b3e2bac2442f582b4e3792df8b515.r2.dev/workflow-templates/creatok/creatok-5682/2e9d60f8382c8371.mp4'
+      }
+    },
+    {
+      id: 'aiVideoNode-1773050506040',
+      type: 'videoNode',
+      position: { x: 1040, y: 1470 },
+      data: {
+        title: 'Video 3 (Peace Sign Street Walk 8s)',
+        prompt:
+          'Left hand making a peace sign (V), continuing to walk forward sideways along the street while maintaining the natural handheld selfie pose, smooth and harmonious natural motion.',
+        resolution: '720p',
+        ratio: '9:16',
+        duration: '8s',
+        resultVideo:
+          'https://pub-a95b3e2bac2442f582b4e3792df8b515.r2.dev/workflow-templates/creatok/creatok-5682/c524d06573252055.mp4'
+      }
+    }
+  ],
+  edges: [
+    { source: 'imageNode-1773041204191', target: 'aiImageNode-1773041389186' },
+    { source: 'imageNode-1773042840232', target: 'aiImageNode-1773042955177' },
+    { source: 'imageNode-1773042854278', target: 'aiImageNode-1773107457307' },
+    { source: 'aiImageNode-1773107457307', target: 'aiImageNode-1773131710609' },
+    { source: 'aiImageNode-1773042955177', target: 'aiImageNode-1773131710609' },
+    { source: 'aiImageNode-1773041389186', target: 'aiImageNode-1773045562764' },
+    { source: 'aiImageNode-1773131710609', target: 'aiImageNode-1773045562764' },
+    { source: 'aiImageNode-1773045562764', target: 'aiImageNode-1773047292950' },
+    { source: 'aiImageNode-1773045562764', target: 'aiImageNode-1773049638672-54k32d' },
+    { source: 'imageNode-1773132138687-zzsi1r', target: 'aiImageNode-1773049638672-54k32d' },
+    { source: 'aiImageNode-1773047292950', target: 'aiImageNode-1773049943070' },
+    { source: 'aiImageNode-1773049943070', target: 'aiImageNode-1773050084621' },
+    { source: 'aiImageNode-1773047292950', target: 'aiImageNode-1773106353497' },
+    { source: 'aiImageNode-1773047292950', target: 'aiVideoNode-1773105897357' },
+    { source: 'aiImageNode-1773049638672-54k32d', target: 'aiVideoNode-1773105897357' },
+    { source: 'aiImageNode-1773047292950', target: 'aiVideoNode-1773106601726' },
+    { source: 'aiImageNode-1773106353497', target: 'aiVideoNode-1773106601726' },
+    { source: 'aiImageNode-1773049943070', target: 'aiVideoNode-1773050506040' },
+    { source: 'aiImageNode-1773050084621', target: 'aiVideoNode-1773050506040' }
+  ]
+};
+
+export const OUTDOOR_STREETWEAR_LOOKBOOK_PROJECT = convertSoraTkTemplateToProject(OUTDOOR_STREETWEAR_LOOKBOOK_RAW_JSON, {
+  id: 'proj-outdoor-streetwear-lookbook',
+  category: 'tryon',
+  name: 'Outdoor Streetwear Lookbook — 3-Video Pipeline (9:16)',
+  description:
+    'Template thời trang đường phố ngoài trời (9:16): Tách nền phố + Tách trang phục + Tách người mẫu → Try-On → Ghép bối cảnh → 5 dáng chụp → 3 Video Lookbook 8s (720p).',
+  badge: 'Thời Trang Đường Phố (9:16)',
+  techTag: 'STK-V1',
+  previewVideo:
+    'https://pub-a95b3e2bac2442f582b4e3792df8b515.r2.dev/workflow-templates/creatok/creatok-5682/c524d06573252055.mp4',
+  previewImage:
+    'https://pub-a95b3e2bac2442f582b4e3792df8b515.r2.dev/workflow-templates/creatok/creatok-5682/395e0c90ce74a854.jpg'
+});

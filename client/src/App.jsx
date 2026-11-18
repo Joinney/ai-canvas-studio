@@ -32,7 +32,8 @@ import {
   MIDDLE_AGED_FASHION_TVC_PROJECT,
   WUXIA_BAGUAZHANG_PROJECT,
   INSTANT_OUTFIT_CHANGE_PROJECT,
-  ELEVATOR_FASHION_REF_PROJECT
+  ELEVATOR_FASHION_REF_PROJECT,
+  OUTDOOR_STREETWEAR_LOOKBOOK_PROJECT
 } from './utils/daCanvasConverter';
 
 const cloneProjectSafe = (proj) => {
@@ -55,6 +56,7 @@ const ALL_BUILTIN_PRESETS = [
   WUXIA_BAGUAZHANG_PROJECT,
   INSTANT_OUTFIT_CHANGE_PROJECT,
   ELEVATOR_FASHION_REF_PROJECT,
+  OUTDOOR_STREETWEAR_LOOKBOOK_PROJECT,
   WINTER_FUR_PROJECT
 ];
 const BUILTIN_PRESET_IDS = new Set(ALL_BUILTIN_PRESETS.map((p) => p.id));
@@ -123,6 +125,7 @@ export default function App() {
     if (projId === WUXIA_BAGUAZHANG_PROJECT.id) return cloneProjectSafe(WUXIA_BAGUAZHANG_PROJECT);
     if (projId === INSTANT_OUTFIT_CHANGE_PROJECT.id) return cloneProjectSafe(INSTANT_OUTFIT_CHANGE_PROJECT);
     if (projId === ELEVATOR_FASHION_REF_PROJECT.id) return cloneProjectSafe(ELEVATOR_FASHION_REF_PROJECT);
+    if (projId === OUTDOOR_STREETWEAR_LOOKBOOK_PROJECT.id) return cloneProjectSafe(OUTDOOR_STREETWEAR_LOOKBOOK_PROJECT);
     return null;
   });
   const [isDarkMode, setIsDarkMode] = useState(false);
