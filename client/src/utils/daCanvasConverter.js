@@ -2998,3 +2998,238 @@ export const MATURE_FASHION_COMMERCE_PROJECT = convertSoraTkTemplateToProject(MA
   previewImage:
     'https://pub-a95b3e2bac2442f582b4e3792df8b515.r2.dev/workflow-images/366a4095-ca79-4faf-a825-799411170a0a/wf_mqul52yd_jo2qyb/1782457458119_resultImage_1782458336569_zdwn5w.jpg'
 });
+
+const CLAYMATION_BOBO_BEAR_RAW_CANVAS_JSON = {
+  __canvas: 'da-ai-canvas',
+  version: 2,
+  nodes: [
+    {
+      id: '14c9ca19f62d42ef939a13cc2375d6c2',
+      kind: 'image',
+      title: 'Input Image (Little Bear Bobo 3D Clay)',
+      x: 40,
+      y: 80,
+      width: 244,
+      height: 158,
+      meta: {
+        mediaUrl: 'https://rh-canvas-files.xiaoyaoyou.com/2e813926dc44bf9d0ca606850d64cef5/output/f0e72ff5-c973-4fb5-8d78-9e4c60404f00.png',
+        dimensions: '1024 x 576'
+      }
+    },
+    {
+      id: '0ef098a2dd0f446aa53f97c62e09c6d2',
+      kind: 'image',
+      title: 'Input Image (Mama Bear 3D Clay)',
+      x: 40,
+      y: 360,
+      width: 244,
+      height: 158,
+      meta: {
+        mediaUrl: 'https://rh-canvas-files.xiaoyaoyou.com/2e813926dc44bf9d0ca606850d64cef5/output/9996cce0-d8c3-4a63-81df-b2672769a9ce.png',
+        dimensions: '1024 x 576'
+      }
+    },
+    {
+      id: '896286a2793b40488c64bed5fd60ca11',
+      kind: 'image',
+      title: 'Input Image (Bobo Bedroom Background)',
+      x: 40,
+      y: 640,
+      width: 244,
+      height: 158,
+      meta: {
+        mediaUrl: 'https://rh-canvas-files.xiaoyaoyou.com/2e813926dc44bf9d0ca606850d64cef5/output/1d4381ed-8b17-435c-addd-e58e36c7d71e.png',
+        dimensions: '1024 x 576'
+      }
+    },
+    {
+      id: '483e431e98d249159b3bb7796e6ed514',
+      kind: 'image',
+      title: 'Input Image (Clay Bunny Plushie)',
+      x: 40,
+      y: 920,
+      width: 200,
+      height: 200,
+      meta: {
+        mediaUrl: 'https://rh-canvas-files.xiaoyaoyou.com/2e813926dc44bf9d0ca606850d64cef5/output/c613f4cf-5827-490d-ae25-1a14a8f93f0a.png',
+        dimensions: '1024 x 1024'
+      }
+    },
+    {
+      id: '6284971030c646de9171e3840366b2e7',
+      kind: 'image',
+      title: 'Image Node (6-Panel Clay Storyboard 1:1)',
+      x: 520,
+      y: 260,
+      width: 220,
+      height: 220,
+      meta: {
+        dimensions: '1024 x 1024',
+        settings: { params: { ratio: '1:1', resolution: '1K' } },
+        prompt:
+          'A 2x3 six-panel storyboard sheet in 3D claymation stop-motion style with a warm handmade picture-book aesthetic. Six panels arranged in order: 1. [Morning]: In the bedroom (@Image 2), Little Bear Bobo (@Image 1) rubs his eyes waking up. 2. [Breakfast]: Bobo (@Image 1) wearing a yellow bib eats honey porridge with a spoon. 3. [Playtime]: Bobo (@Image 1) happily chases butterflies in a clay garden. 4. [Naptime]: Bobo (@Image 1) falls asleep under a big tree hugging the clay bunny plushie (@Image 3). 5. [Dusk]: Under the sunset, Bobo (@Image 1) holds Mama Bear hand (@Image 4) walking home with long shadows. 6. [Night]: In the bedroom (@Image 2), Bobo (@Image 1) sleeps peacefully under a blanket in the moonlight. Consistent handmade clay texture, warm bright palette, professional picture-book composition.',
+        mediaUrl: 'https://rh-canvas-files.xiaoyaoyou.com/2e813926dc44bf9d0ca606850d64cef5/output/e7a77569-d993-4125-a503-1023811c05e6.png'
+      }
+    },
+    {
+      id: '0c0a866bc019421faa5cbb13c4ac5b80',
+      kind: 'image',
+      title: 'Image Node (Picture-Book Cover 16:9)',
+      x: 520,
+      y: 720,
+      width: 260,
+      height: 158,
+      meta: {
+        dimensions: '1024 x 576',
+        settings: { params: { ratio: '16:9', resolution: '1K' } },
+        prompt:
+          'Picture-book cover design in 3D claymation style featuring Little Bear Bobo (@Image 1) as the centerpiece. Bobo waves happily with an adorable, gentle expression in front of a cozy softly blurred clay garden. At the top, 3D stylized title text reads "A Day with Little Bear Bobo". Bright warm tones, high-quality handmade picture-book texture, soft studio lighting.',
+        mediaUrl: 'https://rh-canvas-files.xiaoyaoyou.com/2e813926dc44bf9d0ca606850d64cef5/output/42cc253c-e5f7-4d1c-bb58-bcebab81799e.png'
+      }
+    },
+    {
+      id: '64557dc02d30465b94f973e94a558cca',
+      kind: 'video',
+      title: '1. Morning Scene (Vietnamese Narration 5s)',
+      x: 1080,
+      y: 60,
+      width: 244,
+      height: 158,
+      meta: {
+        dimensions: '854 x 480',
+        settings: { params: { ratio: '16:9', duration: '5', resolution: '480p' } },
+        prompt:
+          '3D claymation animation matching @Image 3 storyboard style. In the cozy bedroom (@Image 2), Little Bear Bobo (@Image 1) wakes up and rubs his eyes in bright morning sunlight. Audio Rule: Lively young boy Vietnamese narration voiceover ONLY, strictly no background music, no BGM, no ambient music. Vietnamese Narration: "Ông mặt trời mỉm cười rồi, gấu con Bobo thức dậy thôi nào!"',
+        mediaUrl: 'https://rh-canvas-files.xiaoyaoyou.com/2e813926dc44bf9d0ca606850d64cef5/output/a327a4b1-4a9e-4b94-8390-7eab20af89a4.mp4'
+      }
+    },
+    {
+      id: 'd8231d81c476452aa5435479ba3fc528',
+      kind: 'video',
+      title: '2. Breakfast Scene (Vietnamese Narration 5s)',
+      x: 1080,
+      y: 300,
+      width: 244,
+      height: 158,
+      meta: {
+        dimensions: '854 x 480',
+        settings: { params: { ratio: '16:9', duration: '5', resolution: '480p' } },
+        prompt:
+          '3D claymation animation matching @Image 2 storyboard style. Little Bear Bobo (@Image 1) eats warm honey porridge happily with a spoon. Audio Rule: Lively young boy Vietnamese narration voiceover ONLY, strictly no background music or BGM. Vietnamese Narration: "Đến giờ ăn sáng rồi, cháo mật ong thơm ngon quá đi!"',
+        mediaUrl: 'https://rh-canvas-files.xiaoyaoyou.com/2e813926dc44bf9d0ca606850d64cef5/output/5d61de92-10eb-462f-8c9d-c86480eb4715.mp4'
+      }
+    },
+    {
+      id: '356427e257f34a39876ee882c0023cb3',
+      kind: 'video',
+      title: '3. Playtime Scene (Vietnamese Narration 5s)',
+      x: 1080,
+      y: 540,
+      width: 244,
+      height: 158,
+      meta: {
+        dimensions: '854 x 480',
+        settings: { params: { ratio: '16:9', duration: '5', resolution: '480p' } },
+        prompt:
+          '3D claymation animation matching @Image 2 storyboard style. Little Bear Bobo (@Image 1) joyfully chases colorful butterflies across a sunny clay garden. Audio Rule: Lively young boy Vietnamese narration voiceover ONLY, strictly no background music or BGM. Vietnamese Narration: "Ra bãi cỏ chơi thôi nào! Chị bướm ơi đợi em với!"',
+        mediaUrl: 'https://rh-canvas-files.xiaoyaoyou.com/2e813926dc44bf9d0ca606850d64cef5/output/6dfe374d-5a1f-4c11-8816-731d2df91c6f.mp4'
+      }
+    },
+    {
+      id: '41b5224e5ca7409190432a1b0cad28b9',
+      kind: 'video',
+      title: '4. Naptime Scene (Vietnamese Narration 5s)',
+      x: 1080,
+      y: 780,
+      width: 244,
+      height: 158,
+      meta: {
+        dimensions: '854 x 480',
+        settings: { params: { ratio: '16:9', duration: '5', resolution: '480p' } },
+        prompt:
+          '3D claymation animation matching @Image 3 storyboard style. Little Bear Bobo (@Image 1) hugs the clay bunny plushie (@Image 2) and falls asleep peacefully leaning against a big tree. Audio Rule: Gentle young boy Vietnamese narration voiceover ONLY, strictly no background music or BGM. Vietnamese Narration: "Chơi mệt rồi, Bobo ngủ thiếp đi mất rồi."',
+        mediaUrl: 'https://rh-canvas-files.xiaoyaoyou.com/2e813926dc44bf9d0ca606850d64cef5/output/75435509-525c-4706-8288-dfb93f9e313f.mp4'
+      }
+    },
+    {
+      id: '5b319a76fdc7411c97213f693b6e1c91',
+      kind: 'video',
+      title: '5. Going Home (Vietnamese Narration 5s)',
+      x: 1080,
+      y: 1020,
+      width: 244,
+      height: 158,
+      meta: {
+        dimensions: '854 x 480',
+        settings: { params: { ratio: '16:9', duration: '5', resolution: '480p' } },
+        prompt:
+          '3D claymation animation matching @Image 3 storyboard style. Under a warm sunset, Little Bear Bobo (@Image 1) holds Mama Bear hand (@Image 2) as they walk home together. Audio Rule: Warm young boy Vietnamese narration voiceover ONLY, strictly no background music or BGM. Vietnamese Narration: "Ông mặt trời sắp về nhà rồi, Bobo nắm tay mẹ đi về nhé."',
+        mediaUrl: 'https://rh-canvas-files.xiaoyaoyou.com/2e813926dc44bf9d0ca606850d64cef5/output/cf5dbe19-956f-459d-82a0-8878d8c821db.mp4'
+      }
+    },
+    {
+      id: '73b07e9d86a0412095228fef08000bf8',
+      kind: 'video',
+      title: '6. Goodnight Scene (Vietnamese Narration 5s)',
+      x: 1080,
+      y: 1260,
+      width: 244,
+      height: 158,
+      meta: {
+        dimensions: '854 x 480',
+        settings: { params: { ratio: '16:9', duration: '5', resolution: '480p' } },
+        prompt:
+          '3D claymation animation matching @Image 3 storyboard style. In the quiet night bedroom (@Image 2), Little Bear Bobo (@Image 1) sleeps soundly under a cozy blanket in the moonlight. Audio Rule: Soft young boy Vietnamese narration voiceover ONLY, strictly no background music or BGM. Vietnamese Narration: "Chúc ngủ ngon Bobo, chúc tất cả các bé ngủ thật ngon nhé."',
+        mediaUrl: 'https://rh-canvas-files.xiaoyaoyou.com/2e813926dc44bf9d0ca606850d64cef5/output/eb25f610-37a3-4a70-87a4-9bd7b44ec36c.mp4'
+      }
+    }
+  ],
+  edges: [
+    { from: '14c9ca19f62d42ef939a13cc2375d6c2', to: '6284971030c646de9171e3840366b2e7' },
+    { from: '896286a2793b40488c64bed5fd60ca11', to: '6284971030c646de9171e3840366b2e7' },
+    { from: '483e431e98d249159b3bb7796e6ed514', to: '6284971030c646de9171e3840366b2e7' },
+    { from: '0ef098a2dd0f446aa53f97c62e09c6d2', to: '6284971030c646de9171e3840366b2e7' },
+    { from: '14c9ca19f62d42ef939a13cc2375d6c2', to: '0c0a866bc019421faa5cbb13c4ac5b80' },
+    { from: '14c9ca19f62d42ef939a13cc2375d6c2', to: '64557dc02d30465b94f973e94a558cca' },
+    { from: '896286a2793b40488c64bed5fd60ca11', to: '64557dc02d30465b94f973e94a558cca' },
+    { from: '6284971030c646de9171e3840366b2e7', to: '64557dc02d30465b94f973e94a558cca' },
+    { from: '14c9ca19f62d42ef939a13cc2375d6c2', to: 'd8231d81c476452aa5435479ba3fc528' },
+    { from: '6284971030c646de9171e3840366b2e7', to: 'd8231d81c476452aa5435479ba3fc528' },
+    { from: '14c9ca19f62d42ef939a13cc2375d6c2', to: '356427e257f34a39876ee882c0023cb3' },
+    { from: '6284971030c646de9171e3840366b2e7', to: '356427e257f34a39876ee882c0023cb3' },
+    { from: '14c9ca19f62d42ef939a13cc2375d6c2', to: '41b5224e5ca7409190432a1b0cad28b9' },
+    { from: '483e431e98d249159b3bb7796e6ed514', to: '41b5224e5ca7409190432a1b0cad28b9' },
+    { from: '6284971030c646de9171e3840366b2e7', to: '41b5224e5ca7409190432a1b0cad28b9' },
+    { from: '14c9ca19f62d42ef939a13cc2375d6c2', to: '5b319a76fdc7411c97213f693b6e1c91' },
+    { from: '0ef098a2dd0f446aa53f97c62e09c6d2', to: '5b319a76fdc7411c97213f693b6e1c91' },
+    { from: '6284971030c646de9171e3840366b2e7', to: '5b319a76fdc7411c97213f693b6e1c91' },
+    { from: '14c9ca19f62d42ef939a13cc2375d6c2', to: '73b07e9d86a0412095228fef08000bf8' },
+    { from: '896286a2793b40488c64bed5fd60ca11', to: '73b07e9d86a0412095228fef08000bf8' },
+    { from: '6284971030c646de9171e3840366b2e7', to: '73b07e9d86a0412095228fef08000bf8' }
+  ],
+  stickers: [
+    {
+      id: 'sticker-bobo-assets-note',
+      x: 40,
+      y: -110,
+      width: 340,
+      height: 150,
+      title: 'Claymation Character & Scene Prompts',
+      html: '<p><b>3D Claymation Style:</b> Handmade sculpting marks, subtle fingerprint texture, soft macro studio lighting. Narration-only audio in Vietnamese (no BGM).</p>'
+    }
+  ]
+};
+
+export const CLAYMATION_BOBO_BEAR_PROJECT = convertDaAiCanvasToProject(CLAYMATION_BOBO_BEAR_RAW_CANVAS_JSON, {
+  id: 'proj-claymation-bobo-bear',
+  category: 'video',
+  name: 'Little Bear Bobo 3D Claymation — 6-Scene Story (16:9)',
+  description:
+    'Phim hoạt hình đất sét 3D "Một ngày của Gấu Bobo" (16:9): 4 nhân vật & bối cảnh đất sét → Bảng phân cảnh 6 ô & Bìa sách → 6 Video kể chuyện tiếng Việt không nhạc nền (5s/cảnh).',
+  badge: 'Hoạt Hình Đất Sét (16:9)',
+  techTag: 'CLAY-V1',
+  previewVideo:
+    'https://rh-canvas-files.xiaoyaoyou.com/2e813926dc44bf9d0ca606850d64cef5/output/a327a4b1-4a9e-4b94-8390-7eab20af89a4.mp4',
+  previewImage:
+    'https://rh-canvas-files.xiaoyaoyou.com/2e813926dc44bf9d0ca606850d64cef5/output/42cc253c-e5f7-4d1c-bb58-bcebab81799e.png'
+});
