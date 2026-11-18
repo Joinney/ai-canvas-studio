@@ -22,7 +22,8 @@ import {
   ChevronUp,
   ExternalLink,
   PanelRight,
-  BoxSelect
+  BoxSelect,
+  LayoutGrid
 } from 'lucide-react';
 import axios from 'axios';
 import { executeGoogleFlowNode, getFlowPoolStatus, resetFlowWorkers } from '../services/flowBridge';
@@ -117,6 +118,7 @@ export default function WorkflowNodeCanvas({ project, onSaveProject }) {
   const [selectedNodeId, setSelectedNodeId] = useState(null);
   const [selectedNodeIds, setSelectedNodeIds] = useState([]);
   const [isMarqueeMode, setIsMarqueeMode] = useState(false);
+  const [isSpreadView, setIsSpreadView] = useState(false);
   const [selectionBox, setSelectionBox] = useState(null); // { startX, startY, currentX, currentY }
 
   const [pan, setPan] = useState({ x: 60, y: 40 });
@@ -132,6 +134,7 @@ export default function WorkflowNodeCanvas({ project, onSaveProject }) {
   const panStartRef = useRef({ x: 0, y: 0 });
   const panClickOriginRef = useRef({ x: 0, y: 0 });
   const marqueeStartRef = useRef(null); // { startX, startY, additive, initialSelectedIds }
+  const originalPositionsRef = useRef(null); // Lưu vị trí gốc trước khi bật chế độ Tách Node
   const draggingNodeRef = useRef(null); // { nodeId, startMouseX, startMouseY, startNodeX, startNodeY }
   const draggingStickerRef = useRef(null); // { stickerId, startMouseX, startMouseY, startX, startY }
 
@@ -367,6 +370,222 @@ export default function WorkflowNodeCanvas({ project, onSaveProject }) {
     setEdges((prev) => prev.filter((e) => e.id !== edgeId));
   };
 
+  // Tự động căn khung nhìn vừa với danh sách node
+  const handleFitView = useCallback((targetNodes) => {
+    const list = targetNodes && targetNodes.length > 0 ? targetNodes : nodes;
+    const rect = containerRef.current?.getBoundingClientRect();
+    if (!rect || list.length === 0) return;
+
+    let minX = Infinity;
+    let minY = Infinity;
+    let maxX = -Infinity;
+    let maxY = -Infinity;
+    for (const n of list) {
+      const h = 460;
+      if (n.x < minX) minX = n.x;
+      if (n.y < minY) minY = n.y;
+      if (n.x + NODE_WIDTH > maxX) maxX = n.x + NODE_WIDTH;
+      if (n.y + h > maxY) maxY = n.y + h;
+    }
+
+    const contentW = Math.max(1, maxX - minX);
+    const contentH = Math.max(1, maxY - minY);
+    const pad = 70;
+    const nextZoom = Math.max(
+      0.22,
+      Math.min(0.95, Math.min((rect.width - pad * 2) / contentW, (rect.height - pad * 2) / contentH))
+    );
+    const nextPanX = (rect.width - contentW * nextZoom) / 2 - minX * nextZoom;
+    const nextPanY = (rect.height - contentH * nextZoom) / 2 - minY * nextZoom;
+    setZoom(Number(nextZoom.toFixed(3)));
+    setPan({ x: Math.round(nextPanX), y: Math.round(nextPanY) });
+  }, [nodes]);
+
+  // Chế độ Tách Node: sắp xếp các Node tách đều theo từng cụm dây nối, không bao giờ chồng lên nhau
+  const handleToggleSpreadView = () => {
+    if (isSpreadView) {
+      if (originalPositionsRef.current) {
+        const saved = originalPositionsRef.current;
+        const restored = nodes.map((n) => (saved[n.id] ? { ...n, x: saved[n.id].x, y: saved[n.id].y } : n));
+        setNodes(restored);
+        originalPositionsRef.current = null;
+        handleFitView(restored);
+      }
+      setIsSpreadView(false);
+      return;
+    }
+
+    // Lưu vị trí gốc trước khi tách
+    const snapshot = {};
+    for (const n of nodes) {
+      snapshot[n.id] = { x: n.x, y: n.y };
+    }
+    originalPositionsRef.current = snapshot;
+
+    // Đo chiều cao thực tế của từng Node trên DOM (fallback 460px)
+    const measuredHeights = {};
+    const curZoom = zoomRef.current || 1;
+    const cardEls = containerRef.current?.querySelectorAll('.workflow-node-card[data-node-id]') || [];
+    cardEls.forEach((el) => {
+      const nid = el.getAttribute('data-node-id');
+      if (nid) {
+        const h = el.getBoundingClientRect().height / curZoom;
+        if (h > 80) measuredHeights[nid] = Math.ceil(h);
+      }
+    });
+    const getNodeHeight = (id) => measuredHeights[id] || 460;
+
+    // Gom nhóm thành các cụm liên thông (Connected Components) dựa trên edges
+    const nodeById = new Map(nodes.map((n) => [n.id, n]));
+    const undirectedAdj = new Map(nodes.map((n) => [n.id, []]));
+    const inEdgesMap = new Map(nodes.map((n) => [n.id, []]));
+    const outEdgesMap = new Map(nodes.map((n) => [n.id, []]));
+
+    for (const e of edges) {
+      if (!nodeById.has(e.source) || !nodeById.has(e.target)) continue;
+      undirectedAdj.get(e.source).push(e.target);
+      undirectedAdj.get(e.target).push(e.source);
+      outEdgesMap.get(e.source).push(e.target);
+      inEdgesMap.get(e.target).push(e.source);
+    }
+
+    const visited = new Set();
+    const components = [];
+    for (const n of nodes) {
+      if (visited.has(n.id)) continue;
+      const queue = [n.id];
+      const compIds = [];
+      visited.add(n.id);
+      while (queue.length > 0) {
+        const cur = queue.shift();
+        compIds.push(cur);
+        for (const nb of undirectedAdj.get(cur) || []) {
+          if (!visited.has(nb)) {
+            visited.add(nb);
+            queue.push(nb);
+          }
+        }
+      }
+      components.push(compIds);
+    }
+
+    const COL_GAP = 100;
+    const ROW_GAP = 48;
+    const COMP_GAP_X = 120;
+    const COMP_GAP_Y = 72;
+
+    // Bố trí nội bộ từng cụm theo chiều trái -> phải (Topological Depth)
+    const layoutComponent = (compIds) => {
+      const compSet = new Set(compIds);
+      const level = new Map();
+      for (const id of compIds) level.set(id, 0);
+
+      // Relax topological depths (an toàn với đồ thị nhỏ/có chu trình)
+      for (let pass = 0; pass < compIds.length; pass++) {
+        let changed = false;
+        for (const id of compIds) {
+          const curLvl = level.get(id) || 0;
+          for (const tgt of outEdgesMap.get(id) || []) {
+            if (!compSet.has(tgt)) continue;
+            if ((level.get(tgt) || 0) < curLvl + 1) {
+              level.set(tgt, curLvl + 1);
+              changed = true;
+            }
+          }
+        }
+        if (!changed) break;
+      }
+
+      const byLevel = new Map();
+      for (const id of compIds) {
+        const lvl = level.get(id) || 0;
+        if (!byLevel.has(lvl)) byLevel.set(lvl, []);
+        byLevel.get(lvl).push(nodeById.get(id));
+      }
+
+      const relPositions = new Map();
+      let maxH = 0;
+      let maxW = 0;
+      const sortedLevels = Array.from(byLevel.keys()).sort((a, b) => a - b);
+
+      for (const lvl of sortedLevels) {
+        const colNodes = byLevel.get(lvl).sort((a, b) => a.y - b.y || a.x - b.x);
+        const colX = lvl * (NODE_WIDTH + COL_GAP);
+        let curY = 0;
+        for (const cn of colNodes) {
+          relPositions.set(cn.id, { x: colX, y: curY });
+          curY += getNodeHeight(cn.id) + ROW_GAP;
+        }
+        const colH = Math.max(0, curY - ROW_GAP);
+        if (colH > maxH) maxH = colH;
+        if (colX + NODE_WIDTH > maxW) maxW = colX + NODE_WIDTH;
+      }
+
+      const origMinY = Math.min(...compIds.map((id) => nodeById.get(id).y));
+      const origMinX = Math.min(...compIds.map((id) => nodeById.get(id).x));
+      return { compIds, relPositions, width: maxW, height: maxH, origMinX, origMinY };
+    };
+
+    const laidOutComps = components.map(layoutComponent);
+    const connectedComps = laidOutComps
+      .filter((c) => c.compIds.length > 1)
+      .sort((a, b) => a.origMinY - b.origMinY || a.origMinX - b.origMinX);
+    const standaloneComps = laidOutComps
+      .filter((c) => c.compIds.length === 1)
+      .sort((a, b) => a.origMinY - b.origMinY || a.origMinX - b.origMinX);
+
+    const nextPositions = new Map();
+
+    // 1. Xếp các cụm có dây nối thành các cột gọn gàng (tối đa ~2400px mỗi cột)
+    const MAX_COL_HEIGHT = 2400;
+    let cursorX = 60;
+    let cursorY = 60;
+    let currentStripMaxW = 0;
+
+    for (const comp of connectedComps) {
+      if (cursorY > 60 && cursorY + comp.height > MAX_COL_HEIGHT) {
+        cursorX += currentStripMaxW + COMP_GAP_X;
+        cursorY = 60;
+        currentStripMaxW = 0;
+      }
+      for (const [id, rel] of comp.relPositions.entries()) {
+        nextPositions.set(id, { x: Math.round(cursorX + rel.x), y: Math.round(cursorY + rel.y) });
+      }
+      cursorY += comp.height + COMP_GAP_Y;
+      if (comp.width > currentStripMaxW) currentStripMaxW = comp.width;
+    }
+
+    // 2. Xếp các Node đứng lẻ (ảnh tham chiếu độc lập) thành lưới gọn bên phải (hoặc từ đầu nếu không có dây)
+    if (standaloneComps.length > 0) {
+      const gridStartX = connectedComps.length > 0 ? cursorX + currentStripMaxW + COMP_GAP_X : 60;
+      const colsCount = Math.min(4, Math.max(2, Math.ceil(Math.sqrt(standaloneComps.length))));
+      const colHeights = new Array(colsCount).fill(60);
+
+      for (let i = 0; i < standaloneComps.length; i++) {
+        const comp = standaloneComps[i];
+        // Chọn cột thấp nhất để xếp đều (Masonry grid)
+        let bestCol = 0;
+        for (let c = 1; c < colsCount; c++) {
+          if (colHeights[c] < colHeights[bestCol]) bestCol = c;
+        }
+        const x = gridStartX + bestCol * (NODE_WIDTH + 64);
+        const y = colHeights[bestCol];
+        const id = comp.compIds[0];
+        nextPositions.set(id, { x: Math.round(x), y: Math.round(y) });
+        colHeights[bestCol] += getNodeHeight(id) + ROW_GAP;
+      }
+    }
+
+    const updatedNodes = nodes.map((n) => {
+      const pos = nextPositions.get(n.id);
+      return pos ? { ...n, x: pos.x, y: pos.y } : n;
+    });
+
+    setNodes(updatedNodes);
+    setIsSpreadView(true);
+    handleFitView(updatedNodes);
+  };
+
   // Kết nối 2 Node
   const connectTwoNodes = (sourceId, targetId) => {
     if (!sourceId || !targetId || sourceId === targetId) return;
@@ -543,7 +762,7 @@ export default function WorkflowNodeCanvas({ project, onSaveProject }) {
 
     const oldZoom = zoomRef.current;
     const factor = e.deltaY < 0 ? 1.08 : 0.92;
-    const newZoom = Math.max(0.35, Math.min(1.65, Number((oldZoom * factor).toFixed(3))));
+    const newZoom = Math.max(0.2, Math.min(1.65, Number((oldZoom * factor).toFixed(3))));
 
     const newPanX = mouseX - ((mouseX - panRef.current.x) / oldZoom) * newZoom;
     const newPanY = mouseY - ((mouseY - panRef.current.y) / oldZoom) * newZoom;
@@ -1130,6 +1349,20 @@ export default function WorkflowNodeCanvas({ project, onSaveProject }) {
               <RotateCcw className="w-3.5 h-3.5" />
             </button>
           </div>
+
+          <button
+            type="button"
+            onClick={handleToggleSpreadView}
+            className={`box box-hover px-3.5 py-2 text-xs font-extrabold flex items-center gap-1.5 cursor-pointer ${
+              isSpreadView ? 'active-pill ring-2 ring-emerald-400/70' : ''
+            }`}
+            style={{ '--r': '999px', width: 'auto' }}
+            title="Bật / Tắt chế độ tách đều các Node theo sơ đồ dây nối để không bị chồng lên nhau"
+          >
+            <div className="circle-overlay" />
+            <LayoutGrid className={`w-3.5 h-3.5 ${isSpreadView ? 'text-emerald-600' : 'text-slate-600'}`} />
+            <span>{isSpreadView ? 'Đang Tách Node' : 'Tách Node'}</span>
+          </button>
 
           <button
             type="button"
