@@ -1979,19 +1979,21 @@ export function convertSoraTkTemplateToProject(rawJson, options = {}) {
   const convertedNodes = rawJson.nodes.map((n) => {
     const d = n.data || {};
     const isVideo = n.type === 'videoNode';
+    const isImageGen = n.type === 'imageNode';
+    const nodeType = isVideo ? 'FLOW_VIDEO_GEN' : isImageGen ? 'FLOW_IMAGE_GEN' : 'IMAGE_INPUT';
     const mediaUrl = isVideo ? d.resultVideo || '' : d.imageUrl || d.previewUrl || d.resultImage || '';
     const duration = String(d.duration || '8s').replace(/[^0-9]/g, '') || '8';
 
     return {
       id: n.id,
-      type: isVideo ? 'FLOW_VIDEO_GEN' : 'IMAGE_INPUT',
+      type: nodeType,
       x: normX(n.position?.x ?? n.x ?? 0),
       y: normY(n.position?.y ?? n.y ?? 0),
       data: {
-        title: d.title || (isVideo ? 'Video Node' : 'Input Image'),
-        imageUrl: isVideo ? '' : mediaUrl,
-        resultUrl: isVideo ? mediaUrl : '',
-        fallbackUrl: isVideo ? mediaUrl : '',
+        title: d.title || (isVideo ? 'Video Node' : isImageGen ? 'Image Node' : 'Input Image'),
+        imageUrl: nodeType === 'IMAGE_INPUT' ? mediaUrl : '',
+        resultUrl: nodeType !== 'IMAGE_INPUT' ? mediaUrl : '',
+        fallbackUrl: nodeType !== 'IMAGE_INPUT' ? mediaUrl : '',
         prompt: d.prompt || '',
         aspectRatio: d.ratio || '16:9',
         resolution: d.resolution || '720p',
@@ -2278,4 +2280,210 @@ export const WUXIA_BAGUAZHANG_PROJECT = convertSoraTkTemplateToProject(WUXIA_BAG
   techTag: 'STK-V1',
   previewVideo: 'https://pub-a95b3e2bac2442f582b4e3792df8b515.r2.dev/workflow-templates/creatok/creatok-14304/b709e36bcaec101c.mp4',
   previewImage: 'https://pub-a95b3e2bac2442f582b4e3792df8b515.r2.dev/workflow-templates/creatok/creatok-14304/9382db53f7936798.png'
+});
+
+const INSTANT_OUTFIT_CHANGE_RAW_JSON = {
+  schema: 'soratk.workflow-template.v1',
+  kind: 'workflow-template',
+  title: 'Instant Outfit Change — Elevator Mirror 9:16',
+  nodes: [
+    {
+      id: 'aiImageNode-1772976384775',
+      type: 'imageNode',
+      position: { x: -144.89043339761417, y: -244.45962052843578 },
+      data: {
+        title: 'Image Node (Base Mirror Selfie Outfit 1)',
+        prompt:
+          'Generate a fit young woman holding her phone up to cover her face in an elevator mirror selfie, wearing the complete outfit from @Image 1, with the background matching @Image 2.',
+        resolution: '1K',
+        ratio: '9:16',
+        resultImage:
+          'https://pub-a95b3e2bac2442f582b4e3792df8b515.r2.dev/workflow-images/7cc81a7d-a28e-4e26-9dd6-84b3461b4b0f/wf_mwlqvsl1_xrgxpg/aiImageNode-1772976384775_resultImage_1794983602379_2aol0x.jpg'
+      }
+    },
+    {
+      id: 'imageNode-1773057130220',
+      type: 'imageAssetNode',
+      position: { x: -857.0394675585063, y: 597.2823874001858 },
+      data: {
+        title: 'Input Outfit 1 (Upload Garment)',
+        imageUrl:
+          'https://pub-a95b3e2bac2442f582b4e3792df8b515.r2.dev/workflow-images/7cc81a7d-a28e-4e26-9dd6-84b3461b4b0f/wf_mwlqvsl1_xrgxpg/imageNode-1773057130220_resultImage_1794983602922_4vzd4z.jpg'
+      }
+    },
+    {
+      id: 'aiImageNode-1773058630966',
+      type: 'imageNode',
+      position: { x: -148, y: 960 },
+      data: {
+        title: 'Image Node (Outfit 2 — Left Hand on Hip)',
+        prompt:
+          'Change the model from @Image 1 into the outfit from @Image 2, posing with her left hand on her hip.',
+        resolution: '2K',
+        ratio: '9:16',
+        resultImage:
+          'https://pub-a95b3e2bac2442f582b4e3792df8b515.r2.dev/workflow-images/7cc81a7d-a28e-4e26-9dd6-84b3461b4b0f/wf_mwlqvsl1_xrgxpg/aiImageNode-1773058630966_resultImage_1794983605460_e6vd0t.jpg'
+      }
+    },
+    {
+      id: 'aiVideoNode-1773136064920',
+      type: 'videoNode',
+      position: { x: 895.9764293792448, y: 166.48130661843015 },
+      data: {
+        title: 'Video Node 1 (4s Turn Outfit Swap 9:16)',
+        prompt:
+          'Animate the subject in natural motion: she continuously holds her phone up covering her face while facing the elevator mirror, keeping the environment and background completely unchanged, then after 4 seconds turns smoothly to transform into the outfit from @Image 2.',
+        resolution: '720p',
+        ratio: '9:16',
+        duration: '8s',
+        resultVideo:
+          'https://pub-a95b3e2bac2442f582b4e3792df8b515.r2.dev/workflow-videos/7cc81a7d-a28e-4e26-9dd6-84b3461b4b0f/wf_mwlqvsl1_xrgxpg/aiVideoNode-1773136064920_resultVideo_1794983606389_7z96sd.mp4'
+      }
+    },
+    {
+      id: 'imageNode-1773287025303',
+      type: 'imageAssetNode',
+      position: { x: -909.7262188549288, y: -419.4245867048892 },
+      data: {
+        title: 'Input Background / Reference',
+        imageUrl:
+          'https://pub-a95b3e2bac2442f582b4e3792df8b515.r2.dev/workflow-images/7cc81a7d-a28e-4e26-9dd6-84b3461b4b0f/wf_mwlqvsl1_xrgxpg/imageNode-1773057130220_resultImage_1794983602922_4vzd4z.jpg'
+      }
+    },
+    {
+      id: 'imageNode-1773295940487',
+      type: 'imageAssetNode',
+      position: { x: -878.074550422678, y: 1309.3942102948254 },
+      data: {
+        title: 'Input Outfit 2',
+        imageUrl:
+          'https://pub-a95b3e2bac2442f582b4e3792df8b515.r2.dev/workflow-images/7cc81a7d-a28e-4e26-9dd6-84b3461b4b0f/wf_mwlqvsl1_xrgxpg/imageNode-1773295940487_resultImage_1794983609112_45hpyv.jpg'
+      }
+    },
+    {
+      id: 'imageNode-1773295945366',
+      type: 'imageAssetNode',
+      position: { x: -878.2635538142689, y: 2242.31115735009 },
+      data: {
+        title: 'Input Outfit 3',
+        imageUrl:
+          'https://pub-a95b3e2bac2442f582b4e3792df8b515.r2.dev/workflow-images/7cc81a7d-a28e-4e26-9dd6-84b3461b4b0f/wf_mwlqvsl1_xrgxpg/imageNode-1773295945366_resultImage_1794983609610_ovsgbh.webp'
+      }
+    },
+    {
+      id: 'aiImageNode-1773296112336-nf31dm',
+      type: 'imageNode',
+      position: { x: -143.93746180742764, y: 2016.1443886454526 },
+      data: {
+        title: 'Image Node (Outfit 3 — Dynamic Turn Pose)',
+        prompt:
+          'The model from @Image 1 wearing the outfit from @Image 2, swinging her right arm slightly and turning her waist.',
+        resolution: '2K',
+        ratio: '9:16',
+        resultImage:
+          'https://pub-a95b3e2bac2442f582b4e3792df8b515.r2.dev/workflow-images/7cc81a7d-a28e-4e26-9dd6-84b3461b4b0f/wf_mwlqvsl1_xrgxpg/aiImageNode-1773296112336-nf31dm_resultImage_1794983611906_n19fyu.jpg'
+      }
+    },
+    {
+      id: 'imageNode-1773296290489',
+      type: 'imageAssetNode',
+      position: { x: -856.8167999815653, y: 3046.7110975927862 },
+      data: {
+        title: 'Input Outfit 4',
+        imageUrl:
+          'https://pub-a95b3e2bac2442f582b4e3792df8b515.r2.dev/workflow-images/7cc81a7d-a28e-4e26-9dd6-84b3461b4b0f/wf_mwlqvsl1_xrgxpg/imageNode-1773296290489_resultImage_1794983612376_rsz3py.jpg'
+      }
+    },
+    {
+      id: 'aiImageNode-1773296309957',
+      type: 'imageNode',
+      position: { x: -140.53376813576867, y: 3206.1222432252816 },
+      data: {
+        title: 'Image Node (Outfit 4 — Peace Sign Pose)',
+        prompt:
+          'The model from @Image 1 wearing the outfit from @Image 2, making a peace sign (V) with her right hand.',
+        resolution: '2K',
+        ratio: '9:16',
+        resultImage:
+          'https://pub-a95b3e2bac2442f582b4e3792df8b515.r2.dev/workflow-images/7cc81a7d-a28e-4e26-9dd6-84b3461b4b0f/wf_mwlqvsl1_xrgxpg/aiImageNode-1773296309957_resultImage_1794983614624_7cvb8c.jpg'
+      }
+    },
+    {
+      id: 'aiVideoNode-1773296743247',
+      type: 'videoNode',
+      position: { x: 908.9739866445597, y: 1330.4003905575364 },
+      data: {
+        title: 'Video Node 2 (4s Turn Outfit Swap 9:16)',
+        prompt:
+          'Animate the subject in natural motion: she continuously holds her phone up covering her face while facing the elevator mirror, keeping the environment and background completely unchanged, then after 4 seconds turns smoothly to transform into the outfit from @Image 2.',
+        resolution: '720p',
+        ratio: '9:16',
+        duration: '8s',
+        resultVideo:
+          'https://pub-a95b3e2bac2442f582b4e3792df8b515.r2.dev/workflow-videos/7cc81a7d-a28e-4e26-9dd6-84b3461b4b0f/wf_mwlqvsl1_xrgxpg/aiVideoNode-1773296743247_resultVideo_1794983615544_3pr2aj.mp4'
+      }
+    },
+    {
+      id: 'aiVideoNode-1773296917325',
+      type: 'videoNode',
+      position: { x: 896.7510117714719, y: 2523.448444653008 },
+      data: {
+        title: 'Video Node 3 (4s Turn Outfit Swap 9:16)',
+        prompt:
+          'Animate the subject in natural motion: she continuously holds her phone up covering her face while facing the elevator mirror, keeping the environment and background completely unchanged, then after 4 seconds turns smoothly to transform into the outfit from @Image 2.',
+        resolution: '720p',
+        ratio: '9:16',
+        duration: '8s',
+        resultVideo:
+          'https://pub-a95b3e2bac2442f582b4e3792df8b515.r2.dev/workflow-videos/7cc81a7d-a28e-4e26-9dd6-84b3461b4b0f/wf_mwlqvsl1_xrgxpg/aiVideoNode-1773296917325_resultVideo_1794983616763_ng0pu1.mp4'
+      }
+    },
+    {
+      id: 'aiVideoNode-1773297570784',
+      type: 'videoNode',
+      position: { x: 1491.2589609232487, y: 182.43354041688298 },
+      data: {
+        title: 'Video Node 4 (Alt Transition 9:16)',
+        prompt:
+          'Animate the subject in natural motion: she continuously holds her phone up covering her face while facing the elevator mirror, keeping the environment and background completely unchanged, then after 4 seconds turns smoothly to transform into the outfit from @Image 2.',
+        resolution: '720p',
+        ratio: '9:16',
+        duration: '8s',
+        resultVideo:
+          'https://pub-a95b3e2bac2442f582b4e3792df8b515.r2.dev/workflow-videos/7cc81a7d-a28e-4e26-9dd6-84b3461b4b0f/wf_mwlqvsl1_xrgxpg/aiVideoNode-1773297570784_resultVideo_1794983617694_jq6w57.mp4'
+      }
+    }
+  ],
+  edges: [
+    { source: 'imageNode-1773057130220', target: 'aiImageNode-1772976384775' },
+    { source: 'aiImageNode-1772976384775', target: 'aiImageNode-1773058630966' },
+    { source: 'aiImageNode-1772976384775', target: 'aiVideoNode-1773136064920' },
+    { source: 'aiImageNode-1773058630966', target: 'aiVideoNode-1773136064920' },
+    { source: 'imageNode-1773287025303', target: 'aiImageNode-1772976384775' },
+    { source: 'imageNode-1773295940487', target: 'aiImageNode-1773058630966' },
+    { source: 'aiImageNode-1773058630966', target: 'aiImageNode-1773296112336-nf31dm' },
+    { source: 'imageNode-1773295945366', target: 'aiImageNode-1773296112336-nf31dm' },
+    { source: 'aiImageNode-1773058630966', target: 'aiVideoNode-1773296743247' },
+    { source: 'aiImageNode-1773296112336-nf31dm', target: 'aiVideoNode-1773296743247' },
+    { source: 'aiImageNode-1773296112336-nf31dm', target: 'aiImageNode-1773296309957' },
+    { source: 'imageNode-1773296290489', target: 'aiImageNode-1773296309957' },
+    { source: 'aiImageNode-1773296112336-nf31dm', target: 'aiVideoNode-1773296917325' },
+    { source: 'aiImageNode-1773296309957', target: 'aiVideoNode-1773296917325' },
+    { source: 'aiImageNode-1772976384775', target: 'aiVideoNode-1773297570784' },
+    { source: 'aiImageNode-1773058630966', target: 'aiVideoNode-1773297570784' }
+  ]
+};
+
+export const INSTANT_OUTFIT_CHANGE_PROJECT = convertSoraTkTemplateToProject(INSTANT_OUTFIT_CHANGE_RAW_JSON, {
+  id: 'proj-instant-outfit-change-mirror',
+  category: 'tryon',
+  name: 'Instant Outfit Change — Elevator Mirror 9:16',
+  description:
+    'Template thay đồ 1 giây trong thang máy (9:16): 5 ảnh trang phục & bối cảnh → 4 bước tạo ảnh Try-On 2K → 4 Video chuyển cảnh xoay người biến hình sau 4s.',
+  badge: 'Thay Đồ 1 Giây (9:16)',
+  techTag: 'STK-V1',
+  previewVideo:
+    'https://pub-a95b3e2bac2442f582b4e3792df8b515.r2.dev/workflow-videos/7cc81a7d-a28e-4e26-9dd6-84b3461b4b0f/wf_mwlqvsl1_xrgxpg/aiVideoNode-1773136064920_resultVideo_1794983606389_7z96sd.mp4',
+  previewImage:
+    'https://pub-a95b3e2bac2442f582b4e3792df8b515.r2.dev/workflow-images/7cc81a7d-a28e-4e26-9dd6-84b3461b4b0f/wf_mwlqvsl1_xrgxpg/aiImageNode-1772976384775_resultImage_1794983602379_2aol0x.jpg'
 });
