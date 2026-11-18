@@ -2487,3 +2487,121 @@ export const INSTANT_OUTFIT_CHANGE_PROJECT = convertSoraTkTemplateToProject(INST
   previewImage:
     'https://pub-a95b3e2bac2442f582b4e3792df8b515.r2.dev/workflow-images/7cc81a7d-a28e-4e26-9dd6-84b3461b4b0f/wf_mwlqvsl1_xrgxpg/aiImageNode-1772976384775_resultImage_1794983602379_2aol0x.jpg'
 });
+
+const ELEVATOR_FASHION_REF_RAW_JSON = {
+  schema: 'soratk.workflow-template.v1',
+  kind: 'workflow-template',
+  title: 'Elevator Women Fashion Lookbook — 8s (9:16)',
+  nodes: [
+    {
+      id: 'imageNode-1773287025303',
+      type: 'imageAssetNode',
+      position: { x: -1781.3490456802838, y: 785.9915878085438 },
+      data: {
+        title: 'Input Scene Reference',
+        imageUrl:
+          'https://pub-a95b3e2bac2442f582b4e3792df8b515.r2.dev/workflow-templates/creatok/creatok-2365/5e9d8e7977a22630.jpg'
+      }
+    },
+    {
+      id: 'aiImageNode-1773287083667',
+      type: 'imageNode',
+      position: { x: -868.8993952294716, y: 694.0823567251724 },
+      data: {
+        title: 'Image Node (Clean Elevator Background 9:16)',
+        prompt:
+          'Extract the empty modern elevator interior background from @Image 1, removing all people and text overlays: brushed stainless steel walls, light wood grain floor, control panel with round buttons and digital screen on the left, metal handrails, bright and clean lighting, minimalist aesthetic, high-quality architectural photography, symmetrical composition, no people.',
+        resolution: '1K',
+        ratio: '9:16',
+        resultImage:
+          'https://pub-a95b3e2bac2442f582b4e3792df8b515.r2.dev/workflow-templates/creatok/creatok-2365/f7537b5fd3ecf7da.jpg'
+      }
+    },
+    {
+      id: 'imageNode-1773057130220',
+      type: 'imageAssetNode',
+      position: { x: -875.6829383296966, y: -269.6390034601628 },
+      data: {
+        title: 'Input Outfit (Upload Garment)',
+        imageUrl:
+          'https://pub-a95b3e2bac2442f582b4e3792df8b515.r2.dev/workflow-templates/creatok/creatok-2365/69caa9abfe46d671.png'
+      }
+    },
+    {
+      id: 'aiImageNode-1772976384775',
+      type: 'imageNode',
+      position: { x: 84.24848413595404, y: 24.769706232597457 },
+      data: {
+        title: 'Image Node (Model Mirror Selfie 9:16)',
+        prompt:
+          'Generate a fit young Western woman holding her phone up to cover her face in a mirror selfie, wearing the complete outfit from @Image 1, with the background matching @Image 2.',
+        resolution: '1K',
+        ratio: '9:16',
+        resultImage:
+          'https://pub-a95b3e2bac2442f582b4e3792df8b515.r2.dev/workflow-templates/creatok/creatok-2365/056295c0d5601b06.jpg'
+      }
+    },
+    {
+      id: 'aiImageNode-1773058630966',
+      type: 'imageNode',
+      position: { x: 0, y: 420 },
+      data: {
+        title: 'Image Node (One Hand on Hip Pose 9:16)',
+        prompt:
+          'Keep the exact model, outfit, and background from @Image 1 unchanged, posing with one hand resting on her hip.',
+        resolution: '1K',
+        ratio: '9:16',
+        resultImage:
+          'https://pub-a95b3e2bac2442f582b4e3792df8b515.r2.dev/workflow-templates/creatok/creatok-2365/a1416eb74ed12ae6.jpg'
+      }
+    },
+    {
+      id: 'aiVideoNode-1773136064920',
+      type: 'videoNode',
+      position: { x: 746.0122348315729, y: -457.37226386328376 },
+      data: {
+        title: 'Video Node (Elevator Mirror Runway 8s)',
+        prompt:
+          'Animate the subject in natural motion: she continuously holds her phone up covering her face while facing the mirror, stepping subtly forward and backward to showcase the outfit, with passing street traffic subtly visible in the background.',
+        resolution: '720p',
+        ratio: '9:16',
+        duration: '8s',
+        resultVideo:
+          'https://pub-a95b3e2bac2442f582b4e3792df8b515.r2.dev/workflow-templates/creatok/creatok-2365/ae09e6ba3f5e0b88.mp4'
+      }
+    }
+  ],
+  edges: [
+    { source: 'imageNode-1773287025303', target: 'aiImageNode-1773287083667' },
+    { source: 'imageNode-1773057130220', target: 'aiImageNode-1772976384775' },
+    { source: 'aiImageNode-1773287083667', target: 'aiImageNode-1772976384775' },
+    { source: 'aiImageNode-1772976384775', target: 'aiImageNode-1773058630966' },
+    { source: 'aiImageNode-1772976384775', target: 'aiVideoNode-1773136064920' },
+    { source: 'aiImageNode-1773058630966', target: 'aiVideoNode-1773136064920' }
+  ]
+};
+
+export const ELEVATOR_FASHION_REF_PROJECT = convertSoraTkTemplateToProject(ELEVATOR_FASHION_REF_RAW_JSON, {
+  id: 'proj-elevator-fashion-ref',
+  category: 'tryon',
+  name: 'Elevator Women Fashion Lookbook — 8s (9:16)',
+  description:
+    'Template thời trang nữ trong thang máy (9:16): Tách nền thang máy sạch → Tạo mẫu thử đồ 9:16 → Tạo dáng chống hông → Video Lookbook 8s (720p).',
+  badge: 'Thử Đồ Thang Máy (9:16)',
+  techTag: 'STK-V1',
+  previewVideo:
+    'https://pub-a95b3e2bac2442f582b4e3792df8b515.r2.dev/workflow-templates/creatok/creatok-2365/ae09e6ba3f5e0b88.mp4',
+  previewImage:
+    'https://pub-a95b3e2bac2442f582b4e3792df8b515.r2.dev/workflow-templates/creatok/creatok-2365/056295c0d5601b06.jpg',
+  stickers: [
+    {
+      id: 'sticker-elevator-bg-note',
+      x: 520,
+      y: 1200,
+      width: 300,
+      height: 150,
+      title: 'Background Extraction Note',
+      html: '<p><b>Clean Background Prompt:</b> Automatically extracts the empty modern elevator interior (brushed steel, wood floor, control panel) with zero people or text.</p>'
+    }
+  ]
+});
