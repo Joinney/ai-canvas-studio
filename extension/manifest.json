@@ -8,8 +8,18 @@
     "scripting",
     "storage",
     "unlimitedStorage",
-    "debugger"
+    "debugger",
+    "declarativeNetRequest"
   ],
+  "declarative_net_request": {
+    "rule_resources": [
+      {
+        "id": "allow_localhost_iframe",
+        "enabled": true,
+        "path": "rules.json"
+      }
+    ]
+  },
   "host_permissions": [
     "<all_urls>",
     "https://muse.ai/*",
