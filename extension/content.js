@@ -1549,8 +1549,8 @@ async function fillPromptAndSubmit(rawPromptText, mode = 'IMAGE', expectedImageC
         clickOnly: true
       });
 
-      // Chỉ fallback sang DOM click nếu Chrome Debugger không khả dụng
-      if (!nativeRes || nativeRes.ok === false) {
+      // Khi tab đang ẩn (chạy ngầm) hoặc Chrome Debugger không khả dụng, ưu tiên DOM click trực tiếp
+      if (document.hidden || !nativeRes || nativeRes.ok === false) {
         triggerDOMClickAt(currentTarget);
       }
     }
@@ -1566,19 +1566,49 @@ async function fillPromptAndSubmit(rawPromptText, mode = 'IMAGE', expectedImageC
       const r = b.getBoundingClientRect();
       if (r.left < pr.left || r.right > pr.right + 120 || r.top < pr.top - 40 || r.bottom > pr.bottom + 120) return false;
       const lbl = ((b.getAttribute?.('aria-label') || '') + ' ' + (b.title || '') + ' ' + (b.textContent || '')).toLowerCase();
-      return /\b(stop|dừng|cancel)\b/i.test(lbl) || lbl.includes('⏹') || lbl.includes('■');
+      if (/\b(stop|dừng|cancel|abort)\b/i.test(lbl) || lbl.includes('⏹') || lbl.includes('■')) return true;
+      // Nút Stop dạng icon hình vuông SVG (<rect>) nằm đúng vị trí nút Gửi
+      const hasSquareRect = Boolean(b.querySelector?.('svg rect') && !b.querySelector?.('svg path[d*="M12"]'));
+      return hasSquareRect && r.left >= pr.left + pr.width * 0.5;
     });
   };
 
   // 4. KIỂM TRA XÁC NHẬN ĐÃ GỬI THÀNH CÔNG:
-  // Chỉ kích hoạt Enter dự phòng nếu ô nhập vẫn còn nguyên text VÀ nút Stop CHƯA xuất hiện
-  // (Tuyệt đối không dùng lịch sử chat cũ để tránh nhầm ở luồng nhiều nhánh)
+  // Nếu ô nhập vẫn còn nguyên text VÀ nút Stop CHƯA xuất hiện:
+  // Thử thêm 2 tầng dự phòng: (A) DOM click trực tiếp vào nút Gửi, (B) Enter trực tiếp + CDP Enter
   let checkPromptEl = findFlowPromptElement();
   let currentText = (checkPromptEl?.innerText || checkPromptEl?.value || '').trim();
   let stopBtnActive = isStopBtnNowActive(checkPromptEl);
 
   if (currentText.length > 10 && !stopBtnActive) {
-    console.log('[AI Canvas] Ô prompt vẫn còn văn bản và AI chưa chạy, kích hoạt Enter dự phòng qua CDP...');
+    console.log('[AI Canvas] Ô prompt vẫn còn văn bản sau CDP click, thử DOM click dự phòng...');
+    const retryTarget = findFlowSubmitTarget(checkPromptEl) || currentTarget;
+    if (retryTarget && retryTarget.el && !retryTarget.el.disabled && isSubmitButtonReady(checkPromptEl)) {
+      triggerDOMClickAt(retryTarget);
+      await new Promise((r) => setTimeout(r, 1100));
+      checkPromptEl = findFlowPromptElement();
+      currentText = (checkPromptEl?.innerText || checkPromptEl?.value || '').trim();
+      stopBtnActive = isStopBtnNowActive(checkPromptEl);
+    }
+  }
+
+  if (currentText.length > 10 && !stopBtnActive) {
+    console.log('[AI Canvas] Kích hoạt Enter dự phòng (DOM KeyboardEvent + CDP)...');
+    try {
+      checkPromptEl.focus();
+      for (const evType of ['keydown', 'keypress', 'keyup']) {
+        checkPromptEl.dispatchEvent(
+          new KeyboardEvent(evType, {
+            key: 'Enter',
+            code: 'Enter',
+            keyCode: 13,
+            which: 13,
+            bubbles: true,
+            cancelable: true
+          })
+        );
+      }
+    } catch (e) {}
     const pr = checkPromptEl.getBoundingClientRect();
     await sendNativeCdpWithDockPassThrough({
       type: 'NATIVE_CLICK_AND_ENTER',
