@@ -1197,17 +1197,30 @@ function isAnyAttachmentUploading(promptEl) {
     const role = el.getAttribute?.('role') || '';
     const ariaBusy = el.getAttribute?.('aria-busy') || '';
     const tag = (el.tagName || '').toLowerCase();
-    const cls = (el.className || '').toString().toLowerCase();
+    const cls = (el.className && typeof el.className === 'string'
+      ? el.className
+      : el.getAttribute?.('class') || ''
+    ).toLowerCase();
 
     if (role === 'progressbar' || ariaBusy === 'true') return true;
     if (tag === 'mat-progress-spinner' || tag === 'mdc-circular-progress') return true;
     if (
       cls.includes('spinner') ||
+      cls.includes('animate-spin') ||
+      cls.includes('animate-pulse') ||
       cls.includes('loading') ||
       cls.includes('uploading') ||
       cls.includes('progress')
     ) {
       return true;
+    }
+    if (tag === 'img') {
+      const r = el.getBoundingClientRect();
+      if (r.width >= 16 && r.width <= 220 && r.height >= 16 && r.height <= 220) {
+        if (!el.complete || el.naturalWidth === 0) return true;
+        const opacity = parseFloat(window.getComputedStyle(el).opacity || '1');
+        if (opacity < 0.75) return true;
+      }
     }
   }
 
@@ -1229,7 +1242,7 @@ function isSubmitButtonReady(promptEl) {
 }
 
 // Chờ cho đến khi toàn bộ ảnh đính kèm đã hiển thị và kết thúc tải lên (không còn spinner)
-async function waitForAttachmentsReady(expectedCount, maxWaitMs = 25000) {
+async function waitForAttachmentsReady(expectedCount, maxWaitMs = 45000) {
   const startTime = Date.now();
   let stableReadyCycles = 0;
 
@@ -1240,19 +1253,20 @@ async function waitForAttachmentsReady(expectedCount, maxWaitMs = 25000) {
     const promptEl = findFlowPromptElement();
     const chipCount = countAttachedChips(promptEl);
     const isUploading = isAnyAttachmentUploading(promptEl);
+    const btnReady = isSubmitButtonReady(promptEl);
 
     updateBridgeBadgeText(
-      `⏳ v5.0: Đang nạp ảnh (${chipCount}/${expectedCount} ảnh hoàn tất)... Vui lòng đợi!`,
+      `⏳ v5.9: Đang tải ảnh lên (${chipCount}/${expectedCount} ảnh${isUploading ? ' • đang upload' : ''})...`,
       '#f59e0b'
     );
 
     // Đã đủ số lượng chip đính kèm VÀ không còn thanh tiến trình/spinner loading
-    if (chipCount >= expectedCount && !isUploading) {
+    if (chipCount >= expectedCount && !isUploading && (btnReady || Date.now() - startTime > 3000)) {
       stableReadyCycles++;
-      // Đợi ổn định liên tiếp 2 chu kỳ thăm dò (1.2 giây) để hoàn tất đồng bộ state
-      if (stableReadyCycles >= 2) {
+      // Đợi ổn định liên tiếp 3 chu kỳ thăm dò (1.8 giây) để hoàn tất đồng bộ state trên AI Engine
+      if (stableReadyCycles >= 3) {
         updateBridgeBadgeText(
-          `✅ v5.0: Đã nạp xong ${chipCount} ảnh! Chuẩn bị gửi lệnh...`,
+          `✅ v5.9: Đã tải xong ${chipCount}/${expectedCount} ảnh! Chuẩn bị gửi lệnh...`,
           '#10b981'
         );
         await new Promise((r) => setTimeout(r, 800));
@@ -1265,15 +1279,12 @@ async function waitForAttachmentsReady(expectedCount, maxWaitMs = 25000) {
     await new Promise((r) => setTimeout(r, 600));
   }
 
-  console.warn(`[AI Canvas] Timeout chờ ảnh sau ${maxWaitMs}ms, tiếp tục...`);
   return false;
 }
 
-// Nạp ảnh tham chiếu theo đúng chế độ:
-// Chế độ IMAGE: Nạp tối đa 2 ảnh (Ảnh 1 là Mẫu, Ảnh 2 là Trang phục)
-// Chế độ VIDEO: Nạp đúng 1 ảnh duy nhất (Ảnh người mẫu đã thử đồ từ Cột 2)
+// Nạp ảnh tham chiếu theo đúng thứ tự dây nối (@Image 1, @Image 2, @Image 3...)
 async function uploadInputImages(images = [], mode = 'IMAGE') {
-  const maxCount = 2;
+  const maxCount = 10;
   const safeList = (images || []).filter(Boolean).slice(0, maxCount);
   if (safeList.length === 0) return [];
 
@@ -1283,24 +1294,28 @@ async function uploadInputImages(images = [], mode = 'IMAGE') {
 
   for (let i = 0; i < safeList.length; i++) {
     const roleText =
-      mode === 'VIDEO'
-        ? 'Ảnh thử đồ từ Cột 2 (Image 1)'
-        : i === 0
-        ? 'Mẫu (Image 1)'
-        : 'Trang phục (Image 2)';
-    updateBridgeBadgeText(`v5.3: Đang nạp ảnh ${i + 1}/${safeList.length} [${roleText}]...`, '#2563eb');
+      mode === 'VIDEO' && safeList.length === 1
+        ? 'Ảnh tham chiếu (Image 1)'
+        : `Image ${i + 1}`;
+    updateBridgeBadgeText(`v5.9: Đang nạp ảnh ${i + 1}/${safeList.length} [${roleText}]...`, '#2563eb');
     const file = await base64ToFile(safeList[i], `flow_ref_${Date.now()}_${i + 1}.jpg`);
     await pasteSingleFileIntoPrompt(file, i === 0);
 
     // Chờ cho ảnh này được giao diện nhận diện chip
-    await new Promise((r) => setTimeout(r, 1400));
+    await new Promise((r) => setTimeout(r, 1200));
 
-    // Đợi ảnh này nạp xong trước khi nạp tiếp ảnh sau
-    await waitForAttachmentsReady(i + 1, 15000);
+    // Đợi ảnh này tải xong hoàn toàn trước khi nạp tiếp ảnh sau
+    const stepOk = await waitForAttachmentsReady(i + 1, 45000);
+    if (!stepOk) {
+      throw new Error(`Ảnh ${i + 1}/${safeList.length} chưa tải xong lên AI Engine sau 45s. Dừng gửi để đảm bảo đúng workflow!`);
+    }
   }
 
   // Đợi cho TẤT CẢ các ảnh hoàn tất 100%
-  await waitForAttachmentsReady(safeList.length, 18000);
+  const allOk = await waitForAttachmentsReady(safeList.length, 45000);
+  if (!allOk) {
+    throw new Error(`Không xác nhận được toàn bộ ${safeList.length} ảnh đã tải xong lên AI Engine. Dừng gửi để đảm bảo đúng workflow!`);
+  }
 
   // Tính sẵn fingerprint của ảnh đầu vào để loại trừ tuyệt đối, không bắt nhầm
   const fingerprints = [];
@@ -1433,7 +1448,7 @@ async function typePromptTextIntoElement(promptEl, promptText) {
   }
 }
 
-async function fillPromptAndSubmit(rawPromptText, mode = 'IMAGE') {
+async function fillPromptAndSubmit(rawPromptText, mode = 'IMAGE', expectedImageCount = 0) {
   let promptText = String(rawPromptText || '')
     .replace(/<br\s*\/?>/gi, ' ')
     .replace(/[\r\n]+/g, ' ')
@@ -1460,16 +1475,36 @@ async function fillPromptAndSubmit(rawPromptText, mode = 'IMAGE') {
   // Đảm bảo tab không bị kẹt ở "Tệp tải lên" để khi tạo xong ảnh sẽ hiển thị ngay
   ensureFlowCanvasView();
 
-  // Chờ nút Gửi sẵn sàng (Muse AI / Google Flow kích hoạt nút Gửi sau khi upload ảnh xong)
+  // Chờ nút Gửi sẵn sàng VÀ đảm bảo toàn bộ ảnh đã tải xong (không còn spinner, đủ số lượng chip)
   let submitReady = false;
-  for (let waitSubmit = 0; waitSubmit < 25; waitSubmit++) {
+  for (let waitSubmit = 0; waitSubmit < 50; waitSubmit++) {
+    if (window.__AI_CANVAS_TASK_ABORTED__) {
+      throw new Error('Đã dừng bởi người dùng.');
+    }
     promptEl = findFlowPromptElement() || promptEl;
-    if (isSubmitButtonReady(promptEl)) {
+    const uploading = isAnyAttachmentUploading(promptEl);
+    const chipCount = countAttachedChips(promptEl);
+    const chipsOk = expectedImageCount === 0 || chipCount >= expectedImageCount;
+    if (isSubmitButtonReady(promptEl) && !uploading && chipsOk) {
       submitReady = true;
       break;
     }
-    updateBridgeBadgeText(`⏳ v5.1: Đang đợi ảnh đồng bộ xong để kích hoạt nút Gửi (${waitSubmit + 1}/25)...`, '#f59e0b');
+    updateBridgeBadgeText(
+      `⏳ v5.9: Đang đợi ảnh tải xong (${chipCount}/${expectedImageCount}) để kích hoạt nút Gửi (${waitSubmit + 1}/50)...`,
+      '#f59e0b'
+    );
     await new Promise((r) => setTimeout(r, 600));
+  }
+
+  if (!submitReady) {
+    throw new Error('Ảnh đính kèm chưa tải xong hoặc nút Gửi vẫn đang bị khóa! Đã hủy gửi để đảm bảo đúng workflow.');
+  }
+
+  // Đợi thêm 400ms và kiểm tra lại 1 lần cuối trước khi click Gửi
+  await new Promise((r) => setTimeout(r, 400));
+  promptEl = findFlowPromptElement() || promptEl;
+  if (isAnyAttachmentUploading(promptEl) || (expectedImageCount > 0 && countAttachedChips(promptEl) < expectedImageCount)) {
+    throw new Error('Phát hiện ảnh vẫn đang tải lên trước khi gửi. Dừng gửi để tránh thiếu ảnh đầu vào!');
   }
 
   const targetInfo = findFlowSubmitTarget(promptEl);
@@ -2310,15 +2345,16 @@ window.__AI_CANVAS_RUN_FLOW_TASK__ = async function (payload = {}) {
     recordAllCurrentMediaUrls(existingUrls);
 
     let inputFingerprints = [];
-    if (images && images.length > 0) {
+    const expectedImageCount = (images || []).filter(Boolean).slice(0, 10).length;
+    if (expectedImageCount > 0) {
       inputFingerprints = await uploadInputImages(images, mode);
       // Ghi nhận toàn bộ chip đính kèm vừa xuất hiện vào danh sách ảnh cũ
       recordAllCurrentMediaUrls(existingUrls);
     }
 
-    // Bấm gửi và ghi nhận thời điểm submit
+    // Bấm gửi và ghi nhận thời điểm submit (bắt buộc đủ ảnh đã tải xong)
     const submitTimestamp = Date.now();
-    await fillPromptAndSubmit(prompt, mode);
+    await fillPromptAndSubmit(prompt, mode, expectedImageCount);
 
     const timeoutMs = mode === 'VIDEO' ? 600000 : 300000;
     const output = await captureNewMediaOutput(
