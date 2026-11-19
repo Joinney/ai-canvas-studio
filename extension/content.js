@@ -1284,8 +1284,7 @@ async function waitForAttachmentsReady(expectedCount, maxWaitMs = 45000) {
 
 // Nạp ảnh tham chiếu theo đúng thứ tự dây nối (@Image 1, @Image 2, @Image 3...)
 async function uploadInputImages(images = [], mode = 'IMAGE') {
-  const maxCount = 10;
-  const safeList = (images || []).filter(Boolean).slice(0, maxCount);
+  const safeList = (images || []).filter(Boolean);
   if (safeList.length === 0) return [];
 
   const initialPrompt = findFlowPromptElement();
@@ -2345,7 +2344,7 @@ window.__AI_CANVAS_RUN_FLOW_TASK__ = async function (payload = {}) {
     recordAllCurrentMediaUrls(existingUrls);
 
     let inputFingerprints = [];
-    const expectedImageCount = (images || []).filter(Boolean).slice(0, 10).length;
+    const expectedImageCount = (images || []).filter(Boolean).length;
     if (expectedImageCount > 0) {
       inputFingerprints = await uploadInputImages(images, mode);
       // Ghi nhận toàn bộ chip đính kèm vừa xuất hiện vào danh sách ảnh cũ

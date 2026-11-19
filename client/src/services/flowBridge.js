@@ -204,7 +204,7 @@ async function compressImageForFlow(inputSrc) {
 }
 
 async function ensureBase64MediaList(images = []) {
-  const validList = (images || []).filter(Boolean).slice(0, 4);
+  const validList = (images || []).filter(Boolean);
   const converted = [];
   for (const item of validList) {
     const fastImg = await compressImageForFlow(item);

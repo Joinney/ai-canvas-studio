@@ -169,7 +169,7 @@ export default function PromptDock({ exportMaskBase64 }) {
         const generatedUrl = await generateAIImage(prompt || 'Luxury commercial product shot, 8k');
         activeRefNodes = [{ id: 'temp', url: generatedUrl }];
       } else if (activeRefNodes.length === 0) {
-        activeRefNodes = imageNodes.slice(0, 2);
+        activeRefNodes = imageNodes;
       }
 
       const startNode = imageNodes.find((n) => n.id === startFrameId) || activeRefNodes[0];

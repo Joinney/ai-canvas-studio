@@ -480,7 +480,7 @@ export default function App() {
       if (flowMode === 'SINGLE_IMAGE' || imageLayers.length === 1) {
         const res = await executeGoogleFlowNode({
           mode: 'IMAGE',
-          images: imageLayers.slice(0, 2).map((i) => i.url),
+          images: imageLayers.map((i) => i.url),
           prompt: flowImagePrompt
         });
         addImage({
