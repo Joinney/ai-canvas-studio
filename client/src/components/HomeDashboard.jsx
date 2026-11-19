@@ -30,7 +30,9 @@ import {
   ChevronLeft,
   PanelLeft,
   Film,
-  Zap
+  Zap,
+  Copy,
+  Check
 } from 'lucide-react';
 import {
   WINTER_FUR_PROJECT,
@@ -180,6 +182,27 @@ export default function HomeDashboard({
     });
     setNewProjectTitle('');
     setShowNewModal(false);
+  };
+
+  const [copiedTemplateId, setCopiedTemplateId] = useState(null);
+
+  const handleCopyTemplateJson = async (e, tpl) => {
+    e.stopPropagation();
+    const exportPayload = {
+      name: tpl.name,
+      nodes: tpl.nodes || [],
+      edges: tpl.edges || [],
+      stickers: tpl.stickers || []
+    };
+    try {
+      await navigator.clipboard.writeText(JSON.stringify(exportPayload, null, 2));
+      setCopiedTemplateId(tpl.id);
+      setTimeout(() => {
+        setCopiedTemplateId((prev) => (prev === tpl.id ? null : prev));
+      }, 2000);
+    } catch {
+      window.prompt('Copy JSON mẫu dự án bên dưới:', JSON.stringify(exportPayload));
+    }
   };
 
   const handleOpenTemplateCard = (tpl) => {
@@ -930,8 +953,8 @@ export default function HomeDashboard({
                         <h3 className="text-xs font-black text-slate-900 dark:text-white line-clamp-2 leading-snug" title={tpl.name}>
                           {tpl.name}
                         </h3>
-                        <div className="flex items-center justify-between gap-2">
-                          <div className="flex items-center gap-1.5 text-[10px] font-extrabold text-slate-700 dark:text-slate-200">
+                        <div className="flex items-center justify-between gap-1.5">
+                          <div className="flex items-center gap-1 text-[10px] font-extrabold text-slate-700 dark:text-slate-200">
                             <span className="px-2 py-0.5 rounded-full bg-slate-900/10 dark:bg-white/15">
                               {tpl.nodes?.length || 0} Nodes
                             </span>
@@ -939,10 +962,34 @@ export default function HomeDashboard({
                               {tpl.edges?.length || 0} Dây
                             </span>
                           </div>
-                          <span className="px-2.5 py-1 rounded-full bg-gradient-to-r from-emerald-500 to-sky-500 text-white text-[10px] font-black flex items-center gap-1 shadow">
-                            <span>Dùng mẫu</span>
-                            <ArrowRight className="w-3 h-3" />
-                          </span>
+                          <div className="flex items-center gap-1.5">
+                            <button
+                              type="button"
+                              onClick={(e) => handleCopyTemplateJson(e, tpl)}
+                              className={`px-2 py-1 rounded-full text-[10px] font-black flex items-center gap-1 shadow transition cursor-pointer ${
+                                copiedTemplateId === tpl.id
+                                  ? 'bg-emerald-600 text-white'
+                                  : 'bg-slate-900/75 hover:bg-slate-900 text-white dark:bg-white/20 dark:hover:bg-white/30'
+                              }`}
+                              title="Sao chép JSON sơ đồ Node của mẫu này để dán vào Nhập JSON"
+                            >
+                              {copiedTemplateId === tpl.id ? (
+                                <>
+                                  <Check className="w-3 h-3" />
+                                  <span>Đã Copy</span>
+                                </>
+                              ) : (
+                                <>
+                                  <Copy className="w-3 h-3" />
+                                  <span>Copy JSON</span>
+                                </>
+                              )}
+                            </button>
+                            <span className="px-2.5 py-1 rounded-full bg-gradient-to-r from-emerald-500 to-sky-500 text-white text-[10px] font-black flex items-center gap-1 shadow">
+                              <span>Dùng mẫu</span>
+                              <ArrowRight className="w-3 h-3" />
+                            </span>
+                          </div>
                         </div>
                       </div>
                     </div>
