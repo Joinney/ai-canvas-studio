@@ -5958,3 +5958,234 @@ export const BATCH_OUTFIT_DANCE_PROJECT = convertDaAiCanvasToProject(BATCH_OUTFI
   previewImage:
     'https://cdn.sengeai.com/workflow-studio/test/template-assets/2026/05/22/1779439275146-aac86296-cdf3-4274-ae69-af6c53120783.png'
 });
+
+// 1-Second Outfit Swap Pro — 4-Video Multi-Look Transition (9:16)
+export const ONE_SEC_OUTFIT_SWAP_PRO_RAW_CANVAS_JSON = {
+  nodes: [
+    {
+      id: 'aiImageNode-1772976384775',
+      kind: 'image',
+      title: 'AI Image — Base Mirror Selfie',
+      x: -134,
+      y: -242,
+      meta: {
+        mediaUrl: 'https://pub-a95b3e2bac2442f582b4e3792df8b515.r2.dev/workflow-templates/creatok/creatok-3070/80d14835757dcc50.jpg',
+        prompt:
+          'Generate a well-proportioned young woman whose phone naturally covers her face, wearing the complete outfit from @Image 2, against the exact background in @Image 1. Preserve the luxury fabric texture of @Image 2.',
+        settings: { params: { ratio: '9:16', resolution: '1K' } }
+      }
+    },
+    {
+      id: 'imageNode-1773057130220',
+      kind: 'image',
+      title: 'Upload Outfit 1',
+      x: -994,
+      y: 641,
+      meta: {
+        mediaUrl: 'https://pub-a95b3e2bac2442f582b4e3792df8b515.r2.dev/workflow-templates/creatok/creatok-3070/ad1f39224a887b30.jpg'
+      }
+    },
+    {
+      id: 'aiImageNode-1773058630966',
+      kind: 'image',
+      title: 'AI Image — Look 2 (Hand on Hip)',
+      x: -146,
+      y: 959,
+      meta: {
+        mediaUrl: 'https://pub-a95b3e2bac2442f582b4e3792df8b515.r2.dev/workflow-templates/creatok/creatok-3070/423e3537558cd9b1.jpg',
+        prompt:
+          'Dress the model in @Image 1 into the outfit from @Image 2 with her left hand resting on her hip. Preserve the luxury fabric texture of @Image 2.',
+        settings: { params: { ratio: '9:16', resolution: '2K' } }
+      }
+    },
+    {
+      id: 'aiVideoNode-1773136064920',
+      kind: 'video',
+      title: 'AI Video — Transition 1 (8s)',
+      x: 400,
+      y: 983,
+      meta: {
+        mediaUrl: 'https://pub-a95b3e2bac2442f582b4e3792df8b515.r2.dev/workflow-templates/creatok/creatok-3070/c2c55495fc0efd2c.mp4',
+        prompt:
+          'Animate the subject naturally while keeping her holding the phone for a mirror selfie covering her face, facing the camera with the scene and environment unchanged; after 4s, she turns around and transitions into the outfit from @Image 2.',
+        settings: { params: { ratio: '9:16', resolution: '720p', duration: '8s' } }
+      }
+    },
+    {
+      id: 'imageNode-1773287025303',
+      kind: 'image',
+      title: 'Scene Background Reference',
+      x: -910,
+      y: -419,
+      meta: {
+        mediaUrl: 'https://pub-a95b3e2bac2442f582b4e3792df8b515.r2.dev/workflow-templates/creatok/creatok-3070/ae556f3d4d6a2aa0.jpg'
+      }
+    },
+    {
+      id: 'imageNode-1773295945366',
+      kind: 'image',
+      title: 'Upload Outfit 3',
+      x: -878,
+      y: 2242,
+      meta: {
+        mediaUrl: 'https://pub-a95b3e2bac2442f582b4e3792df8b515.r2.dev/workflow-templates/creatok/creatok-3070/366829e30d9bb51c.jpg'
+      }
+    },
+    {
+      id: 'aiImageNode-1773296112336-nf31dm',
+      kind: 'image',
+      title: 'AI Image — Look 3 (Playful Pose)',
+      x: -144,
+      y: 2016,
+      meta: {
+        mediaUrl: 'https://pub-a95b3e2bac2442f582b4e3792df8b515.r2.dev/workflow-templates/creatok/creatok-3070/29922ed50b408d24.jpg',
+        prompt:
+          'The model in @Image 1 wears the outfit from @Image 2, swinging her right arm and twisting her waist playfully while preserving @Image 2 outfit details and keeping her phone covering her face as in @Image 1.',
+        settings: { params: { ratio: '9:16', resolution: '2K' } }
+      }
+    },
+    {
+      id: 'imageNode-1773296290489',
+      kind: 'image',
+      title: 'Upload Outfit 4',
+      x: -857,
+      y: 3047,
+      meta: {
+        mediaUrl: 'https://pub-a95b3e2bac2442f582b4e3792df8b515.r2.dev/workflow-templates/creatok/creatok-3070/d2d58e7895d6ecbb.jpg'
+      }
+    },
+    {
+      id: 'aiImageNode-1773296309957',
+      kind: 'image',
+      title: 'AI Image — Look 4 (Peace Sign)',
+      x: -141,
+      y: 3206,
+      meta: {
+        mediaUrl: 'https://pub-a95b3e2bac2442f582b4e3792df8b515.r2.dev/workflow-templates/creatok/creatok-3070/79bcab34d0aedf6d.jpg',
+        prompt:
+          'The model in @Image 1 wears the outfit from @Image 2, making a peace sign (V-sign) with her right hand while preserving @Image 2 outfit details and keeping her phone covering her face as in @Image 1.',
+        settings: { params: { ratio: '9:16', resolution: '2K' } }
+      }
+    },
+    {
+      id: 'aiVideoNode-1773296743247',
+      kind: 'video',
+      title: 'AI Video — Transition 2 (8s)',
+      x: 909,
+      y: 1330,
+      meta: {
+        mediaUrl: 'https://pub-a95b3e2bac2442f582b4e3792df8b515.r2.dev/workflow-templates/creatok/creatok-3070/745d61c116ed264b.mp4',
+        prompt:
+          'Animate the subject naturally while keeping her holding the phone for a mirror selfie covering her face, facing the camera with the scene unchanged; after 4s, she turns around and transitions into the outfit from @Image 2.',
+        settings: { params: { ratio: '9:16', resolution: '720p', duration: '8s' } }
+      }
+    },
+    {
+      id: 'aiVideoNode-1773296917325',
+      kind: 'video',
+      title: 'AI Video — Transition 3 (8s)',
+      x: 897,
+      y: 2523,
+      meta: {
+        mediaUrl: 'https://pub-a95b3e2bac2442f582b4e3792df8b515.r2.dev/workflow-templates/creatok/creatok-3070/c3e355eda371173b.mp4',
+        prompt:
+          'Animate the subject naturally while keeping her holding the phone for a mirror selfie covering her face, facing the camera with the scene unchanged; after 4s, she turns around and transitions into the outfit from @Image 2.',
+        settings: { params: { ratio: '9:16', resolution: '720p', duration: '8s' } }
+      }
+    },
+    {
+      id: 'aiVideoNode-1773297570784',
+      kind: 'video',
+      title: 'AI Video — Transition 4 (8s)',
+      x: 1491,
+      y: 182,
+      meta: {
+        mediaUrl: 'https://pub-a95b3e2bac2442f582b4e3792df8b515.r2.dev/workflow-templates/creatok/creatok-3070/c9fc4b63f2f1fa2e.mp4',
+        prompt:
+          'Animate the subject naturally while keeping her holding the phone for a mirror selfie covering her face, facing the camera with the scene unchanged; after 4s, she turns around and transitions into the outfit from @Image 2.',
+        settings: { params: { ratio: '9:16', resolution: '720p', duration: '8s' } }
+      }
+    },
+    {
+      id: 'aiImageNode-1773371225536',
+      kind: 'image',
+      title: 'AI Image — Styled Outfit 1',
+      x: -530,
+      y: 264,
+      meta: {
+        mediaUrl: 'https://pub-a95b3e2bac2442f582b4e3792df8b515.r2.dev/workflow-templates/creatok/creatok-3070/cdecffc9454d5392.jpg',
+        prompt:
+          'Style a fashion lookbook outfit by pairing trendy pants with the top from @Image 1, preserving the exact garment details of @Image 1.',
+        settings: { params: { ratio: '9:16', resolution: '1K' } }
+      }
+    },
+    {
+      id: 'aiImageNode-1773371634041',
+      kind: 'image',
+      title: 'AI Image — Styled Outfit 2',
+      x: -1339,
+      y: 1313,
+      meta: {
+        mediaUrl: 'https://pub-a95b3e2bac2442f582b4e3792df8b515.r2.dev/workflow-templates/creatok/creatok-3070/abb52688a701a77d.jpg',
+        prompt:
+          'Pair stylish pants with the garment from @Image 2 to generate an outfit lookbook photo matching the style of @Image 1, preserving the luxury fabric texture of @Image 2.',
+        settings: { params: { ratio: '9:16', resolution: '1K' } }
+      }
+    },
+    {
+      id: 'imageNode-1773371835778',
+      kind: 'image',
+      title: 'Upload Outfit 2',
+      x: -1889,
+      y: 1313,
+      meta: {
+        mediaUrl: 'https://pub-a95b3e2bac2442f582b4e3792df8b515.r2.dev/workflow-templates/creatok/creatok-3070/0258608adfcaed66.jpg'
+      }
+    },
+    {
+      id: 'imageNode-1773371870281',
+      kind: 'image',
+      title: 'Style Reference Photo',
+      x: -1773,
+      y: 1760,
+      meta: {
+        mediaUrl: 'https://pub-a95b3e2bac2442f582b4e3792df8b515.r2.dev/workflow-templates/creatok/creatok-3070/92806e35517184f1.jpg'
+      }
+    }
+  ],
+  edges: [
+    { from: 'aiImageNode-1772976384775', to: 'aiImageNode-1773058630966' },
+    { from: 'aiImageNode-1772976384775', to: 'aiVideoNode-1773136064920' },
+    { from: 'aiImageNode-1773058630966', to: 'aiVideoNode-1773136064920' },
+    { from: 'imageNode-1773287025303', to: 'aiImageNode-1772976384775' },
+    { from: 'aiImageNode-1773058630966', to: 'aiImageNode-1773296112336-nf31dm' },
+    { from: 'imageNode-1773295945366', to: 'aiImageNode-1773296112336-nf31dm' },
+    { from: 'aiImageNode-1773058630966', to: 'aiVideoNode-1773296743247' },
+    { from: 'aiImageNode-1773296112336-nf31dm', to: 'aiVideoNode-1773296743247' },
+    { from: 'aiImageNode-1773296112336-nf31dm', to: 'aiImageNode-1773296309957' },
+    { from: 'imageNode-1773296290489', to: 'aiImageNode-1773296309957' },
+    { from: 'aiImageNode-1773296112336-nf31dm', to: 'aiVideoNode-1773296917325' },
+    { from: 'aiImageNode-1773296309957', to: 'aiVideoNode-1773296917325' },
+    { from: 'aiImageNode-1772976384775', to: 'aiVideoNode-1773297570784' },
+    { from: 'aiImageNode-1773058630966', to: 'aiVideoNode-1773297570784' },
+    { from: 'imageNode-1773057130220', to: 'aiImageNode-1773371225536' },
+    { from: 'aiImageNode-1773371225536', to: 'aiImageNode-1772976384775' },
+    { from: 'imageNode-1773371870281', to: 'aiImageNode-1773371634041' },
+    { from: 'imageNode-1773371835778', to: 'aiImageNode-1773371634041' },
+    { from: 'aiImageNode-1773371634041', to: 'aiImageNode-1773058630966' }
+  ]
+};
+
+export const ONE_SEC_OUTFIT_SWAP_PRO_PROJECT = convertDaAiCanvasToProject(ONE_SEC_OUTFIT_SWAP_PRO_RAW_CANVAS_JSON, {
+  id: 'proj-one-sec-outfit-swap-pro',
+  category: 'video',
+  name: '1-Second Outfit Swap Pro — 4-Video Transition (9:16)',
+  description:
+    'Quy trình thay đồ 1 giây bản nâng cấp (16 Nodes, 19 dây nối): Phối quần áo tự động → 4 Lookbook Mirror Selfie 1K/2K → 4 Video xoay người biến hình chuyển cảnh 720p (8s/clip).',
+  badge: 'Biến Hình 4 Clip (9:16)',
+  techTag: 'SWAP-PRO',
+  previewVideo:
+    'https://pub-a95b3e2bac2442f582b4e3792df8b515.r2.dev/workflow-templates/creatok/creatok-3070/c2c55495fc0efd2c.mp4',
+  previewImage:
+    'https://pub-a95b3e2bac2442f582b4e3792df8b515.r2.dev/workflow-templates/creatok/creatok-3070/80d14835757dcc50.jpg'
+});

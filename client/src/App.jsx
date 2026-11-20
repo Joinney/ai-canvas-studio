@@ -40,7 +40,8 @@ import {
   CLAYMATION_BOBO_BEAR_PROJECT,
   VIETNAM_TRAVEL_VLOG_PROJECT,
   HOT_SOUR_NOODLES_TVC_PROJECT,
-  BATCH_OUTFIT_DANCE_PROJECT
+  BATCH_OUTFIT_DANCE_PROJECT,
+  ONE_SEC_OUTFIT_SWAP_PRO_PROJECT
 } from './utils/daCanvasConverter';
 
 const cloneProjectSafe = (proj) => {
@@ -69,6 +70,7 @@ const ALL_BUILTIN_PRESETS = [
   VIETNAM_TRAVEL_VLOG_PROJECT,
   HOT_SOUR_NOODLES_TVC_PROJECT,
   BATCH_OUTFIT_DANCE_PROJECT,
+  ONE_SEC_OUTFIT_SWAP_PRO_PROJECT,
   WINTER_FUR_PROJECT
 ];
 const BUILTIN_PRESET_IDS = new Set(ALL_BUILTIN_PRESETS.map((p) => p.id));
@@ -143,6 +145,7 @@ export default function App() {
     if (projId === VIETNAM_TRAVEL_VLOG_PROJECT.id) return cloneProjectSafe(VIETNAM_TRAVEL_VLOG_PROJECT);
     if (projId === HOT_SOUR_NOODLES_TVC_PROJECT.id) return cloneProjectSafe(HOT_SOUR_NOODLES_TVC_PROJECT);
     if (projId === BATCH_OUTFIT_DANCE_PROJECT.id) return cloneProjectSafe(BATCH_OUTFIT_DANCE_PROJECT);
+    if (projId === ONE_SEC_OUTFIT_SWAP_PRO_PROJECT.id) return cloneProjectSafe(ONE_SEC_OUTFIT_SWAP_PRO_PROJECT);
     return null;
   });
   const [isDarkMode, setIsDarkMode] = useState(false);
