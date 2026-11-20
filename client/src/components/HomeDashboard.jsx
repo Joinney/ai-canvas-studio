@@ -32,7 +32,8 @@ import {
   Film,
   Zap,
   Copy,
-  Check
+  Check,
+  BookmarkPlus
 } from 'lucide-react';
 import {
   WINTER_FUR_PROJECT,
@@ -104,8 +105,11 @@ export default function HomeDashboard({
   activeTab,
   setActiveTab,
   userProjects,
+  customTemplates = [],
   onOpenProject,
   onUseTemplate,
+  onPromoteToTemplate,
+  onRemoveCustomTemplate,
   onCreateBlankProject,
   onDeleteProject,
   flowStatus,
@@ -185,6 +189,20 @@ export default function HomeDashboard({
   };
 
   const [copiedTemplateId, setCopiedTemplateId] = useState(null);
+  const [promotedProjectId, setPromotedProjectId] = useState(null);
+
+  const allTemplates = [...customTemplates, ...PRESET_TEMPLATES];
+
+  const handlePromoteCard = (e, proj) => {
+    e.stopPropagation();
+    if (onPromoteToTemplate) {
+      onPromoteToTemplate(proj);
+      setPromotedProjectId(proj.id);
+      setTimeout(() => {
+        setPromotedProjectId((prev) => (prev === proj.id ? null : prev));
+      }, 2000);
+    }
+  };
 
   const handleCopyTemplateJson = async (e, tpl) => {
     e.stopPropagation();
@@ -225,7 +243,7 @@ export default function HomeDashboard({
       );
     });
 
-  const filteredTemplates = PRESET_TEMPLATES.filter((item) => {
+  const filteredTemplates = allTemplates.filter((item) => {
     const q = searchQuery.toLowerCase().trim();
     const matchSearch =
       !q ||
@@ -606,7 +624,7 @@ export default function HomeDashboard({
                   <Sparkles className="w-3.5 h-3.5" /> AI Studio • Workflow Tự Động
                 </span>
                 <span className="text-[11px] font-extrabold px-3 py-1 rounded-full bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30">
-                  {PRESET_TEMPLATES.length} Mẫu Chuẩn Sẵn Sàng
+                  {allTemplates.length} Mẫu Chuẩn Sẵn Sàng
                 </span>
               </div>
 
@@ -808,20 +826,44 @@ export default function HomeDashboard({
                       </div>
                     </div>
 
-                    {/* Nút Xóa (CHỈ hiện trên Dự án Cá nhân) */}
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        if (window.confirm(`Xóa dự án cá nhân "${proj.name}" khỏi lịch sử?`)) {
-                          onDeleteProject(proj.id);
-                        }
-                      }}
-                      className="absolute top-2.5 right-2.5 z-20 w-7 h-7 rounded-full bg-rose-500/15 hover:bg-rose-500 text-rose-600 hover:text-white flex items-center justify-center transition cursor-pointer"
-                      title="Xóa dự án cá nhân này"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
+                    {/* Nút Đặt làm mẫu & Nút Xóa (CHỈ hiện trên Dự án Cá nhân) */}
+                    <div className="absolute top-2.5 right-2.5 z-20 flex items-center gap-1">
+                      <button
+                        type="button"
+                        onClick={(e) => handlePromoteCard(e, proj)}
+                        className={`h-7 px-2 rounded-full text-[10px] font-black flex items-center gap-1 transition cursor-pointer ${
+                          promotedProjectId === proj.id
+                            ? 'bg-emerald-600 text-white'
+                            : 'bg-indigo-500/15 hover:bg-indigo-600 text-indigo-600 dark:text-indigo-300 hover:text-white'
+                        }`}
+                        title="Đặt dự án này làm Dự án Mẫu"
+                      >
+                        {promotedProjectId === proj.id ? (
+                          <>
+                            <Check className="w-3 h-3" />
+                            <span>Đã lưu mẫu</span>
+                          </>
+                        ) : (
+                          <>
+                            <BookmarkPlus className="w-3 h-3" />
+                            <span className="hidden sm:inline">Đặt làm mẫu</span>
+                          </>
+                        )}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (window.confirm(`Xóa dự án cá nhân "${proj.name}" khỏi lịch sử?`)) {
+                            onDeleteProject(proj.id);
+                          }
+                        }}
+                        className="w-7 h-7 rounded-full bg-rose-500/15 hover:bg-rose-500 text-rose-600 hover:text-white flex items-center justify-center transition cursor-pointer"
+                        title="Xóa dự án cá nhân này"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
                   </div>
                 );
               })}
@@ -846,7 +888,7 @@ export default function HomeDashboard({
                     style={{ '--r': '999px', width: 'auto' }}
                   >
                     <div className="circle-overlay" />
-                    Tất cả ({PRESET_TEMPLATES.length})
+                    Tất cả ({allTemplates.length})
                   </button>
                   <button
                     type="button"
@@ -931,20 +973,37 @@ export default function HomeDashboard({
                       </span>
                     </div>
 
-                    {/* Nút Loa góc trên phải (nếu có video) */}
-                    {hasVideo && (
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setUnmutedCardId(isUnmuted ? null : tpl.id);
-                        }}
-                        className="absolute top-3 right-3 z-20 w-8 h-8 rounded-full bg-black/45 hover:bg-black/70 text-white flex items-center justify-center backdrop-blur-md transition cursor-pointer"
-                        title={isUnmuted ? 'Tắt tiếng' : 'Bật tiếng'}
-                      >
-                        {isUnmuted ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
-                      </button>
-                    )}
+                    {/* Nút Loa & Xóa mẫu tự tạo ở góc trên phải */}
+                    <div className="absolute top-3 right-3 z-20 flex items-center gap-1.5">
+                      {hasVideo && (
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setUnmutedCardId(isUnmuted ? null : tpl.id);
+                          }}
+                          className="w-8 h-8 rounded-full bg-black/45 hover:bg-black/70 text-white flex items-center justify-center backdrop-blur-md transition cursor-pointer"
+                          title={isUnmuted ? 'Tắt tiếng' : 'Bật tiếng'}
+                        >
+                          {isUnmuted ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
+                        </button>
+                      )}
+                      {tpl.isCustomTemplate && onRemoveCustomTemplate && (
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (window.confirm(`Gỡ "${tpl.name}" khỏi danh sách Dự án Mẫu?`)) {
+                              onRemoveCustomTemplate(tpl.id);
+                            }
+                          }}
+                          className="w-8 h-8 rounded-full bg-rose-600/80 hover:bg-rose-600 text-white flex items-center justify-center backdrop-blur-md transition cursor-pointer"
+                          title="Gỡ mẫu tự tạo này"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      )}
+                    </div>
 
                     {/* Footer Kính Quang Học (.box) hiện lên mượt mà ở ĐÁY thẻ khi Hover */}
                     <div className="absolute bottom-3 left-3 right-3 z-10 opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300">

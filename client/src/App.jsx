@@ -12,7 +12,9 @@ import {
   ArrowLeft,
   Layers,
   Sun,
-  Moon
+  Moon,
+  BookmarkPlus,
+  Check
 } from 'lucide-react';
 import InfiniteCanvas from './components/InfiniteCanvas';
 import Toolbar from './components/Toolbar';
@@ -174,6 +176,73 @@ export default function App() {
       return [];
     }
   });
+
+  const [promotedTemplateOk, setPromotedTemplateOk] = useState(false);
+
+  const [customTemplates, setCustomTemplates] = useState(() => {
+    try {
+      const raw = localStorage.getItem('ai_canvas_custom_templates_v1');
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) return parsed;
+      }
+    } catch (e) {}
+    return [];
+  });
+
+  const persistCustomTemplates = (nextList) => {
+    setCustomTemplates(nextList);
+    try {
+      localStorage.setItem('ai_canvas_custom_templates_v1', JSON.stringify(nextList));
+    } catch (e) {
+      console.warn('Không thể lưu customTemplates vào localStorage:', e);
+    }
+  };
+
+  const handlePromoteProjectToTemplate = (proj) => {
+    if (!proj) return;
+    let latestState = null;
+    try {
+      const rawState = localStorage.getItem(`ai_canvas_workflow_state_${proj.id}`);
+      if (rawState) latestState = JSON.parse(rawState);
+    } catch (e) {}
+
+    const baseNodes = latestState?.nodes || proj.nodes || [];
+    const baseEdges = latestState?.edges || proj.edges || [];
+    const baseStickers = latestState?.stickers || proj.stickers || [];
+
+    const firstVideo = baseNodes.find(
+      (n) => (n.type === 'FFMPEG_POST' || n.type === 'FLOW_VIDEO_GEN') && n.data?.resultUrl
+    );
+    const firstImage = baseNodes.find(
+      (n) => n.data?.resultUrl && !String(n.data.resultUrl).endsWith('.mp4')
+    ) || baseNodes.find((n) => n.data?.imageUrl && !String(n.data.imageUrl).endsWith('.mp4'));
+
+    const templateObj = cloneProjectSafe({
+      ...proj,
+      id: `tpl-custom-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+      isPreset: true,
+      isCustomTemplate: true,
+      badge: 'Mẫu Tự Tạo',
+      category: proj.category || 'video',
+      nodes: baseNodes,
+      edges: baseEdges,
+      stickers: baseStickers,
+      previewVideo: firstVideo?.data?.resultUrl || proj.previewVideo || '',
+      previewImage: firstImage?.data?.resultUrl || firstImage?.data?.imageUrl || proj.previewImage || '',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    });
+
+    persistCustomTemplates([templateObj, ...customTemplates]);
+    setPromotedTemplateOk(true);
+    setTimeout(() => setPromotedTemplateOk(false), 2500);
+  };
+
+  const handleRemoveCustomTemplate = (tplId) => {
+    if (!tplId || BUILTIN_PRESET_IDS.has(tplId)) return;
+    persistCustomTemplates(customTemplates.filter((t) => t.id !== tplId));
+  };
 
   const [showConfigModal, setShowConfigModal] = useState(false);
   const [showFlowModal, setShowFlowModal] = useState(false);
@@ -601,8 +670,11 @@ export default function App() {
           activeTab={activeTab}
           setActiveTab={setActiveTab}
           userProjects={userProjects}
+          customTemplates={customTemplates}
           onOpenProject={(proj) => navigateToProject(proj)}
           onUseTemplate={handleUseTemplate}
+          onPromoteToTemplate={handlePromoteProjectToTemplate}
+          onRemoveCustomTemplate={handleRemoveCustomTemplate}
           onCreateBlankProject={handleCreateBlankProject}
           onDeleteProject={handleDeleteProject}
           flowStatus={flowStatus}
@@ -691,6 +763,29 @@ export default function App() {
                     <>
                       <Moon className="w-3.5 h-3.5 text-slate-700" />
                       <span>Tối</span>
+                    </>
+                  )}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handlePromoteProjectToTemplate(currentProject)}
+                  className={`box box-hover px-3.5 py-1.5 text-xs font-extrabold flex items-center gap-1.5 cursor-pointer ${
+                    promotedTemplateOk ? 'active-pill ring-2 ring-emerald-400/70' : ''
+                  }`}
+                  style={{ '--r': '999px', width: 'auto' }}
+                  title="Lưu dự án này thành Dự án Mẫu để dùng lại nhiều lần"
+                >
+                  <div className="circle-overlay" />
+                  {promotedTemplateOk ? (
+                    <>
+                      <Check className="w-3.5 h-3.5 text-emerald-600" />
+                      <span className="text-emerald-600">Đã đặt làm mẫu</span>
+                    </>
+                  ) : (
+                    <>
+                      <BookmarkPlus className="w-3.5 h-3.5 text-indigo-600" />
+                      <span>Đặt làm mẫu</span>
                     </>
                   )}
                 </button>
