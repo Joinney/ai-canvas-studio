@@ -699,6 +699,7 @@ export default function HomeDashboard({
                       <img
                         src={imageUrl}
                         alt={tpl.name}
+                        referrerPolicy="no-referrer"
                         className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                       />
                     ) : null}
@@ -805,7 +806,7 @@ export default function HomeDashboard({
                           className="w-full h-full object-cover"
                         />
                       ) : imageUrl ? (
-                        <img src={imageUrl} alt={proj.name} className="w-full h-full object-cover" />
+                        <img src={imageUrl} alt={proj.name} referrerPolicy="no-referrer" className="w-full h-full object-cover" />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-sky-500/20 to-indigo-500/20">
                           <Workflow className="w-6 h-6 text-sky-600 dark:text-sky-400" />
@@ -958,6 +959,7 @@ export default function HomeDashboard({
                       <img
                         src={imageUrl}
                         alt={tpl.name}
+                        referrerPolicy="no-referrer"
                         className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
                       />
                     ) : (

@@ -2310,6 +2310,7 @@ export default function WorkflowNodeCanvas({ project, onSaveProject }) {
                               <img
                                 src={node.data.imageUrl}
                                 alt="input"
+                                referrerPolicy="no-referrer"
                                 className="max-h-full max-w-full object-contain rounded-xl"
                               />
                               <label className="absolute inset-0 bg-slate-900/50 backdrop-blur-xs opacity-0 group-hover:opacity-100 flex items-center justify-center text-white font-bold cursor-pointer rounded-2xl">
@@ -2342,25 +2343,57 @@ export default function WorkflowNodeCanvas({ project, onSaveProject }) {
                                 className="hidden"
                               />
                             </label>
+                            <input
+                              type="url"
+                              value={node.data.imageUrl.startsWith('data:') ? '' : node.data.imageUrl}
+                              onChange={(e) => {
+                                const val = e.target.value.trim();
+                                updateNodeData(node.id, {
+                                  imageUrl: val,
+                                  status: val ? 'done' : 'idle',
+                                  error: null
+                                });
+                              }}
+                              placeholder="Hoặc dán link ảnh (https://...)"
+                              className="w-full px-3 py-1.5 rounded-full bg-white/45 dark:bg-slate-900/50 border border-white/40 dark:border-white/15 text-[11px] font-semibold focus:outline-none focus:ring-1 focus:ring-sky-500"
+                            />
                           </>
                         ) : (
-                          <label
-                            className="box box-hover h-40 w-full flex flex-col items-center justify-center gap-2 text-sky-700 font-extrabold cursor-pointer"
-                            style={{ '--r': '20px' }}
-                          >
-                            <div className="circle-overlay" />
-                            <Upload className="w-6 h-6 text-sky-600" />
-                            <span>Bấm tải ảnh lên Kính</span>
+                          <div className="flex flex-col gap-2 w-full">
+                            <label
+                              className="box box-hover h-36 w-full flex flex-col items-center justify-center gap-2 text-sky-700 font-extrabold cursor-pointer"
+                              style={{ '--r': '20px' }}
+                            >
+                              <div className="circle-overlay" />
+                              <Upload className="w-6 h-6 text-sky-600" />
+                              <span>Bấm tải ảnh lên Kính</span>
+                              <input
+                                type="file"
+                                accept="image/*"
+                                onChange={(e) => {
+                                  handleUploadToNode(node.id, e.target.files?.[0]);
+                                  e.target.value = '';
+                                }}
+                                className="hidden"
+                              />
+                            </label>
                             <input
-                              type="file"
-                              accept="image/*"
+                              type="url"
+                              value=""
                               onChange={(e) => {
-                                handleUploadToNode(node.id, e.target.files?.[0]);
-                                e.target.value = '';
+                                const val = e.target.value.trim();
+                                if (val) {
+                                  updateNodeData(node.id, {
+                                    imageUrl: val,
+                                    status: 'done',
+                                    error: null
+                                  });
+                                }
                               }}
-                              className="hidden"
+                              placeholder="Hoặc dán link ảnh (https://...)"
+                              className="w-full px-3 py-1.5 rounded-full bg-white/45 dark:bg-slate-900/50 border border-white/40 dark:border-white/15 text-[11px] font-semibold focus:outline-none focus:ring-1 focus:ring-sky-500"
                             />
-                          </label>
+                          </div>
                         )}
                       </div>
                     )}
@@ -2434,6 +2467,7 @@ export default function WorkflowNodeCanvas({ project, onSaveProject }) {
                                 <img
                                   src={node.data.resultUrl}
                                   alt="result"
+                                  referrerPolicy="no-referrer"
                                   className="max-h-full max-w-full object-contain rounded-xl"
                                 />
                                 {node.type === 'FLOW_VIDEO_GEN' && (
@@ -2514,6 +2548,7 @@ export default function WorkflowNodeCanvas({ project, onSaveProject }) {
                               <img
                                 src={node.data.resultUrl}
                                 alt="result"
+                                referrerPolicy="no-referrer"
                                 className="max-h-full max-w-full object-contain rounded-xl"
                               />
                             )}
@@ -2791,6 +2826,7 @@ export default function WorkflowNodeCanvas({ project, onSaveProject }) {
                       <img
                         src={url}
                         alt={resNode.data?.title || 'Result'}
+                        referrerPolicy="no-referrer"
                         className="w-full max-h-[340px] object-contain"
                       />
                     )}
