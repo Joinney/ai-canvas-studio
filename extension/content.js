@@ -1033,19 +1033,26 @@ async function pasteSingleFileIntoPrompt(file, useNativeFocus = false) {
   const dt = new DataTransfer();
   dt.items.add(file);
 
-  // 1. Chỉ ưu tiên input[type="file"] nếu có trên giao diện (cách nạp chuẩn xác 100% không bị nhân đôi)
-  const availableFileInputs = queryAllDeep(document).filter((el) => {
-    if (el.tagName !== 'INPUT' || el.type !== 'file') return false;
-    const r = el.getBoundingClientRect();
-    return r.top > window.innerHeight * 0.3;
-  });
+  // 1. Ưu tiên input[type="file"] nằm ngay trong promptBox trước, sau đó mới tìm theo vùng dưới màn hình
+  const boxFileInputs = promptBox
+    ? Array.from(promptBox.querySelectorAll('input[type="file"]'))
+    : [];
+  const availableFileInputs =
+    boxFileInputs.length > 0
+      ? boxFileInputs
+      : queryAllDeep(document).filter((el) => {
+          if (el.tagName !== 'INPUT' || el.type !== 'file') return false;
+          const r = el.getBoundingClientRect();
+          return r.top > window.innerHeight * 0.3;
+        });
 
   if (availableFileInputs.length > 0) {
     try {
       const targetInput = availableFileInputs[0];
+      try { targetInput.value = ''; } catch (e) {}
       targetInput.files = dt.files;
+      // Chỉ bắn duy nhất 1 sự kiện 'change' (tránh bắn cả 'input' gây nhân đôi file trên React/Muse AI)
       targetInput.dispatchEvent(new Event('change', { bubbles: true }));
-      targetInput.dispatchEvent(new Event('input', { bubbles: true }));
       return;
     } catch (e) {}
   }
@@ -1286,6 +1293,11 @@ async function waitForAttachmentsReady(expectedCount, maxWaitMs = 45000) {
 async function uploadInputImages(images = [], mode = 'IMAGE') {
   const safeList = (images || []).filter(Boolean);
   if (safeList.length === 0) return [];
+  if (window.__AI_CANVAS_UPLOADING_IMAGES__) {
+    throw new Error('Đang có tiến trình nạp ảnh khác đang chạy, bỏ qua để tránh gửi trùng ảnh.');
+  }
+  window.__AI_CANVAS_UPLOADING_IMAGES__ = true;
+  try {
 
   const initialPrompt = findFlowPromptElement();
   await clearPreviousPromptAttachments(initialPrompt);
@@ -1323,6 +1335,9 @@ async function uploadInputImages(images = [], mode = 'IMAGE') {
     if (fp) fingerprints.push(fp);
   }
   return fingerprints;
+  } finally {
+    window.__AI_CANVAS_UPLOADING_IMAGES__ = false;
+  }
 }
 
 function ensureFlowCanvasView() {
