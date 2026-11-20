@@ -1539,6 +1539,25 @@ async function fillPromptAndSubmit(rawPromptText, mode = 'IMAGE', expectedImageC
   } catch (e) {}
   await new Promise((r) => setTimeout(r, 80));
 
+  const countPromptBubblesOnPage = () => {
+    const snippet = promptText.slice(0, 35).toLowerCase();
+    if (!snippet) return 0;
+    const pBox = getPromptBoxContainer(findFlowPromptElement() || promptEl);
+    let count = 0;
+    const els = document.querySelectorAll('div, p, span');
+    for (const el of els) {
+      if (pBox && pBox.contains(el)) continue;
+      if (el.closest?.('#ai-canvas-muse-tool-dock, #ai-canvas-flow-log-panel')) continue;
+      if (el.children.length > 4) continue;
+      const txt = (el.textContent || '').trim().toLowerCase();
+      if (txt.includes(snippet) && txt.length >= snippet.length) {
+        count++;
+      }
+    }
+    return count;
+  };
+  const beforeBubbleCount = countPromptBubblesOnPage();
+
   const currentTarget = findFlowSubmitTarget(promptEl) || targetInfo;
   if (currentTarget && currentTarget.el && !currentTarget.el.disabled) {
     const btnLabel = (
@@ -1571,8 +1590,8 @@ async function fillPromptAndSubmit(rawPromptText, mode = 'IMAGE', expectedImageC
     }
   }
 
-  // Chờ 1.2s để giao diện phản hồi lệnh gửi
-  await new Promise((r) => setTimeout(r, 1200));
+  // Chờ 1.8s để giao diện Muse AI kịp xóa chữ ở ô nhập & hiện bong bóng chat mới
+  await new Promise((r) => setTimeout(r, 1800));
 
   const isStopBtnNowActive = (el) => {
     if (!el) return false;
@@ -1589,25 +1608,26 @@ async function fillPromptAndSubmit(rawPromptText, mode = 'IMAGE', expectedImageC
   };
 
   // 4. KIỂM TRA XÁC NHẬN ĐÃ GỬI THÀNH CÔNG:
-  // Nếu ô nhập vẫn còn nguyên text VÀ nút Stop CHƯA xuất hiện:
-  // Thử thêm 2 tầng dự phòng: (A) DOM click trực tiếp vào nút Gửi, (B) Enter trực tiếp + CDP Enter
+  // Nếu bong bóng chat mới ĐÃ xuất hiện, HOẶC ô nhập đã xóa chữ, HOẶC nút Stop đã bật -> TUYỆT ĐỐI KHÔNG gửi lại lần 2!
   let checkPromptEl = findFlowPromptElement();
   let currentText = (checkPromptEl?.innerText || checkPromptEl?.value || '').trim();
   let stopBtnActive = isStopBtnNowActive(checkPromptEl);
+  let bubbleAppeared = countPromptBubblesOnPage() > beforeBubbleCount;
 
-  if (currentText.length > 10 && !stopBtnActive) {
-    console.log('[AI Canvas] Ô prompt vẫn còn văn bản sau CDP click, thử DOM click dự phòng...');
+  if (currentText.length > 10 && !stopBtnActive && !bubbleAppeared) {
+    console.log('[AI Canvas] Ô prompt vẫn còn văn bản và chưa thấy bong bóng chat mới, thử DOM click dự phòng...');
     const retryTarget = findFlowSubmitTarget(checkPromptEl) || currentTarget;
     if (retryTarget && retryTarget.el && !retryTarget.el.disabled && isSubmitButtonReady(checkPromptEl)) {
       triggerDOMClickAt(retryTarget);
-      await new Promise((r) => setTimeout(r, 1100));
+      await new Promise((r) => setTimeout(r, 1400));
       checkPromptEl = findFlowPromptElement();
       currentText = (checkPromptEl?.innerText || checkPromptEl?.value || '').trim();
       stopBtnActive = isStopBtnNowActive(checkPromptEl);
+      bubbleAppeared = countPromptBubblesOnPage() > beforeBubbleCount;
     }
   }
 
-  if (currentText.length > 10 && !stopBtnActive) {
+  if (currentText.length > 10 && !stopBtnActive && !bubbleAppeared) {
     console.log('[AI Canvas] Kích hoạt Enter dự phòng (DOM KeyboardEvent + CDP)...');
     try {
       checkPromptEl.focus();
@@ -1631,14 +1651,15 @@ async function fillPromptAndSubmit(rawPromptText, mode = 'IMAGE', expectedImageC
       y: pr.top + pr.height * 0.5,
       clickOnly: false
     });
-    await new Promise((r) => setTimeout(r, 1200));
+    await new Promise((r) => setTimeout(r, 1400));
     checkPromptEl = findFlowPromptElement();
     currentText = (checkPromptEl?.innerText || checkPromptEl?.value || '').trim();
     stopBtnActive = isStopBtnNowActive(checkPromptEl);
+    bubbleAppeared = countPromptBubblesOnPage() > beforeBubbleCount;
   }
 
-  // 5. XÁC MINH CUỐI CÙNG: Nếu vẫn còn nguyên text trong ô nhập và nút Stop chưa bật => báo lỗi rõ ràng, KHÔNG chạy mù sang bước chờ kết quả
-  if (isMuse && currentText.length > 10 && !stopBtnActive) {
+  // 5. XÁC MINH CUỐI CÙNG: Nếu vẫn còn nguyên text, chưa có bong bóng chat và nút Stop chưa bật => báo lỗi rõ ràng
+  if (isMuse && currentText.length > 10 && !stopBtnActive && !bubbleAppeared) {
     updateBridgeBadgeText('❌ Chưa gửi được lệnh lên AI Engine! Hãy kiểm tra nút Gửi.', '#dc2626');
     throw new Error('Không thể xác nhận đã gửi câu lệnh lên AI Engine (ô nhập vẫn còn chữ). Vui lòng thử lại!');
   }
@@ -2210,8 +2231,11 @@ function captureNewMediaOutput(
           updateBridgeBadgeText(`✅ v6.0: Bắt được kết quả ${mode === 'VIDEO' ? 'Video MP4' : 'Ảnh'} từ AI Engine! Đang đồng bộ về bàn vẽ...`, '#10b981');
           let base64Data = finalMediaSrc;
           if (mode === 'VIDEO') {
-            if (finalMediaSrc.startsWith('blob:')) {
-              base64Data = await convertFlowUrlToBase64(finalMediaSrc, null);
+            if (finalMediaSrc.startsWith('blob:') || finalMediaSrc.includes('muse.ai')) {
+              const converted = await convertFlowUrlToBase64(finalMediaSrc, null);
+              if (converted && converted.startsWith('data:')) {
+                base64Data = converted;
+              }
             }
           } else {
             base64Data = prefetchedBase64 && finalMediaSrc === src
