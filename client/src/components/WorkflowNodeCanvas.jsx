@@ -23,7 +23,9 @@ import {
   ExternalLink,
   PanelRight,
   BoxSelect,
-  LayoutGrid
+  LayoutGrid,
+  Copy,
+  Check
 } from 'lucide-react';
 import axios from 'axios';
 import { executeGoogleFlowNode, getFlowPoolStatus, resetFlowWorkers } from '../services/flowBridge';
@@ -148,6 +150,7 @@ export default function WorkflowNodeCanvas({ project, onSaveProject }) {
   const [showNodeToolbar, setShowNodeToolbar] = useState(false);
   const [showResultsDrawer, setShowResultsDrawer] = useState(false);
   const [showImportModal, setShowImportModal] = useState(false);
+  const [copiedCanvasJson, setCopiedCanvasJson] = useState(false);
   const [importJsonText, setImportJsonText] = useState('');
   const [importJsonError, setImportJsonError] = useState('');
   const [importReplaceCanvas, setImportReplaceCanvas] = useState(true);
@@ -269,6 +272,54 @@ export default function WorkflowNodeCanvas({ project, onSaveProject }) {
   const openImportJsonModal = () => {
     setImportJsonError('');
     setShowImportModal(true);
+  };
+
+  const handleCopyCanvasJson = async () => {
+    const isSubset = selectedNodeIds.length > 0;
+    const selectedSet = isSubset ? new Set(selectedNodeIds) : null;
+    const targetNodes = isSubset ? nodes.filter((n) => selectedSet.has(n.id)) : nodes;
+    const targetEdges = isSubset
+      ? edges.filter((e) => selectedSet.has(e.source) && selectedSet.has(e.target))
+      : edges;
+
+    const payload = {
+      name: project?.name || 'AI Canvas Workflow',
+      nodes: targetNodes.map((n) => ({
+        id: n.id,
+        type: n.type,
+        x: Math.round(n.x || 0),
+        y: Math.round(n.y || 0),
+        data: {
+          title: n.data?.title || '',
+          prompt: n.data?.prompt || '',
+          aspectRatio: n.data?.aspectRatio || '9:16',
+          resolution: n.data?.resolution || '',
+          duration: n.data?.duration || '',
+          imageUrl: n.data?.imageUrl || '',
+          resultUrl: n.data?.resultUrl || ''
+        }
+      })),
+      edges: targetEdges.map((e) => ({
+        id: e.id,
+        source: e.source,
+        target: e.target
+      })),
+      stickers: isSubset ? [] : stickers
+    };
+
+    try {
+      await navigator.clipboard.writeText(JSON.stringify(payload, null, 2));
+      setCopiedCanvasJson(true);
+      setStatusBanner(
+        isSubset
+          ? `✅ Đã copy JSON của ${targetNodes.length} Node đã chọn & ${targetEdges.length} dây nối!`
+          : `✅ Đã copy JSON toàn bộ dự án (${targetNodes.length} Nodes, ${targetEdges.length} dây nối)!`
+      );
+      setTimeout(() => setCopiedCanvasJson(false), 2000);
+      setTimeout(() => setStatusBanner(''), 4000);
+    } catch {
+      window.prompt('Copy JSON sơ đồ Node bên dưới:', JSON.stringify(payload));
+    }
   };
 
   const handleImportDaCanvasJson = openImportJsonModal;
@@ -1622,6 +1673,33 @@ export default function WorkflowNodeCanvas({ project, onSaveProject }) {
             <div className="circle-overlay" />
             <FileJson className="w-3.5 h-3.5 text-indigo-600" />
             <span>Nhập JSON</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={handleCopyCanvasJson}
+            className={`box box-hover px-3.5 py-2 text-xs font-extrabold flex items-center gap-1.5 cursor-pointer ${
+              copiedCanvasJson ? 'active-pill ring-2 ring-emerald-400/70' : ''
+            }`}
+            style={{ '--r': '999px', width: 'auto' }}
+            title={
+              selectedNodeIds.length > 0
+                ? `Copy JSON của ${selectedNodeIds.length} Node đang chọn`
+                : 'Copy JSON toàn bộ Node & dây nối của dự án hiện tại'
+            }
+          >
+            <div className="circle-overlay" />
+            {copiedCanvasJson ? (
+              <>
+                <Check className="w-3.5 h-3.5 text-emerald-600" />
+                <span className="text-emerald-600">Đã Copy</span>
+              </>
+            ) : (
+              <>
+                <Copy className="w-3.5 h-3.5 text-sky-600" />
+                <span>{selectedNodeIds.length > 0 ? `Copy JSON (${selectedNodeIds.length})` : 'Copy JSON'}</span>
+              </>
+            )}
           </button>
 
           <button
