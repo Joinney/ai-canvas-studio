@@ -679,6 +679,32 @@ export default function WorkflowNodeCanvas({ project, onSaveProject }) {
     setSelectedNodeIds((prev) => prev.filter((id) => id !== nodeId));
   };
 
+  const handleDeleteSelectedNodes = useCallback(() => {
+    if (selectedNodeIds.length === 0 || isRunningAll) return;
+    if (!window.confirm(`Xóa ${selectedNodeIds.length} Node đã chọn và các dây nối liên quan?`)) return;
+    const delSet = new Set(selectedNodeIds);
+    setNodes((prev) => prev.filter((n) => !delSet.has(n.id)));
+    setEdges((prev) => prev.filter((e) => !delSet.has(e.source) && !delSet.has(e.target)));
+    if (selectedNodeId && delSet.has(selectedNodeId)) setSelectedNodeId(null);
+    setSelectedNodeIds([]);
+  }, [selectedNodeIds, selectedNodeId, isRunningAll]);
+
+  useEffect(() => {
+    const onKeyDown = (e) => {
+      if (e.key !== 'Delete' && e.key !== 'Backspace') return;
+      const tag = (document.activeElement?.tagName || '').toUpperCase();
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || document.activeElement?.isContentEditable) {
+        return;
+      }
+      if (selectedNodeIds.length > 0 && !isRunningAll) {
+        e.preventDefault();
+        handleDeleteSelectedNodes();
+      }
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [selectedNodeIds, isRunningAll, handleDeleteSelectedNodes]);
+
   const handleDeleteEdge = (edgeId) => {
     setEdges((prev) => prev.filter((e) => e.id !== edgeId));
   };
@@ -913,8 +939,21 @@ export default function WorkflowNodeCanvas({ project, onSaveProject }) {
     });
   };
 
-  // Bắt sự kiện kéo bàn vẽ (Pan) hoặc quét khung chọn nhiều Node (Marquee) khi bấm vào vùng trống
+  // Bắt sự kiện kéo bàn vẽ (Pan bằng chuột trái vùng trống hoặc chuột phải/giữa ở mọi nơi) hoặc quét khung chọn nhiều Node (Marquee)
   const handleCanvasMouseDown = (e) => {
+    // Chuột phải (2) hoặc chuột giữa (1): luôn Pan bàn vẽ mượt, không mở context menu và không mất vùng chọn
+    if (e.button === 2 || e.button === 1) {
+      e.preventDefault();
+      setConnectingFromNodeId(null);
+      setIsPanning(true);
+      panClickOriginRef.current = { x: e.clientX, y: e.clientY, button: e.button };
+      panStartRef.current = {
+        x: e.clientX - panRef.current.x,
+        y: e.clientY - panRef.current.y
+      };
+      return;
+    }
+
     if (
       !e.target.closest('.workflow-node-card') &&
       !e.target.closest('.workflow-sticker-card') &&
@@ -945,7 +984,7 @@ export default function WorkflowNodeCanvas({ project, onSaveProject }) {
 
       setSelectedNodeId(null);
       setIsPanning(true);
-      panClickOriginRef.current = { x: e.clientX, y: e.clientY };
+      panClickOriginRef.current = { x: e.clientX, y: e.clientY, button: e.button };
       panStartRef.current = {
         x: e.clientX - panRef.current.x,
         y: e.clientY - panRef.current.y
@@ -994,15 +1033,16 @@ export default function WorkflowNodeCanvas({ project, onSaveProject }) {
       }
 
       if (draggingNodeRef.current) {
-        const { nodeId, startMouseX, startMouseY, startNodeX, startNodeY } = draggingNodeRef.current;
+        const { startMouseX, startMouseY, initialPositions } = draggingNodeRef.current;
         const dx = (e.clientX - startMouseX) / zoomRef.current;
         const dy = (e.clientY - startMouseY) / zoomRef.current;
         setNodes((prev) =>
-          prev.map((n) =>
-            n.id === nodeId
-              ? { ...n, x: Math.round(startNodeX + dx), y: Math.round(startNodeY + dy) }
-              : n
-          )
+          prev.map((n) => {
+            const initPos = initialPositions.get(n.id);
+            return initPos
+              ? { ...n, x: Math.round(initPos.x + dx), y: Math.round(initPos.y + dy) }
+              : n;
+          })
         );
         return;
       }
@@ -1036,8 +1076,14 @@ export default function WorkflowNodeCanvas({ project, onSaveProject }) {
           e.clientX - panClickOriginRef.current.x,
           e.clientY - panClickOriginRef.current.y
         );
-        // Chỉ bỏ chọn nhiều Node khi click nhẹ vào khoảng trống (không phải kéo di chuyển bàn vẽ)
-        if (movedDist < 5 && !e.shiftKey && !e.ctrlKey && !e.metaKey) {
+        // Chỉ bỏ chọn nhiều Node khi click chuột trái nhẹ vào khoảng trống (không phải chuột phải hoặc kéo di chuyển)
+        if (
+          panClickOriginRef.current.button === 0 &&
+          movedDist < 5 &&
+          !e.shiftKey &&
+          !e.ctrlKey &&
+          !e.metaKey
+        ) {
           setSelectedNodeIds([]);
         }
         setIsPanning(false);
@@ -1763,6 +1809,15 @@ export default function WorkflowNodeCanvas({ project, onSaveProject }) {
                   </button>
                   <button
                     type="button"
+                    onClick={handleDeleteSelectedNodes}
+                    className="px-3.5 py-2 text-xs font-extrabold bg-rose-600 hover:bg-rose-500 text-white rounded-full flex items-center gap-1.5 shadow-md shadow-rose-900/25 transition-all cursor-pointer"
+                    title="Xóa tất cả các Node đã quét chọn (phím tắt: Delete)"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                    <span>Xóa ({selectedNodeIds.length})</span>
+                  </button>
+                  <button
+                    type="button"
                     onClick={() => setSelectedNodeIds([])}
                     className="box box-hover px-2.5 py-2 text-xs font-bold flex items-center gap-1 cursor-pointer text-slate-600"
                     style={{ '--r': '999px', width: 'auto' }}
@@ -1861,6 +1916,12 @@ export default function WorkflowNodeCanvas({ project, onSaveProject }) {
       <div
         ref={containerRef}
         onMouseDown={handleCanvasMouseDown}
+        onContextMenu={(e) => {
+          const tag = (e.target?.tagName || '').toUpperCase();
+          if (tag !== 'TEXTAREA' && tag !== 'INPUT') {
+            e.preventDefault();
+          }
+        }}
         onWheel={handleWheel}
         className="flex-1 relative overflow-hidden select-none"
         style={{
@@ -2089,6 +2150,7 @@ export default function WorkflowNodeCanvas({ project, onSaveProject }) {
                   }
                 }}
                 onMouseDown={(e) => {
+                  if (e.button === 2 || e.button === 1) return;
                   e.stopPropagation();
                   setSelectedNodeId(node.id);
                   if (isMarqueeMode || e.ctrlKey || e.metaKey || e.shiftKey) {
@@ -2185,16 +2247,25 @@ export default function WorkflowNodeCanvas({ project, onSaveProject }) {
                   {/* Thanh tiêu đề Node Kính (Nơi giữ chuột để kéo di chuyển Node) */}
                   <div
                     onMouseDown={(e) => {
+                      if (e.button === 2 || e.button === 1) return;
                       if (e.target.tagName === 'INPUT' || e.target.closest('button')) return;
                       e.stopPropagation();
                       e.preventDefault();
                       setSelectedNodeId(node.id);
+                      const isGroupDrag = selectedNodeIds.includes(node.id) && selectedNodeIds.length > 1;
+                      const initialPositions = new Map();
+                      if (isGroupDrag) {
+                        const selSet = new Set(selectedNodeIds);
+                        for (const n of nodes) {
+                          if (selSet.has(n.id)) initialPositions.set(n.id, { x: n.x, y: n.y });
+                        }
+                      } else {
+                        initialPositions.set(node.id, { x: node.x, y: node.y });
+                      }
                       draggingNodeRef.current = {
-                        nodeId: node.id,
                         startMouseX: e.clientX,
                         startMouseY: e.clientY,
-                        startNodeX: node.x,
-                        startNodeY: node.y
+                        initialPositions
                       };
                     }}
                     className="w-full px-4 pt-3.5 pb-2.5 border-b border-white/40 flex items-center justify-between cursor-grab active:cursor-grabbing"
