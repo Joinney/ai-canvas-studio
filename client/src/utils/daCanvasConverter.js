@@ -5760,3 +5760,201 @@ export const HOT_SOUR_NOODLES_TVC_PROJECT = convertDaAiCanvasToProject(HOT_SOUR_
   previewImage:
     'https://cdn.quantv.com/canvas/featured/1791963187469_hqcd9cs7d98.jpg'
 });
+
+// Batch Outfit Try-On & Dance Commerce (9:16)
+export const BATCH_OUTFIT_DANCE_RAW_CANVAS_JSON = {
+  nodes: [
+    {
+      id: 'senge-node_99c2e58f',
+      kind: 'image',
+      title: 'Outfit Reference 1',
+      x: 80,
+      y: 282,
+      meta: {
+        mediaUrl:
+          'https://cdn.sengeai.com/workflow-studio/test/template-assets/2026/05/22/1779439271025-b7437ac3-ce3f-4fd7-807f-8eccbbe82407.jpg'
+      }
+    },
+    {
+      id: 'senge-node_6a234bdd',
+      kind: 'image',
+      title: 'Outfit Reference 2',
+      x: 106,
+      y: 1009,
+      meta: {
+        mediaUrl:
+          'https://cdn.sengeai.com/workflow-studio/test/template-assets/2026/05/22/1779439271524-85094f20-5a36-480d-ba89-cc56faefd0a9.jpg'
+      }
+    },
+    {
+      id: 'senge-node_a26ee5c8',
+      kind: 'image',
+      title: 'Outfit Reference 3',
+      x: 172,
+      y: 1815,
+      meta: {
+        mediaUrl:
+          'https://cdn.sengeai.com/workflow-studio/test/template-assets/2026/05/22/1779439271996-0554a64e-d0d0-4d96-a5df-35c3bc871b7c.jpg'
+      }
+    },
+    {
+      id: 'senge-node_4f0232c8',
+      kind: 'image',
+      title: 'Model & Scene Reference',
+      x: 537,
+      y: 1018,
+      meta: {
+        mediaUrl:
+          'https://cdn.sengeai.com/workflow-studio/test/template-assets/2026/05/22/1779439272696-1cf9296b-a1f4-4ea3-862f-de489ab2f924.jpg'
+      }
+    },
+    {
+      id: 'senge-node_bea94c60',
+      kind: 'image',
+      title: 'Outfit Try-On 1',
+      x: 1011,
+      y: 84,
+      meta: {
+        mediaUrl:
+          'https://cdn.sengeai.com/workflow-studio/test/template-assets/2026/05/22/1779439275146-aac86296-cdf3-4274-ae69-af6c53120783.png',
+        prompt:
+          "Keep the scene in @Image 2 unchanged while dressing the model in the outfit from @Image 1; change the model's facial appearance and hairstyle, and light the background wall with purple lighting.",
+        settings: { params: { ratio: '9:16', resolution: '1K' } }
+      }
+    },
+    {
+      id: 'senge-node_2a69f17b',
+      kind: 'image',
+      title: 'Outfit Try-On 2',
+      x: 1012,
+      y: 836,
+      meta: {
+        mediaUrl:
+          'https://cdn.sengeai.com/workflow-studio/test/template-assets/2026/05/22/1779439277830-24b16975-61d9-417f-bace-8318698d5fa2.png',
+        prompt:
+          "Keep the scene in @Image 1 unchanged while dressing the model in the outfit from @Image 2; change the model's facial appearance and hairstyle, and change the background to a warm cozy wall without any props.",
+        settings: { params: { ratio: '9:16', resolution: '1K' } }
+      }
+    },
+    {
+      id: 'senge-node_46a6cf79',
+      kind: 'image',
+      title: 'Outfit Try-On 3',
+      x: 616,
+      y: 1816,
+      meta: {
+        mediaUrl:
+          'https://cdn.sengeai.com/workflow-studio/test/template-assets/2026/05/22/1779439281175-ff0acee2-2d49-4155-b565-f7d631b0786a.png',
+        prompt:
+          "Keep the scene in @Image 2 unchanged while dressing the model in the outfit from @Image 1; change the model's facial appearance and hairstyle, and change the background to a warm cozy wall.",
+        settings: { params: { ratio: '9:16', resolution: '1K' } }
+      }
+    },
+    {
+      id: 'senge-node_5edd221b',
+      kind: 'video',
+      title: 'Dance Motion Reference 1',
+      x: 1640,
+      y: 207,
+      meta: {
+        mediaUrl:
+          'https://cdn.sengeai.com/workflow-studio/test/template-assets/2026/05/22/1779439285306-b82d2955-e71a-48ea-959a-f514ec487d12.mp4',
+        settings: { params: { ratio: '9:16', duration: '12s' } }
+      }
+    },
+    {
+      id: 'senge-node_67f3162e',
+      kind: 'video',
+      title: 'Dance Motion Reference 2',
+      x: 1485,
+      y: 970,
+      meta: {
+        mediaUrl:
+          'https://cdn.sengeai.com/workflow-studio/test/template-assets/2026/05/22/1779439330518-b255d099-3406-4702-8c49-be7195cc707a.mp4',
+        settings: { params: { ratio: '9:16', duration: '15s' } }
+      }
+    },
+    {
+      id: 'senge-node_02bed214',
+      kind: 'video',
+      title: 'Dance Motion Reference 3',
+      x: 1488,
+      y: 1788,
+      meta: {
+        mediaUrl:
+          'https://cdn.sengeai.com/workflow-studio/test/template-assets/2026/05/22/1779439366048-85af49cd-23c9-4c86-9abe-9f72a1cd42a0.mp4',
+        settings: { params: { ratio: '9:16', duration: '12s' } }
+      }
+    },
+    {
+      id: 'senge-node_0ba44fbe',
+      kind: 'video',
+      title: 'Dance Commerce Video 1',
+      x: 2372,
+      y: 80,
+      meta: {
+        mediaUrl:
+          'https://cdn.sengeai.com/workflow-studio/test/template-assets/2026/05/22/1779439308754-5f979bd3-fc2c-4b28-8df9-380800ae097f.mp4',
+        prompt:
+          'Keep the subject features and outfit state from @Image 1 stable, and perform natural, fluid motion transfer following the dance movements in @Video 1.',
+        settings: { params: { ratio: '9:16', resolution: '720p', duration: '10s' } }
+      }
+    },
+    {
+      id: 'senge-node_cb398715',
+      kind: 'video',
+      title: 'Dance Commerce Video 2',
+      x: 1856,
+      y: 832,
+      meta: {
+        mediaUrl:
+          'https://cdn.sengeai.com/workflow-studio/test/template-assets/2026/05/22/1779439334186-4ec17f1f-0492-4c25-8fef-c44b8872aa20.mp4',
+        prompt:
+          'Keep the subject features and outfit state from @Image 1 stable, and perform natural, fluid motion transfer following the dance movements in @Video 1.',
+        settings: { params: { ratio: '9:16', resolution: '720p', duration: '10s' } }
+      }
+    },
+    {
+      id: 'senge-node_aaaa245c',
+      kind: 'video',
+      title: 'Dance Commerce Video 3',
+      x: 2393,
+      y: 1643,
+      meta: {
+        mediaUrl:
+          'https://cdn.sengeai.com/workflow-studio/test/template-assets/2026/05/22/1779439396338-c1f85002-1a0a-4328-b013-1fee751e20ee.mp4',
+        prompt:
+          'Keep the subject features and outfit state from @Image 1 stable, and perform natural, fluid motion transfer following the dance movements in @Video 1.',
+        settings: { params: { ratio: '9:16', resolution: '720p', duration: '10s' } }
+      }
+    }
+  ],
+  edges: [
+    { from: 'senge-node_99c2e58f', to: 'senge-node_bea94c60' },
+    { from: 'senge-node_4f0232c8', to: 'senge-node_bea94c60' },
+    { from: 'senge-node_4f0232c8', to: 'senge-node_2a69f17b' },
+    { from: 'senge-node_6a234bdd', to: 'senge-node_2a69f17b' },
+    { from: 'senge-node_a26ee5c8', to: 'senge-node_46a6cf79' },
+    { from: 'senge-node_4f0232c8', to: 'senge-node_46a6cf79' },
+    { from: 'senge-node_bea94c60', to: 'senge-node_0ba44fbe' },
+    { from: 'senge-node_46a6cf79', to: 'senge-node_aaaa245c' },
+    { from: 'senge-node_2a69f17b', to: 'senge-node_cb398715' },
+    { from: 'senge-node_5edd221b', to: 'senge-node_0ba44fbe' },
+    { from: 'senge-node_67f3162e', to: 'senge-node_cb398715' },
+    { from: 'senge-node_02bed214', to: 'senge-node_aaaa245c' }
+  ]
+};
+
+export const BATCH_OUTFIT_DANCE_PROJECT = convertDaAiCanvasToProject(BATCH_OUTFIT_DANCE_RAW_CANVAS_JSON, {
+  id: 'proj-batch-outfit-dance-commerce',
+  category: 'video',
+  name: 'Batch Outfit Try-On & Dance Commerce — 3 Branches (9:16)',
+  description:
+    'Quy trình thay đồ hàng loạt + nhảy bắt trend bán hàng (9:16): 3 Bộ trang phục + 1 Người mẫu bối cảnh → 3 Ảnh thay đồ 1K → Kết hợp 3 Video nhảy mẫu → 3 Video nhảy thương mại 720p (10s/nhánh).',
+  badge: 'Nhảy Bán Hàng (9:16)',
+  techTag: 'DANCE-3X',
+  previewVideo:
+    'https://cdn.sengeai.com/workflow-studio/test/template-assets/2026/05/22/1779439308754-5f979bd3-fc2c-4b28-8df9-380800ae097f.mp4',
+  previewImage:
+    'https://cdn.sengeai.com/workflow-studio/test/template-assets/2026/05/22/1779439275146-aac86296-cdf3-4274-ae69-af6c53120783.png'
+});
