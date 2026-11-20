@@ -6258,3 +6258,234 @@ export const VIDEO_REVERSE_AD_PROJECT = convertDaAiCanvasToProject(VIDEO_REVERSE
     'https://cdn.sengeai.com/workflow-studio/test/template-assets/2026/06/26/1782461391966-22293c0a-3f05-40bf-9ef3-dc575a9eb08d.mp4',
   previewImage: ''
 });
+
+// Vietnamese Cosmetics UGC Review — 6-Panel Storyboard to 5-Clip Transition (9:16)
+export const VIETNAMESE_COSMETICS_UGC_RAW_CANVAS_JSON = {
+  nodes: [
+    {
+      id: 'imageNode-1776197246685',
+      kind: 'image',
+      title: 'Cosmetic Product Reference',
+      x: -1512,
+      y: -3683,
+      meta: {
+        mediaUrl: 'https://pub-a95b3e2bac2442f582b4e3792df8b515.r2.dev/workflow-templates/creatok/creatok-15159/3edded26cd8c1de2.jpg'
+      }
+    },
+    {
+      id: 'aiImageNode-1776197684939',
+      kind: 'image',
+      title: '6-Panel Vietnamese UGC Grid (9:16)',
+      x: -853,
+      y: -4156,
+      meta: {
+        mediaUrl: 'https://pub-a95b3e2bac2442f582b4e3792df8b515.r2.dev/workflow-templates/creatok/creatok-15159/4732d6a7a60793bf.jpg',
+        prompt:
+          'Generate a 6-panel fixed-camera storyboard grid showing a 25-year-old Vietnamese Southeast Asian female UGC creator using and presenting the product in @Image 1. Panels 1-3 show unboxing and product appreciation; panels 4-6 show mirror application and close-up showcase with coherent story, pose, and action continuity. Wearing casual sporty yoga wear, long dark brown hair, natural everyday light makeup, authentic smartphone camera texture with real skin pores, no AI plastic look, cozy home living room background, no subtitles, no text.',
+        settings: { params: { ratio: '9:16', resolution: '2K' } }
+      }
+    },
+    {
+      id: 'aiImageNode-1776209007252-lxv986b',
+      kind: 'image',
+      title: 'Extract Panel 1 (Unboxing)',
+      x: 89,
+      y: 100,
+      meta: {
+        mediaUrl: 'https://pub-a95b3e2bac2442f582b4e3792df8b515.r2.dev/workflow-templates/creatok/creatok-15159/4e5a1eae4b5c1acb.jpg',
+        prompt:
+          'Extract Panel [1] from the 6-panel grid in @Image 1 into a standalone full-frame 9:16 vertical image with no grid lines, borders, text, or logos, preserving authentic skin texture, colors, and lighting.',
+        settings: { params: { ratio: '9:16', resolution: '1K' } }
+      }
+    },
+    {
+      id: 'aiImageNode-1776207990135',
+      kind: 'image',
+      title: 'Extract Panel 2 (Open Cap)',
+      x: 754,
+      y: 90,
+      meta: {
+        mediaUrl: 'https://pub-a95b3e2bac2442f582b4e3792df8b515.r2.dev/workflow-templates/creatok/creatok-15159/f6015d8c1be86654.jpg',
+        prompt:
+          'Extract Panel [2] from the 6-panel grid in @Image 1 into a standalone full-frame 9:16 vertical image with no grid lines, borders, text, or logos, preserving authentic skin texture, colors, and lighting.',
+        settings: { params: { ratio: '9:16', resolution: '1K' } }
+      }
+    },
+    {
+      id: 'aiImageNode-1776208994742-5wz7b6',
+      kind: 'image',
+      title: 'Extract Panel 3 (Shade Detail)',
+      x: 1442,
+      y: 80,
+      meta: {
+        mediaUrl: 'https://pub-a95b3e2bac2442f582b4e3792df8b515.r2.dev/workflow-templates/creatok/creatok-15159/f7d00e1673a81c6f.jpg',
+        prompt:
+          'Extract Panel [3] from the 6-panel grid in @Image 1 into a standalone full-frame 9:16 vertical image with no grid lines, borders, text, or logos, preserving authentic skin texture, colors, and lighting.',
+        settings: { params: { ratio: '9:16', resolution: '1K' } }
+      }
+    },
+    {
+      id: 'aiImageNode-1776208997866-7y4ufii',
+      kind: 'image',
+      title: 'Extract Panel 4 (Mirror Prep)',
+      x: 80,
+      y: 1320,
+      meta: {
+        mediaUrl: 'https://pub-a95b3e2bac2442f582b4e3792df8b515.r2.dev/workflow-templates/creatok/creatok-15159/bb21ef44d0942e1f.jpg',
+        prompt:
+          'Extract Panel [4] from the 6-panel grid in @Image 1 into a standalone full-frame 9:16 vertical image with no grid lines, borders, text, or logos, preserving authentic skin texture, colors, and lighting.',
+        settings: { params: { ratio: '9:16', resolution: '1K' } }
+      }
+    },
+    {
+      id: 'aiImageNode-1776209001068-llfzjd',
+      kind: 'image',
+      title: 'Extract Panel 5 (Apply & Pout)',
+      x: 805,
+      y: 1324,
+      meta: {
+        mediaUrl: 'https://pub-a95b3e2bac2442f582b4e3792df8b515.r2.dev/workflow-templates/creatok/creatok-15159/08ee12defbb48886.jpg',
+        prompt:
+          'Extract Panel [5] from the 6-panel grid in @Image 1 into a standalone full-frame 9:16 vertical image with no grid lines, borders, text, or logos, preserving authentic skin texture, colors, and lighting.',
+        settings: { params: { ratio: '9:16', resolution: '1K' } }
+      }
+    },
+    {
+      id: 'aiImageNode-1776209010345-t2204',
+      kind: 'image',
+      title: 'Extract Panel 6 (Final Hero)',
+      x: 1501,
+      y: 1309,
+      meta: {
+        mediaUrl: 'https://pub-a95b3e2bac2442f582b4e3792df8b515.r2.dev/workflow-templates/creatok/creatok-15159/b984c6ca8c452ed5.jpg',
+        prompt:
+          'Extract Panel [6] from the 6-panel grid in @Image 1 into a standalone full-frame 9:16 vertical image with no grid lines, borders, text, or logos, preserving authentic skin texture, colors, and lighting.',
+        settings: { params: { ratio: '9:16', resolution: '1K' } }
+      }
+    },
+    {
+      id: 'aiVideoNode-1776199045003',
+      kind: 'video',
+      title: 'Video 1 — Unboxing Surprise (1→2)',
+      x: 80,
+      y: 0,
+      meta: {
+        mediaUrl: 'https://pub-a95b3e2bac2442f582b4e3792df8b515.r2.dev/workflow-templates/creatok/creatok-15159/c30ae803934e45de.mp4',
+        prompt:
+          'Subject: 25-year-old Vietnamese Southeast Asian woman with long dark brown hair in a grey sporty yoga top. Scene: Bright cozy living room, morning natural light. Action: Transition smoothly from @Image 1 to @Image 2 as she pulls the cosmetic product from a white mailer with a surprised smile and opens the cap to reveal the coral shade. Camera: Close-up, slight zoom in. Vietnamese voiceover (natural young female tone, no BGM, no subtitles): "Trời ơi, cuối cùng cũng về tới rồi nè! Khui thử xem bên trong có gì nha... Woa, màu xinh xỉu luôn!" Negative: deformed product, distorted fingers, extra limbs, morphing lipstick, blurry face.',
+        settings: { params: { ratio: '9:16', resolution: '720p', duration: '8s' } }
+      }
+    },
+    {
+      id: 'aiVideoNode-1776200159978',
+      kind: 'video',
+      title: 'Video 2 — Packaging Detail (2→3)',
+      x: 692,
+      y: 0,
+      meta: {
+        mediaUrl: 'https://pub-a95b3e2bac2442f582b4e3792df8b515.r2.dev/workflow-templates/creatok/creatok-15159/c2b9e0e975c2ec45.mp4',
+        prompt:
+          'Subject: Same 25-year-old Vietnamese Southeast Asian woman. Scene: Sitting at a white table. Action: Transition smoothly from @Image 1 to @Image 2 as she holds the open product up, admiring the coral color and sleek metallic casing, turning it slightly to catch natural light. Camera: Medium close-up, steady shot. Vietnamese voiceover (natural young female tone, no BGM, no subtitles): "Thiết kế vỏ bạc nhìn sang xịn mịn ghê, màu cam san hô này đi chơi hè là chuẩn bài luôn." Negative: flickering, deformed product shape, unnatural hand movement, messy background.',
+        settings: { params: { ratio: '9:16', resolution: '720p', duration: '8s' } }
+      }
+    },
+    {
+      id: 'aiVideoNode-1776200201630',
+      kind: 'video',
+      title: 'Video 3 — Mirror Prep (3→4)',
+      x: 1255,
+      y: 0,
+      meta: {
+        mediaUrl: 'https://pub-a95b3e2bac2442f582b4e3792df8b515.r2.dev/workflow-templates/creatok/creatok-15159/b7ac6b605d2430d0.mp4',
+        prompt:
+          'Subject: Same 25-year-old Vietnamese woman. Scene: Sitting cross-legged on a yoga mat on the floor. Action: Transition smoothly from @Image 1 to @Image 2 as she puts the product down briefly and picks up a small handheld mirror ready to apply. Camera: Wide-to-medium shot transition. Vietnamese voiceover (natural young female tone, no BGM, no subtitles): "Giờ tới khúc test thử lên môi xem màu thực tế như thế nào nha." Negative: distorted legs, floating mirror, flickering shadows, inconsistent clothing.',
+        settings: { params: { ratio: '9:16', resolution: '720p', duration: '8s' } }
+      }
+    },
+    {
+      id: 'aiVideoNode-1776200204571-cjou6',
+      kind: 'video',
+      title: 'Video 4 — Application & Pout (4→5)',
+      x: 86,
+      y: 1564,
+      meta: {
+        mediaUrl: 'https://pub-a95b3e2bac2442f582b4e3792df8b515.r2.dev/workflow-templates/creatok/creatok-15159/0a34705801276973.mp4',
+        prompt:
+          'Subject: Same 25-year-old Vietnamese woman on the yoga mat. Action: Transition smoothly from @Image 1 to @Image 2 as she glides the lipstick smoothly onto her lips while looking into the mirror, puts the mirror down, and gives a cute pout toward the camera. Camera: Zoom in to face close-up. Vietnamese voiceover (natural young female tone, no BGM, no subtitles): "Chất son lướt siêu mướt luôn mấy bà ơi! Lên màu chuẩn mà không bị khô môi chút nào." Negative: messy application, distorted lips, shaky hands, disappearing mirror.',
+        settings: { params: { ratio: '9:16', resolution: '720p', duration: '8s' } }
+      }
+    },
+    {
+      id: 'aiVideoNode-1776200215607-1l5axm',
+      kind: 'video',
+      title: 'Video 5 — Final Showcase (5→6)',
+      x: 645,
+      y: 1560,
+      meta: {
+        mediaUrl: 'https://pub-a95b3e2bac2442f582b4e3792df8b515.r2.dev/workflow-templates/creatok/creatok-15159/c611eae24885cd61.mp4',
+        prompt:
+          'Subject: Same 25-year-old Vietnamese woman smiling brightly. Scene: Cozy living room with indoor plants and bookshelves. Action: Transition smoothly from @Image 1 to @Image 2 as she smiles warmly and extends her hand to bring the product close to the lens for a crisp close-up. Camera: Rack focus from face to product. Vietnamese voiceover (natural young female tone, no BGM, no subtitles): "Mê thực sự luôn á! Mấy bà tranh thủ săn ngay đi, đáng tiền lắm luôn!" Negative: blurry product, distorted fingers, inconsistent background.',
+        settings: { params: { ratio: '9:16', resolution: '720p', duration: '8s' } }
+      }
+    },
+    {
+      id: 'composeVideoNode-1776210281621',
+      kind: 'video',
+      title: 'Final Merged Cosmetics Review (9:16)',
+      x: 1950,
+      y: 780,
+      meta: {
+        mediaUrl: 'https://pub-a95b3e2bac2442f582b4e3792df8b515.r2.dev/workflow-templates/creatok/creatok-15159/2c3e5bf6d3a454b0.mp4'
+      }
+    }
+  ],
+  edges: [
+    { from: 'imageNode-1776197246685', to: 'aiImageNode-1776197684939' },
+    { from: 'aiImageNode-1776197684939', to: 'aiImageNode-1776209007252-lxv986b' },
+    { from: 'aiImageNode-1776197684939', to: 'aiImageNode-1776207990135' },
+    { from: 'aiImageNode-1776197684939', to: 'aiImageNode-1776208994742-5wz7b6' },
+    { from: 'aiImageNode-1776197684939', to: 'aiImageNode-1776208997866-7y4ufii' },
+    { from: 'aiImageNode-1776197684939', to: 'aiImageNode-1776209001068-llfzjd' },
+    { from: 'aiImageNode-1776197684939', to: 'aiImageNode-1776209010345-t2204' },
+    { from: 'aiImageNode-1776209007252-lxv986b', to: 'aiVideoNode-1776199045003' },
+    { from: 'aiImageNode-1776207990135', to: 'aiVideoNode-1776199045003' },
+    { from: 'aiImageNode-1776207990135', to: 'aiVideoNode-1776200159978' },
+    { from: 'aiImageNode-1776208994742-5wz7b6', to: 'aiVideoNode-1776200159978' },
+    { from: 'aiImageNode-1776208994742-5wz7b6', to: 'aiVideoNode-1776200201630' },
+    { from: 'aiImageNode-1776208997866-7y4ufii', to: 'aiVideoNode-1776200201630' },
+    { from: 'aiImageNode-1776208997866-7y4ufii', to: 'aiVideoNode-1776200204571-cjou6' },
+    { from: 'aiImageNode-1776209001068-llfzjd', to: 'aiVideoNode-1776200204571-cjou6' },
+    { from: 'aiImageNode-1776209001068-llfzjd', to: 'aiVideoNode-1776200215607-1l5axm' },
+    { from: 'aiImageNode-1776209010345-t2204', to: 'aiVideoNode-1776200215607-1l5axm' },
+    { from: 'aiVideoNode-1776199045003', to: 'composeVideoNode-1776210281621' },
+    { from: 'aiVideoNode-1776200159978', to: 'composeVideoNode-1776210281621' },
+    { from: 'aiVideoNode-1776200201630', to: 'composeVideoNode-1776210281621' },
+    { from: 'aiVideoNode-1776200204571-cjou6', to: 'composeVideoNode-1776210281621' },
+    { from: 'aiVideoNode-1776200215607-1l5axm', to: 'composeVideoNode-1776210281621' }
+  ],
+  stickers: [
+    {
+      id: 'sticker-vn-cosmetics-guide',
+      x: -120,
+      y: -3800,
+      width: 360,
+      height: 170,
+      title: 'Vietnamese Cosmetics UGC (6-Panel → 5-Clip)',
+      html: '<p><b>Localized for Vietnam / SEA:</b> 25yo Vietnamese female creator with natural Vietnamese voiceover (no BGM, no subtitles).</p><p><b>Flow:</b> Product → 6-Panel Grid → Extract Panels 1–6 → 5 First/Last-Frame Videos (8s each) → Merged Review.</p>'
+    }
+  ]
+};
+
+export const VIETNAMESE_COSMETICS_UGC_PROJECT = convertDaAiCanvasToProject(VIETNAMESE_COSMETICS_UGC_RAW_CANVAS_JSON, {
+  id: 'proj-vietnamese-cosmetics-ugc',
+  category: 'video',
+  name: 'Vietnamese Cosmetics UGC Review — 6-Panel to 5-Clip (9:16)',
+  description:
+    'Review mỹ phẩm UGC mẫu nữ Việt Nam / Đông Nam Á (9:16): 1 Ảnh mỹ phẩm → Bảng 6 ô 2K → Tách 6 ảnh đơn 1K → 5 Video chuyển cảnh đầu-cuối lồng tiếng Việt tự nhiên không nhạc nền (8s/clip) → Video ghép hoàn chỉnh.',
+  badge: 'Mỹ Phẩm UGC Việt (9:16)',
+  techTag: 'VN-COSMETIC',
+  previewVideo:
+    'https://pub-a95b3e2bac2442f582b4e3792df8b515.r2.dev/workflow-templates/creatok/creatok-15159/2c3e5bf6d3a454b0.mp4',
+  previewImage:
+    'https://pub-a95b3e2bac2442f582b4e3792df8b515.r2.dev/workflow-templates/creatok/creatok-15159/4732d6a7a60793bf.jpg'
+});
