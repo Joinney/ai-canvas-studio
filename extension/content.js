@@ -1134,21 +1134,42 @@ function isFingerprintMatch(fp1, fp2, threshold = 3.0) {
   return avgDiff < threshold;
 }
 
-// Đếm số lượng ảnh đính kèm (chips) đang hiển thị trong khu vực prompt của Google Flow
+// Đếm số lượng ảnh đính kèm (chips) thực sự đang hiển thị trong khu vực prompt
 function countAttachedChips(promptEl) {
   if (!promptEl) return 0;
   const promptBox = getPromptBoxContainer(promptEl);
   const container = promptBox || document;
   const pr = promptEl.getBoundingClientRect();
 
-  // 1. Tìm các nút remove/xóa của chip đính kèm
+  // 1. Ưu tiên đếm trực tiếp các thẻ <img> thumbnail thực sự nằm trong khung nhập (promptBox)
+  const chipImgs = queryAllDeep(container).filter((el) => {
+    if (el.tagName !== 'IMG') return false;
+    const src = el.currentSrc || el.src || '';
+    if (!src) return false;
+    const r = el.getBoundingClientRect();
+    if (r.width < 24 || r.height < 24 || r.width > 180 || r.height > 180) return false;
+    if (promptBox && promptBox.contains(el)) return true;
+    return (
+      r.left >= pr.left - 40 &&
+      r.right <= pr.right + 40 &&
+      r.top >= pr.top - 160 &&
+      r.bottom <= pr.bottom + 40
+    );
+  });
+
+  if (chipImgs.length > 0) {
+    return chipImgs.length;
+  }
+
+  // 2. Fallback chỉ đếm nút có nhãn rõ ràng là xóa tệp đính kèm (không đếm nút close/X chung của giao diện)
   const removeButtons = queryAllDeep(container).filter((el) => {
     const r = el.getBoundingClientRect();
+    if (r.width === 0 || r.height === 0 || r.width > 40 || r.height > 40) return false;
     const inChipZone =
-      r.left >= pr.left - 60 &&
-      r.right <= pr.right + 60 &&
-      r.top >= pr.top - 180 &&
-      r.bottom <= pr.bottom + 60;
+      r.left >= pr.left - 40 &&
+      r.right <= pr.right + 40 &&
+      r.top >= pr.top - 160 &&
+      r.bottom <= pr.bottom + 40;
     if (!inChipZone) return false;
 
     const label = (
@@ -1159,28 +1180,10 @@ function countAttachedChips(promptEl) {
       (el.getAttribute?.('data-testid') || '')
     ).toLowerCase();
 
-    return /remove|xóa|delete|close|dismiss/i.test(label);
+    return /remove attachment|remove image|remove file|xóa ảnh|xóa tệp/i.test(label);
   });
 
-  if (removeButtons.length > 0) {
-    return removeButtons.length;
-  }
-
-  // 2. Tìm các thẻ <img> hoặc thumbnail nằm trong vùng chip đính kèm
-  const chipImgs = queryAllDeep(container).filter((el) => {
-    if (el.tagName !== 'IMG') return false;
-    const r = el.getBoundingClientRect();
-    const inChipZone =
-      r.left >= pr.left - 60 &&
-      r.right <= pr.right + 60 &&
-      r.top >= pr.top - 180 &&
-      r.bottom <= pr.bottom + 60;
-    if (!inChipZone) return false;
-    if (r.width < 16 || r.height < 16 || r.width > 220 || r.height > 220) return false;
-    return true;
-  });
-
-  return chipImgs.length;
+  return removeButtons.length;
 }
 
 // Kiểm tra xem có bất kỳ ảnh nào đang trong trạng thái loading/uploading hay không
