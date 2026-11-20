@@ -6489,3 +6489,134 @@ export const VIETNAMESE_COSMETICS_UGC_PROJECT = convertDaAiCanvasToProject(VIETN
   previewImage:
     'https://pub-a95b3e2bac2442f582b4e3792df8b515.r2.dev/workflow-templates/creatok/creatok-15159/4732d6a7a60793bf.jpg'
 });
+
+// Vietnamese Men Leather Jacket — Street & Indoor Lookbook (9:16)
+export const VN_LEATHER_JACKET_RAW_CANVAS_JSON = {
+  nodes: [
+    {
+      id: 'imageNode-1774858538338',
+      kind: 'image',
+      title: 'Leather Jacket Reference 1',
+      x: 23,
+      y: 193,
+      meta: {
+        mediaUrl: 'https://pub-a95b3e2bac2442f582b4e3792df8b515.r2.dev/workflow-templates/creatok/creatok-10466/4c5452fde6d8e488.webp'
+      }
+    },
+    {
+      id: 'imageNode-1774862003644',
+      kind: 'image',
+      title: 'Leather Jacket Reference 2',
+      x: 15,
+      y: 662,
+      meta: {
+        mediaUrl: 'https://pub-a95b3e2bac2442f582b4e3792df8b515.r2.dev/workflow-templates/creatok/creatok-10466/2960a5b360b2a26b.jpg'
+      }
+    },
+    {
+      id: 'videoNode-1774858875969',
+      kind: 'video',
+      title: 'Reference Video 1 (Indoor Try-On)',
+      x: 32,
+      y: -408,
+      meta: {
+        mediaUrl: 'https://pub-a95b3e2bac2442f582b4e3792df8b515.r2.dev/workflow-templates/creatok/creatok-10466/caaf786838e26ccb.mp4'
+      }
+    },
+    {
+      id: 'videoNode-1774861319906',
+      kind: 'video',
+      title: 'Reference Video 2 (Night Garage)',
+      x: 29,
+      y: 1500,
+      meta: {
+        mediaUrl: 'https://pub-a95b3e2bac2442f582b4e3792df8b515.r2.dev/workflow-templates/creatok/creatok-10466/99297b414b4f2392.mp4'
+      }
+    },
+    {
+      id: 'aiImageNode-1774858659372-3Hy13ThC',
+      kind: 'image',
+      title: 'AI Image — Night Street Look',
+      x: 891,
+      y: 137,
+      meta: {
+        mediaUrl: 'https://pub-a95b3e2bac2442f582b4e3792df8b515.r2.dev/workflow-templates/creatok/creatok-10466/f51879d172155cf1.jpg',
+        prompt:
+          'Scene: On a city street at night, a handsome young Vietnamese Southeast Asian man wearing the black leather jacket from @Image 1 and @Image 2, neat short black hair, confident expression with dark sunglasses. Background: night urban road lined with trees, parked cars, and brightly lit buildings in the distance, highlighting the rich leather grain and texture.',
+        settings: { params: { ratio: '1:1', resolution: '1K' } }
+      }
+    },
+    {
+      id: 'aiImageNode-1774861300061',
+      kind: 'image',
+      title: 'AI Image — Parking Lot Jacket Flip',
+      x: 840,
+      y: 1100,
+      meta: {
+        mediaUrl: 'https://pub-a95b3e2bac2442f582b4e3792df8b515.r2.dev/workflow-templates/creatok/creatok-10466/cc46dfa6069ae334.jpg',
+        prompt:
+          'At an outdoor parking lot at night, a young Vietnamese Southeast Asian man wearing the black leather jacket from @Image 1 and @Image 2 tosses the jacket open dramatically with both hands in front of a modern blue-walled building and a parked white sedan. Handheld smartphone camera, eye-level medium shot, realistic urban night lighting.',
+        settings: { params: { ratio: '9:16', resolution: '1K' } }
+      }
+    },
+    {
+      id: 'aiVideoNode-1774860829951',
+      kind: 'video',
+      title: 'AI Video 1 — Indoor Fit Showcase (8s)',
+      x: 1680,
+      y: 137,
+      meta: {
+        mediaUrl: 'https://pub-a95b3e2bac2442f582b4e3792df8b515.r2.dev/workflow-templates/creatok/creatok-10466/e840dd7157bdf3cf.mp4',
+        prompt:
+          'Subject: Young Vietnamese Southeast Asian male model wearing the black leather jacket from @Image 1 over a white crew-neck tee and black jeans in a bright, softly lit indoor home setting. 0.0-0.5s: Medium shot, unzipped jacket, hands at sides. 0.5-1.5s: Naturally adjusts the jacket collar. 1.5-3.0s: Pulls both sides of the zipper to show the tailored fit and leather grain. 3.0-4.5s: Touches the collar again to highlight lapel details. 4.5-6.5s: Hands in pockets, confident upright posture. 6.5-8.5s: Turns slightly sideways with side lighting emphasizing leather texture and cuffs. Smartphone rear camera, shallow depth of field.',
+        settings: { params: { ratio: '9:16', resolution: '720p', duration: '8s' } }
+      }
+    },
+    {
+      id: 'aiVideoNode-1774861472641',
+      kind: 'video',
+      title: 'AI Video 2 — Night Garage Walk (8s)',
+      x: 1680,
+      y: 1100,
+      meta: {
+        mediaUrl: 'https://pub-a95b3e2bac2442f582b4e3792df8b515.r2.dev/workflow-templates/creatok/creatok-10466/285827b03a231235.mp4',
+        prompt:
+          'Subject: Young Vietnamese Southeast Asian male model wearing the black leather jacket from @Image 1. 0.0-0.9s: At an outdoor parking lot at night, flips the jacket open dramatically with both hands in front of a blue modern building and white sedan. 0.9-2.3s: Turns toward camera then walks toward the indoor parking entrance. 2.3-4.5s: Tracking shot from behind walking through a bright fluorescent-lit indoor garage. 4.5-6.3s: Passes sleek metal elevator doors and glances back over his shoulder at the camera. 6.3-8.0s: Continues walking smoothly through the cool-toned parking lot. Handheld smartphone tracking shot.',
+        settings: { params: { ratio: '9:16', resolution: '720p', duration: '8s' } }
+      }
+    }
+  ],
+  edges: [
+    { from: 'imageNode-1774858538338', to: 'aiImageNode-1774858659372-3Hy13ThC' },
+    { from: 'imageNode-1774862003644', to: 'aiImageNode-1774858659372-3Hy13ThC' },
+    { from: 'imageNode-1774858538338', to: 'aiImageNode-1774861300061' },
+    { from: 'imageNode-1774862003644', to: 'aiImageNode-1774861300061' },
+    { from: 'aiImageNode-1774858659372-3Hy13ThC', to: 'aiVideoNode-1774860829951' },
+    { from: 'aiImageNode-1774861300061', to: 'aiVideoNode-1774861472641' }
+  ],
+  stickers: [
+    {
+      id: 'sticker-vn-leather-jacket-guide',
+      x: 780,
+      y: -380,
+      width: 380,
+      height: 150,
+      title: 'Vietnamese Leather Jacket Lookbook',
+      html: '<p><b>Localized for Vietnam / SEA:</b> Young Vietnamese male model showcasing leather jacket fit &amp; texture across 2 scenes (Indoor collar/zipper showcase + Night parking garage tracking walk).</p>'
+    }
+  ]
+};
+
+export const VN_LEATHER_JACKET_PROJECT = convertDaAiCanvasToProject(VN_LEATHER_JACKET_RAW_CANVAS_JSON, {
+  id: 'proj-vn-leather-jacket-lookbook',
+  category: 'video',
+  name: 'Vietnamese Men Leather Jacket — Street & Indoor Lookbook (9:16)',
+  description:
+    'Lookbook áo khoác da nam mẫu Việt Nam / Đông Nam Á (9:16): 2 Ảnh áo da mẫu + 2 Video tham chiếu → 2 Ảnh tạo dáng ban đêm & bãi xe → 2 Video quảng cáo áo da 720p (8s/clip).',
+  badge: 'Áo Da Nam Việt (9:16)',
+  techTag: 'VN-JACKET',
+  previewVideo:
+    'https://pub-a95b3e2bac2442f582b4e3792df8b515.r2.dev/workflow-templates/creatok/creatok-10466/e840dd7157bdf3cf.mp4',
+  previewImage:
+    'https://pub-a95b3e2bac2442f582b4e3792df8b515.r2.dev/workflow-templates/creatok/creatok-10466/f51879d172155cf1.jpg'
+});
