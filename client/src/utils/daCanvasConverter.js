@@ -6620,3 +6620,251 @@ export const VN_LEATHER_JACKET_PROJECT = convertDaAiCanvasToProject(VN_LEATHER_J
   previewImage:
     'https://pub-a95b3e2bac2442f582b4e3792df8b515.r2.dev/workflow-templates/creatok/creatok-10466/f51879d172155cf1.jpg'
 });
+
+// Smile Log 3.0 Black — Full Strict Product-Lock Workflow (9:16)
+export const SMILE_LOG_TOOTHBRUSH_RAW_CANVAS_JSON = {
+  nodes: [
+    {
+      id: 'node-img-1',
+      type: 'IMAGE_INPUT',
+      x: 60,
+      y: 60,
+      data: {
+        title: '1. Ảnh bàn chải chuẩn (Smile Log Đen & Cổng Type-C)',
+        imageUrl:
+          'https://lh3.googleusercontent.com/pw/AP1GczO_7hIgJK6slYUK9hahaTtD24EJY5ofC9qPPisQSjBUyKIDs0yOkXQfGxALpgDqRGuStqMoPiji7IoSJd_vPtlTxDNdmWya8o-MORSu9ztlwDJnTKGDOkB2ZpOzv84d2Zbew_SEFRV8RBA1tVHELUU=w514-h913-s-no-gm?authuser=0',
+        aspectRatio: '9:16'
+      }
+    },
+    {
+      id: 'node-img-2',
+      type: 'IMAGE_INPUT',
+      x: 60,
+      y: 580,
+      data: {
+        title: '2. Ảnh hộp đen đóng úp & Hộp phụ kiện trắng',
+        imageUrl:
+          'https://lh3.googleusercontent.com/pw/AP1GczOyyhwbafv-dBW682sTyqUKn3HEUwk0gunkYlV5hn9L1Bd2yvkrh_duHruXASVkE8KBF59UYIWwFx5D4gWO3vpPlQ9JaukhMihfpDhbH3K1WkKlE6dduOkNUVMscVkCCDyP2W1_PngtGfebJ8DZO-4=w1216-h913-s-no-gm?authuser=0',
+        aspectRatio: '9:16'
+      }
+    },
+    {
+      id: 'node-img-3',
+      type: 'IMAGE_INPUT',
+      x: 60,
+      y: 1100,
+      data: {
+        title: '3. Bối cảnh Góc 1 (Bàn ngang tầm mắt)',
+        imageUrl:
+          'https://lh3.googleusercontent.com/pw/AP1GczNuqjbj6uUWEz_ejeBC1LbP6Ru_yzHW4O5DWIHbwFp-JzaUJUUXb4LfcPfBbhf-rr2LJUFLQfCfPtYJsDKLwGOz9ROFtL05SDUh7IROxmBktBpJUjzgPlZHpB7pdFKw63pbd7f2lDSapnRU5ZO2J4s=w509-h904-s-no-gm?authuser=0',
+        aspectRatio: '9:16'
+      }
+    },
+    {
+      id: 'node-img-4',
+      type: 'IMAGE_INPUT',
+      x: 60,
+      y: 1620,
+      data: {
+        title: '4. Bối cảnh Góc 2 (Bàn nghiêng 45 độ)',
+        imageUrl:
+          'https://lh3.googleusercontent.com/pw/AP1GczPl_Ltq0ez79S7WlLhAFlYf1Rrd9dgJbFJrImfqsp7BAdvMdEuIQc2s1NpaNf6AfLQTbKJeHpr0ZBJ723QZVX54tDFcTuPE7fSp5byiNxXdnHmoAW8XCfD18fylEkb1aBIa_ao2U4mltOLRgm6bsr4=w509-h904-s-no-gm?authuser=0',
+        aspectRatio: '9:16'
+      }
+    },
+    {
+      id: 'node-img-5',
+      type: 'IMAGE_INPUT',
+      x: 60,
+      y: 2140,
+      data: {
+        title: '5. Bối cảnh Góc 3 (Cận cảnh Bokeh)',
+        imageUrl:
+          'https://lh3.googleusercontent.com/pw/AP1GczOuZIiUrdDIyqpw3-eVrTTnmen3LctW80e_q8QyBfxShujK-AIDJuAFGqqO0QkqigKoFPMp5qRVwUW7OcJWhJ7cRHVmhsQhN6_xW5Of4OvBLeCzIVWSTFYofPS3-n7UDpaLOnFVS3uK46OzSgFVw5Q=w509-h904-s-no-gm?authuser=0',
+        aspectRatio: '9:16'
+      }
+    },
+    {
+      id: 'node-img-6',
+      type: 'IMAGE_INPUT',
+      x: 60,
+      y: 2660,
+      data: {
+        title: '6. Bối cảnh Góc 4 (Macro đánh răng)',
+        imageUrl:
+          'https://lh3.googleusercontent.com/pw/AP1GczMvzjVu7FmT87JZ_Or6D8wEORA1zSr1MCUoyoElCendAGpGOQ467-Dh6Kk0vC-30CSjKm8mvNpNGhh7cq-4IKfSzIfvOZELyem_YVLyMBTftBbTCFSsjf8azKtfioKLxUJZ2OplfDNa-ZVIJP1fFsw=w509-h904-s-no-gm?authuser=0',
+        aspectRatio: '9:16'
+      }
+    },
+    {
+      id: 'node-ff-1',
+      type: 'FLOW_IMAGE_GEN',
+      x: 470,
+      y: 60,
+      data: {
+        title: 'First Frame 1: Macro đánh răng (Khóa đầu chải đen)',
+        prompt:
+          'Vertical 9:16 commercial dental care photography, extreme macro close-up matching the exact framing, teeth, gums, and rich white toothpaste foam of @Image 2. Strictly lock and replicate the exact matte black round brush head from @Image 1 (matte black neck, thin blue ring, small round head with white, blue, and teal-green Dupont bristles). Bright soft diffused white studio lighting, crisp focus, photorealistic, 8k, no text.',
+        aspectRatio: '9:16',
+        resolution: '2K'
+      }
+    },
+    {
+      id: 'node-ff-2',
+      type: 'FLOW_IMAGE_GEN',
+      x: 470,
+      y: 580,
+      data: {
+        title: 'First Frame 2: Hộp đen ĐÓNG KÍN trên bàn 45 độ',
+        prompt:
+          "Vertical 9:16 commercial product photography, 45-degree high-angle shot looking down at the exact minimalist white desk from @Image 2 (gold flip calendar on upper left, white ribbed vase with peach tulips on upper right). Placed flat in the center white tabletop foreground is the exact CLOSED black lid-on Smile Log gift box from the left side of @Image 1 ('Smile Log Rotary Electric Toothbrush' printed on the closed black top cover, accurately matching the matte black toothbrush design from @Image 3). The box is completely closed and unopened, ready for unboxing. Soft diffused natural daylight, realistic soft shadows, photorealistic, 8k.",
+        aspectRatio: '9:16',
+        resolution: '2K'
+      }
+    },
+    {
+      id: 'node-ff-3',
+      type: 'FLOW_IMAGE_GEN',
+      x: 470,
+      y: 1100,
+      data: {
+        title: 'First Frame 3: Cận cảnh đầu chải Bokeh',
+        prompt:
+          'Vertical 9:16 commercial macro close-up photography with extremely shallow depth of field against the exact creamy blurred desk bokeh background from @Image 2. A clean hand holds the exact matte black Smile Log electric toothbrush from @Image 1 close to the lens, strictly preserving the exact shape of the round brush head with white, blue, and teal-green Dupont bristles, thin blue neck ring, and silver collar. Bright clean studio lighting, photorealistic, 8k, no text.',
+        aspectRatio: '9:16',
+        resolution: '2K'
+      }
+    },
+    {
+      id: 'node-ff-4',
+      type: 'FLOW_IMAGE_GEN',
+      x: 470,
+      y: 1620,
+      data: {
+        title: 'First Frame 4: Cầm trọn thân máy (Trung cảnh)',
+        prompt:
+          'Vertical 9:16 commercial product photography, eye-level medium shot against the exact minimalist white desk from @Image 2 (gold flip calendar on left, white ribbed ceramic vase with peach tulips on right). A well-groomed hand holds the exact complete matte black Smile Log electric toothbrush from @Image 1 upright slightly to the right of center, strictly replicating the silver collar, thin blue neck ring, round silver-rimmed power button, 5 mode labels (Clean, White, Sensitive, Polish, Massage), blue indicator light, and Smile Log logo at the bottom. Clean empty space in the bottom-left corner. Soft diffused daylight, photorealistic, 8k.',
+        aspectRatio: '9:16',
+        resolution: '2K'
+      }
+    },
+    {
+      id: 'node-vid-1',
+      type: 'FLOW_VIDEO_GEN',
+      x: 880,
+      y: 60,
+      data: {
+        title: 'Clip 1 (10s): Hook đánh răng + Demo sạch sâu',
+        prompt:
+          '10-second vertical 9:16 commercial dental care video starting seamlessly from @Image 1. STRICT PRODUCT LOCK: keep the toothbrush design 100% identical to @Image 2 (matte black detachable neck, thin blue ring, small round head with white, blue, and teal-green Dupont bristles — do not change shape or color). 0-3s (Hook): the rotating black round brush head rapidly oscillates across clean white front teeth with rich, bubbly white toothpaste foam. Vietnamese voiceover (natural, energetic young female reviewer tone): "Đánh răng xong mà cảm giác nó sạch bóng kin kít luôn mấy bà ơi!" 3-10s (Deep Clean Demo): smooth camera transitions showing the rotating black round head reaching deep into the inner molars, upper front teeth, and lower teeth, visibly cleaning away plaque with rich foam. Vietnamese voiceover: "Đầu chải tròn xoay đảo chiều, luồn sâu vào tận răng hàm trong cùng, đánh bay mảng bám với ố vàng cực kỳ đã." Crisp macro focus, photorealistic, 8k, narration-only audio with subtle electric toothbrush hum, no BGM, no subtitles.',
+        aspectRatio: '9:16',
+        resolution: '720p',
+        duration: '10s'
+      }
+    },
+    {
+      id: 'node-vid-2',
+      type: 'FLOW_VIDEO_GEN',
+      x: 880,
+      y: 580,
+      data: {
+        title: 'Clip 2 (10s): Mở nắp hộp úp + Lắp máy + Mở hộp quà trắng',
+        prompt:
+          "10-second vertical 9:16 commercial unboxing video starting seamlessly from @Image 1 (the CLOSED black lid-on Smile Log box on the white desk). STRICT PRODUCT LOCK: every box layer, tray, and accessory must match @Image 2 100% identically, and the matte black toothbrush handle and detachable round head must match @Image 3 100% identically. 0-3s (Open Closed Lid): two clean hands lift the black top lid straight up off the closed box, revealing the exact interior from @Image 2: on the left side sits the matte black toothbrush handle wrapped inside a clear plastic sleeve in the white tray, and on the right side sits the CLOSED white rectangular accessory box labeled 'Charging & Brush Head Accessory' (gifts are NOT visible yet). 3-6s (Unwrap & Snap Head): hands lift the matte black handle out of the plastic sleeve and firmly snap a black round brush head with thin blue ring onto the metal shaft exactly as shown in @Image 3. Vietnamese voiceover (natural, energetic young female reviewer tone): \"Đây là bản Smile Log 3.0 cải tiến toàn diện, thiết kế đen bạc nhìn cực kỳ sang, lắp đầu chải vào là dùng ngay.\" 6-10s (Open White Gift Box): hands lift the closed white accessory box out from the right side of the tray, set it on the desk, and flip its white lid open to reveal the exact 5 gift items neatly arranged inside as shown on the right of @Image 2: two extra black round brush heads with blue rings, white USB-C cable, translucent blue brush protector clip, white toothpaste squeezer with lime-green turn key, and white tongue cleaner with orange brush head. Vietnamese voiceover: \"Mua một mà được tặng hẳn năm phần quà: kẹp bảo vệ, nặn kem, vệ sinh lưỡi với thêm hai đầu bàn chải sơ cua nữa.\" Soft diffused daylight, steady realistic hand movements, photorealistic, 8k, narration-only audio, no BGM, no subtitles.",
+        aspectRatio: '9:16',
+        resolution: '720p',
+        duration: '10s'
+      }
+    },
+    {
+      id: 'node-vid-3',
+      type: 'FLOW_VIDEO_GEN',
+      x: 880,
+      y: 1100,
+      data: {
+        title: 'Clip 3 (10s): Xoay đầu + Lông Dupont + 5 chế độ & Type-C',
+        prompt:
+          '10-second vertical 9:16 commercial macro close-up video starting seamlessly from @Image 1. STRICT PRODUCT LOCK: keep the matte black Smile Log toothbrush 100% identical to @Image 2 (exact round brush head, thin blue ring, silver collar, round silver-rimmed power button, 5 mode labels, and silver bottom with white silicone Type-C charging cap — no distortion). 0-2s: the black round brush head rapidly oscillates and vibrates to demonstrate shock absorption. 2-6s: the brush stops; an index finger gently strokes and presses the soft white, blue, and teal Dupont bristles to prove gum-friendly softness. Vietnamese voiceover (natural, warm young female reviewer tone): "Ai sợ đau nướu thì yên tâm nhé, em này có đầu chải giảm chấn kết hợp sợi Dupont cao cấp siêu êm, không lo ê buốt." 6-8.5s: camera glides smoothly down to the matte black handle as a thumb taps the silver-rimmed round power button repeatedly, cycling the glowing LED dots down through the 5 modes (Clean, White, Sensitive, Polish, Massage). 8.5-10s: the hand tilts the silver bottom of the handle toward the lens and flips open the white silicone cap to reveal the exact Type-C charging port shown in @Image 2. Vietnamese voiceover (6-10s): "Có tận năm chế độ làm sạch, chống nước toàn thân, sạc Type-C pin dùng siêu lâu luôn." Bright clean studio lighting, photorealistic, 8k, narration-only audio, no BGM, no subtitles.',
+        aspectRatio: '9:16',
+        resolution: '720p',
+        duration: '10s'
+      }
+    },
+    {
+      id: 'node-vid-4',
+      type: 'FLOW_VIDEO_GEN',
+      x: 880,
+      y: 1620,
+      data: {
+        title: 'Clip 4 (10s): Giới thiệu tổng thể + Chốt đơn (CTA)',
+        prompt:
+          '10-second vertical 9:16 commercial product video starting seamlessly from @Image 1. STRICT PRODUCT LOCK: keep the matte black Smile Log electric toothbrush 100% identical to @Image 2 (exact cylindrical matte black body, silver collar, thin blue ring, round silver-rimmed power button, 5 mode labels, blue status light, Smile Log logo at bottom — do not alter shape or text). 0-5s (Product Intro): the hand gently rotates the matte black toothbrush slightly to showcase the sleek black body and silver accents, then the thumb presses the silver-rimmed power button to light up the LED indicator. Vietnamese voiceover (natural, enthusiastic young female reviewer tone): "Từ ngày đổi qua em bàn chải đầu tròn Smile Log 3.0 này, thấy răng sạch hẳn như mới đi lấy cao răng về." 5-10s (CTA Hold): the hand holds the complete matte black toothbrush steadily slightly to the center-right, leaving clean empty negative space in the bottom-left corner for a shopping cart sticker, with a very subtle smooth zoom-in. Vietnamese voiceover: "Quá hời luôn, link mình để ngay góc trái màn hình nhé!" Soft diffused daylight, bright commercial aesthetic, photorealistic, 8k, narration-only audio, no BGM, no subtitles.',
+        aspectRatio: '9:16',
+        resolution: '720p',
+        duration: '10s'
+      }
+    }
+  ],
+  edges: [
+    { id: 'edge-img1-ff1', source: 'node-img-1', target: 'node-ff-1' },
+    { id: 'edge-img6-ff1', source: 'node-img-6', target: 'node-ff-1' },
+    { id: 'edge-img2-ff2', source: 'node-img-2', target: 'node-ff-2' },
+    { id: 'edge-img4-ff2', source: 'node-img-4', target: 'node-ff-2' },
+    { id: 'edge-img1-ff2', source: 'node-img-1', target: 'node-ff-2' },
+    { id: 'edge-img1-ff3', source: 'node-img-1', target: 'node-ff-3' },
+    { id: 'edge-img5-ff3', source: 'node-img-5', target: 'node-ff-3' },
+    { id: 'edge-img1-ff4', source: 'node-img-1', target: 'node-ff-4' },
+    { id: 'edge-img3-ff4', source: 'node-img-3', target: 'node-ff-4' },
+    { id: 'edge-ff1-vid1', source: 'node-ff-1', target: 'node-vid-1' },
+    { id: 'edge-img1-vid1', source: 'node-img-1', target: 'node-vid-1' },
+    { id: 'edge-ff2-vid2', source: 'node-ff-2', target: 'node-vid-2' },
+    { id: 'edge-img2-vid2', source: 'node-img-2', target: 'node-vid-2' },
+    { id: 'edge-img1-vid2', source: 'node-img-1', target: 'node-vid-2' },
+    { id: 'edge-ff3-vid3', source: 'node-ff-3', target: 'node-vid-3' },
+    { id: 'edge-img1-vid3', source: 'node-img-1', target: 'node-vid-3' },
+    { id: 'edge-ff4-vid4', source: 'node-ff-4', target: 'node-vid-4' },
+    { id: 'edge-img1-vid4', source: 'node-img-1', target: 'node-vid-4' }
+  ],
+  stickers: [
+    {
+      id: 'sticker-1',
+      x: 60,
+      y: -130,
+      width: 360,
+      height: 130,
+      title: 'Bước 1: 6 Ảnh đầu vào chuẩn',
+      html: '<p>Tải đủ 6 ảnh vào Cột 1: (1) Bàn chải đen &amp; cổng Type-C, (2) Hộp đen đóng úp &amp; hộp phụ kiện trắng, (3–6) 4 góc bối cảnh.</p>'
+    },
+    {
+      id: 'sticker-2',
+      x: 470,
+      y: -130,
+      width: 360,
+      height: 130,
+      title: 'Bước 2: Tạo 4 First Frame khóa sản phẩm',
+      html: '<p>Chạy 4 node ảnh Cột 2 trước (FF2 đã nối đủ cả hộp, bàn 45° và bàn chải chuẩn). Kiểm tra giống 100% rồi mới chạy Cột 3.</p>'
+    },
+    {
+      id: 'sticker-3',
+      x: 880,
+      y: -130,
+      width: 440,
+      height: 150,
+      title: 'Bước 3: Video 10s & Sơ đồ cắt ghép CapCut (37s)',
+      html: '<p>Tất cả node video đã khóa cứng sản phẩm bằng dây nối trực tiếp từ ảnh gốc.<br><b>Ghép CapCut:</b> 00:00-00:01 Clip 3 (0-1s) → 00:01-00:03 Clip 1 (0-3s) → 00:04-00:05 Clip 4 (0-2s) → 00:06-00:10 Clip 2 (0-6s) → 00:11-00:18 Clip 1 (3-10s) → 00:19-00:26 Clip 3 (1-6s) → 00:27-00:31 Clip 3 (6-10s) → 00:32-00:34 Clip 2 (6-10s) → 00:35-00:37 Clip 4 (6-10s).</p>'
+    }
+  ]
+};
+
+export const SMILE_LOG_TOOTHBRUSH_PROJECT = convertDaAiCanvasToProject(SMILE_LOG_TOOTHBRUSH_RAW_CANVAS_JSON, {
+  id: 'proj-smile-log-black-review',
+  category: 'video',
+  name: 'Smile Log 3.0 Black — Full Strict Product-Lock Workflow (9:16)',
+  description:
+    'Quy trình review bàn chải điện Smile Log 3.0 Đen khóa cứng sản phẩm (9:16): 6 Ảnh đầu vào chuẩn → 4 First Frame 2K khóa chi tiết sản phẩm → 4 Video review 10s lồng tiếng Việt không nhạc nền (37s CapCut).',
+  badge: 'Review Sản Phẩm (9:16)',
+  techTag: 'LOCK-9:16',
+  previewVideo: '',
+  previewImage:
+    'https://lh3.googleusercontent.com/pw/AP1GczO_7hIgJK6slYUK9hahaTtD24EJY5ofC9qPPisQSjBUyKIDs0yOkXQfGxALpgDqRGuStqMoPiji7IoSJd_vPtlTxDNdmWya8o-MORSu9ztlwDJnTKGDOkB2ZpOzv84d2Zbew_SEFRV8RBA1tVHELUU=w514-h913-s-no-gm?authuser=0'
+});

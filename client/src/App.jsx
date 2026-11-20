@@ -44,7 +44,8 @@ import {
   ONE_SEC_OUTFIT_SWAP_PRO_PROJECT,
   VIDEO_REVERSE_AD_PROJECT,
   VIETNAMESE_COSMETICS_UGC_PROJECT,
-  VN_LEATHER_JACKET_PROJECT
+  VN_LEATHER_JACKET_PROJECT,
+  SMILE_LOG_TOOTHBRUSH_PROJECT
 } from './utils/daCanvasConverter';
 
 const cloneProjectSafe = (proj) => {
@@ -77,6 +78,7 @@ const ALL_BUILTIN_PRESETS = [
   VIDEO_REVERSE_AD_PROJECT,
   VIETNAMESE_COSMETICS_UGC_PROJECT,
   VN_LEATHER_JACKET_PROJECT,
+  SMILE_LOG_TOOTHBRUSH_PROJECT,
   WINTER_FUR_PROJECT
 ];
 const BUILTIN_PRESET_IDS = new Set(ALL_BUILTIN_PRESETS.map((p) => p.id));
@@ -155,6 +157,7 @@ export default function App() {
     if (projId === VIDEO_REVERSE_AD_PROJECT.id) return cloneProjectSafe(VIDEO_REVERSE_AD_PROJECT);
     if (projId === VIETNAMESE_COSMETICS_UGC_PROJECT.id) return cloneProjectSafe(VIETNAMESE_COSMETICS_UGC_PROJECT);
     if (projId === VN_LEATHER_JACKET_PROJECT.id) return cloneProjectSafe(VN_LEATHER_JACKET_PROJECT);
+    if (projId === SMILE_LOG_TOOTHBRUSH_PROJECT.id) return cloneProjectSafe(SMILE_LOG_TOOTHBRUSH_PROJECT);
     return null;
   });
   const [isDarkMode, setIsDarkMode] = useState(false);
