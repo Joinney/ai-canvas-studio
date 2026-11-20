@@ -6189,3 +6189,72 @@ export const ONE_SEC_OUTFIT_SWAP_PRO_PROJECT = convertDaAiCanvasToProject(ONE_SE
   previewImage:
     'https://pub-a95b3e2bac2442f582b4e3792df8b515.r2.dev/workflow-templates/creatok/creatok-3070/80d14835757dcc50.jpg'
 });
+
+// AI Video Reverse-Engineering Product Ad (9:16)
+export const VIDEO_REVERSE_AD_RAW_CANVAS_JSON = {
+  nodes: [
+    {
+      id: 'senge-product-video-source',
+      kind: 'video',
+      title: 'Reference Video: Original Ad Structure',
+      x: 80,
+      y: 80,
+      meta: {
+        mediaUrl:
+          'https://cdn.sengeai.com/workflow-studio/test/template-assets/2026/06/26/1782461391680-6c809128-6703-405a-b5ab-2ed8abead6c4.mp4',
+        settings: { params: { ratio: '9:16', duration: '15s' } }
+      }
+    },
+    {
+      id: 'senge-product-image-input',
+      kind: 'image',
+      title: 'Upload Product Image',
+      x: 88,
+      y: 560,
+      meta: {
+        mediaUrl: ''
+      }
+    },
+    {
+      id: 'senge-product-ad-video',
+      kind: 'video',
+      title: 'AI Video: New Product Ad (9:16)',
+      x: 560,
+      y: 300,
+      meta: {
+        mediaUrl:
+          'https://cdn.sengeai.com/workflow-studio/test/template-assets/2026/06/26/1782461391966-22293c0a-3f05-40bf-9ef3-dc575a9eb08d.mp4',
+        prompt:
+          'Generate a 9:16 vertical product commercial strictly referencing the product in @Image 1, following this shot-by-shot structure: Minimalist indoor studio with a mid-gray textured concrete wall and soft focused lighting. Subject: handsome young Western male with dark brown curly hair and expressive features. 0:00-0:01 medium shot: wearing a loose, wrinkled basic white tee, frowning unhappily. 0:01-0:03 quick cut medium shot: instantly wearing the @Image 1 product, hands in pockets, confident smile while adjusting the collar. 0:04-0:06 close-up: hand showcases the @Image 1 product craftsmanship, smooth details, and wrinkle-free fabric texture. 0:07-0:10 medium-wide shot: full smart-casual outfit standing side-profile then turning toward camera with open hands. 0:11-0:13 close-up: leaning forward with a bright smile pointing at the viewer. 0:14 quick detail flash close-up. English voiceover only (no Chinese dialogue): "Stop wearing wrinkled, boring basics that make you look sloppy. Look at this instead. Instant sharp, athletic-chic vibes, no ironing needed, stays crisp all day. Huge discount today. Tap the link below and level up now."',
+        settings: { params: { ratio: '9:16', resolution: '720p', duration: '15s' } }
+      }
+    }
+  ],
+  edges: [
+    { from: 'senge-product-image-input', to: 'senge-product-ad-video' }
+  ],
+  stickers: [
+    {
+      id: 'sticker-video-reverse-assistant',
+      x: 520,
+      y: 40,
+      width: 390,
+      height: 190,
+      title: 'AI Assistant: Reverse-Engineered Ad Blueprint',
+      html: '<p><b>Workflow:</b> Upload your product photo into <b>Upload Product Image</b> (@Image 1), then run <b>AI Video: New Product Ad</b>.</p><p><b>Ad Pacing:</b> 0–1s Frustrated basic look → 1–3s Quick-cut transformation → 4–6s Craftsmanship macro → 7–10s Full-fit showcase → 11–14s CTA point &amp; detail flash.</p>'
+    }
+  ]
+};
+
+export const VIDEO_REVERSE_AD_PROJECT = convertDaAiCanvasToProject(VIDEO_REVERSE_AD_RAW_CANVAS_JSON, {
+  id: 'proj-video-reverse-product-ad',
+  category: 'video',
+  name: 'AI Video Reverse-Engineering Product Ad (9:16)',
+  description:
+    'Quy trình phân tích video quảng cáo mẫu & thay sản phẩm mới (9:16): Video quảng cáo gốc 15s + Ảnh sản phẩm của bạn (@Image 1) → Video quảng cáo mới giữ nguyên nhịp cắt cảnh & lời thoại tiếng Anh (15s).',
+  badge: 'Phân Tích & Thay SP (9:16)',
+  techTag: 'REV-AD',
+  previewVideo:
+    'https://cdn.sengeai.com/workflow-studio/test/template-assets/2026/06/26/1782461391966-22293c0a-3f05-40bf-9ef3-dc575a9eb08d.mp4',
+  previewImage: ''
+});
